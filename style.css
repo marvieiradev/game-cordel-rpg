@@ -1,0 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Barriecito&display=swap");
+
+body {
+  font-family: "Barriecito", cursive;
+  background-color: #fff3d2;
+  color: #252525;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+}
