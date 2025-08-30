@@ -81,7 +81,7 @@
           </div>
           <div id="room-number" class="room-number"></div>
         </div>
-        <div id="log-area" class="log-area">Bem-vindo à dungeon!</div>
+        <div id="log-area" class="log-area"></div>
       </div>
 
       <div class="action-area">
@@ -133,7 +133,7 @@
                 <img src="ui/sword.svg" alt="" />
               </div>
               <div>
-                <p>ESPADA</p>
+                <p>PEIXERA</p>
                 <p>DANO <span id="damage-bonus">1-10</span></p>
               </div>
             </div>
@@ -143,7 +143,7 @@
                 <img src="ui/potion.svg" alt="" />
               </div>
               <div>
-                <p>POÇÃO x<span id="potion-count">1</span></p>
+                <p>LAMBEDOR x<span id="potion-count">1</span></p>
                 <button id="btn-potion" class="btn btn-action">USAR</button>
               </div>
             </div>
@@ -215,13 +215,20 @@
       <h1>FIM DE JOGO!</h1>
       <div class="game-over-content">
         <p>
-          Você sente uma dor aguda atravessando seu corpo. O sangue escorre
-          lentamente pelo chão, enquanto você cai de joelhos, exausto e
-          derrotado. Você sente a vida escapando de seu corpo.
+          A mata fechada venceu, silêncio tomou o chão, o herói tombou na
+          escuridão, sem força, sem salvação.
         </p>
         <p>
-          O brilho final de seus olhos se apagou, e com ele, a última chama da
-          esperança que se recusava a morrer. Tudo está perdido.
+          O vento levou seu nome, o aboio perdeu-se ao ar, na memória do sertão,
+          ninguém mais vai recordar.
+        </p>
+        <p>
+          Os monstros reinam na sombra, o medo cobre a nação, a esperança se
+          despede, morre junto ao coração.
+        </p>
+        <p>
+          E assim termina a lenda, de um guerreiro sem sorte, que encontrou nos
+          braços da mata o silêncio frio da morte.
         </p>
         <button id="btn-restart" class="btn btn-action">VOLTAR AO MENU</button>
       </div>
@@ -232,13 +239,20 @@
       <h1>VITÓRIA!</h1>
       <div class="credits-content">
         <p>
-          Depois de uma longa e sangrenta batalha, você sente uma brisa suave.
+          A mata fechada se cala, o vento perdeu seu som, os monstros tombaram
+          na noite, e a lua brilhou em tom.
         </p>
-        <p>Você segue em frente e uma luz cegante ofusca seus olhos.</p>
-        <p>Você finalmente consegue ver a luz do dia. Você achou a saída!</p>
         <p>
-          Agora é chegada a hora de se preparar para uma batalha mais difíl.
-          Livrar sua vila do exército invasor.
+          Do escuro nasceu coragem, da dor nasceu o guerreiro, que venceu cada
+          assombro, com passo firme e certeiro.
+        </p>
+        <p>
+          No sertão volta a esperança, o povo torna a sorrir, a viola canta
+          alto, o aboio volta a existir.
+        </p>
+        <p>
+          E você, filho da terra, guardião da tradição, escreveu sua jornada nas
+          veredas do sertão.
         </p>
       </div>
       <button id="btn-credits-menu" class="btn btn-action">
@@ -250,10 +264,12 @@
     <div id="about-screen" class="screen" style="display: none">
       <h1>SOBRE O JOGO</h1>
       <div class="about-content">
-        <p>O Dungeon RPG é um jogo simples de aventura em estilo pixel art.</p>
         <p>
-          Explore salas, enfrente monstros, colete tesouros e tente chegar vivo
-          ao final desta masmorra.
+          Sombras do Sertão é um jogo simples de aventura/RPg em estilo cordel.
+        </p>
+        <p>
+          Caminhe na mata fechada, encare bichos e visagens, junte o ouro que
+          encontrar e veja se aguenta a viagem.
         </p>
         <p>
           Desenvolvido como um projeto de demonstração de jogabilidade em
@@ -270,12 +286,12 @@
         <p>ATACAR: Rola um d20 + bônus de ataque contra a CA do inimigo</p>
         <p>DESVIAR: Aumenta sua CA temporariamente contra o próximo ataque</p>
         <p>POÇÃO: Recupera 10 pontos de vida (máximo: vida máxima)</p>
-        <p>ESQUERDA/DIREITA: Avança para a próxima sala</p>
+        <p>ESQUERDA/DIREITA: Avança para a próxima área</p>
         <p>
-          Existem salas seguras que permitem salvar o jogo e fortalecer seu
+          Existem locais seguros que permitem salvar o jogo e fortalecer seu
           herói
         </p>
-        <p>Derrote o boss na ultima sala e escape da masmorra!</p>
+        <p>Derrote o todos os inimigos e tente sair vivo!</p>
       </div>
       <button id="btn-instructions-menu" class="btn btn-action">
         VOLTAR AO MENU
