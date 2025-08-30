@@ -1,9 +1,18 @@
 @import url("https://fonts.googleapis.com/css2?family=Barriecito&display=swap");
 
+:root {
+  /* Colors */
+  --primary-color: #fff3d2;
+  --secondary-color: #fdd0d0;
+  --hover-color: #fcb7b7;
+  --text-color: #161616;
+}
+
 body {
   font-family: "Barriecito", cursive;
-  background-color: #fff3d2;
-  color: #161616;
+  font-weight: semibold;
+  background-color: var(--primary-color);
+  color: var(--text-color);
   margin: 0;
   padding: 0;
   display: flex;
@@ -24,7 +33,7 @@ body {
 h1 {
   font-size: 2rem;
   margin-bottom: 10px;
-  text-shadow: 2px 2px 0px #fdd0d0;
+  text-shadow: 2px 2px 0px var(--secondary-color);
 }
 
 h2 {
@@ -43,12 +52,12 @@ h2 {
   text-transform: uppercase;
   font-size: 0.8rem;
   transition: all 0.2s;
-  color: #161616;
+  color: var(--text-color);
 }
 
 .btn-menu {
-  background-color: #fdd0d0;
-  border: 3px solid #161616;
+  background-color: var(--secondary-color);
+  border: 3px solid var(--text-color);
   width: 80%;
   padding: 15px;
   margin: 10px auto;
@@ -56,13 +65,13 @@ h2 {
 }
 
 .btn-menu:hover {
-  background-color: #fcb7b7;
+  background-color: var(--hover-color);
   transform: scale(1.05);
 }
 
 .btn-action {
-  background-color: #000000;
-  border: 3px solid #ffffff;
+  background-color: var(--secondary-color);
+  border: 3px solid var(--text-color);
 }
 
 .btn-action:hover {
@@ -130,7 +139,7 @@ h2 {
 
 /* História */
 .story-content {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: var(--primary-color);
   padding: 20px;
   border: 3px solid #333;
   margin-bottom: 20px;
@@ -142,9 +151,9 @@ h2 {
 .status-bar {
   display: flex;
   justify-content: space-around;
-  background-color: #111;
+  background-color: var(--secondary-color);
   padding: 10px;
-  border: 3px solid #333;
+  border: 3px solid var(--text-color);
   margin-bottom: 10px;
 }
 
@@ -156,7 +165,7 @@ h2 {
 
 .status-item i {
   margin-right: 5px;
-  color: #ffcc00;
+  color: var(--text-color);
 }
 
 .status-item img {
@@ -165,9 +174,9 @@ h2 {
 }
 
 .game-area {
-  background-color: #000;
+  background-color: var(--secondary-color);
   padding: 10px;
-  border: 3px solid #333;
+  border: 3px solid var(--text-color);
   margin-bottom: 10px;
 }
 
@@ -181,7 +190,7 @@ h2 {
 
 .room-container {
   position: relative;
-  background-color: #444;
+  background-color: blue;
   height: 300px;
   display: flex;
   flex-direction: column;
@@ -236,11 +245,11 @@ h2 {
 }
 
 .log-area {
-  background-color: #000;
-  color: #fff;
-  padding: 10px;
-  border: 3px solid #333;
-  min-height: 50px;
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  padding: 5px;
+  border: 3px solid var(--text-color);
+  min-height: 55px;
   font-size: 0.8rem;
   text-align: center;
   line-height: 1.5;
@@ -266,8 +275,8 @@ h2 {
 }
 
 .inventory {
-  background-color: #111;
-  border: 3px solid #333;
+  background-color: var(--secondary-color);
+  border: 3px solid var(--text-color);
   padding: 5px 0px;
   margin-top: 10px;
 }
@@ -276,7 +285,7 @@ h2 {
   font-size: 0.8rem;
   margin-bottom: 10px;
   margin-top: 5px;
-  color: #ffcc00;
+  color: var(--text-color);
 }
 
 .inventory-content {
@@ -286,7 +295,7 @@ h2 {
 }
 
 .item-container {
-  border: 2px solid #333;
+  border: 2px solid var(--text-color);
   padding: 5px 0px;
   display: flex;
   align-items: center;
@@ -314,9 +323,9 @@ h2 {
 .about-content,
 .instructions-content,
 .game-over-content {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: var(--primary-color);
   padding: 20px;
-  border: 3px solid #333;
+  border: 3px solid var(--text-color);
   margin-bottom: 20px;
   line-height: 1.6;
   font-size: 0.8rem;
@@ -418,7 +427,7 @@ h2 {
   .credits-content,
   .about-content,
   .instructions-content {
-    font-size: 0.7rem;
+    font-size: 1.1rem;
   }
 
   .inventory img {

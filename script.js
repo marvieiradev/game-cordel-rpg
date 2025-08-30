@@ -33,6 +33,19 @@ const playerInitialState = {
   lastRoomTypes: [],
 };
 
+/*
+const playerInitialState = {
+  hp: 200,
+  maxHp: 200,
+  ac: 55,
+  attackBonus: 50,
+  damageBonus: 20,
+  potions: 20,
+  gold: 0,
+  currentRoom: 0,
+  lastRoomTypes: [],
+};*/
+
 // Estado global do jogo
 let player = { ...playerInitialState };
 let currentMonster = null;
@@ -890,11 +903,11 @@ function generateMonster(roomNumber) {
 
       // Choose random name and image
       const weakMonsters = [
-        { name: "Goblin", image: "images/goblin.webp" },
-        { name: "Rato Gigante", image: "images/rato.webp" },
-        { name: "Kobold", image: "images/kobold.webp" },
-        { name: "Esqueleto Frágil", image: "images/esqueleto.webp" },
-        { name: "Aranha Pequena", image: "images/aranha.webp" },
+        { name: "Porco do Mato", image: "images/goblin.webp" },
+        { name: "Cachorro Doido", image: "images/rato.webp" },
+        { name: "Visagem", image: "images/kobold.webp" },
+        { name: "Cobra Caninana", image: "images/esqueleto.webp" },
+        { name: "Jaguatirica", image: "images/aranha.webp" },
       ];
       selectedMonster =
         weakMonsters[Math.floor(Math.random() * weakMonsters.length)];
@@ -913,11 +926,11 @@ function generateMonster(roomNumber) {
 
       // Choose random name and image
       const normalMonsters = [
-        { name: "Orc", image: "images/orc.webp" },
-        { name: "Lobo", image: "images/lobo.webp" },
-        { name: "Bandido", image: "images/bandido.webp" },
-        { name: "Zumbi", image: "images/zumbi.webp" },
-        { name: "Cultista", image: "images/cultista.webp" },
+        { name: "Boitatá", image: "images/orc.webp" },
+        { name: "Matinta", image: "images/lobo.webp" },
+        { name: "Cangaceiro", image: "images/bandido.webp" },
+        { name: "Mão de Couro", image: "images/zumbi.webp" },
+        { name: "Saci", image: "images/cultista.webp" },
       ];
       selectedMonster =
         normalMonsters[Math.floor(Math.random() * normalMonsters.length)];
@@ -937,11 +950,11 @@ function generateMonster(roomNumber) {
 
       // Choose random name and image
       const eliteMonsters = [
-        { name: "Cavaleiro Negro", image: "images/cav-negro.webp" },
-        { name: "Ogro", image: "images/ogro.webp" },
-        { name: "Mago Sombrio", image: "images/mago-sombrio.webp" },
-        { name: "Minotauro", image: "images/minotauro.webp" },
-        { name: "Troll", image: "images/troll.webp" },
+        { name: "Papa Figo", image: "images/cav-negro.webp" },
+        { name: "Corpo Seco", image: "images/ogro.webp" },
+        { name: "Cabra Cabriola", image: "images/mago-sombrio.webp" },
+        { name: "Lobisomem", image: "images/minotauro.webp" },
+        { name: "Caipora", image: "images/troll.webp" },
       ];
       selectedMonster =
         eliteMonsters[Math.floor(Math.random() * eliteMonsters.length)];
@@ -963,9 +976,9 @@ function generateMonster(roomNumber) {
 
 function generateBoss() {
   const bossName = [
-    { name: "Dragão Ancião", image: "images/dragao.webp" },
-    { name: "Lich Ancião", image: "images/lich.webp" },
-    { name: "Mantícora Alfa", image: "images/manticora.webp" },
+    { name: "Curupira", image: "images/dragao.webp" },
+    { name: "Cuca", image: "images/lich.webp" },
+    { name: "Mula sem Cabeça", image: "images/manticora.webp" },
   ];
   selectedMonster = bossName[Math.floor(Math.random() * bossName.length)];
   imageMonster.src = `${selectedMonster.image}`;
