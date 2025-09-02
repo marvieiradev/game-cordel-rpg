@@ -55,22 +55,9 @@
 
     <!-- Tela de Jogo -->
     <div id="game-screen" class="screen" style="display: none">
-      <div class="status-bar">
-        <div class="status-item">
-          <img src="ui/heart.svg" alt="" /> <span id="player-hp">20</span>/<span
-            id="player-max-hp"
-            >20</span
-          >
-        </div>
-        <div class="status-item">
-          <img src="ui/shield.svg" alt="" />
-          <span id="player-ac">15</span>
-        </div>
-        <div class="status-item">
-          <img src="ui/sword.svg" alt="" /> <span id="player-damage">1</span>
-        </div>
+      <div class="game-title">
+        <p class="title">TÍTULO</p>
       </div>
-
       <div class="game-area">
         <div class="room-container">
           <div id="monster-name" class="monster-name"></div>
@@ -83,12 +70,25 @@
       </div>
 
       <div class="action-area">
+        <p id="orientation"></p>
         <div class="action-container">
-          <p id="orientation"></p>
           <div id="action-buttons" class="action-buttons" style="display: none">
-            <button id="btn-attack" class="btn btn-action">ATACAR</button>
-            <button id="btn-esp-atk" class="btn btn-action">RISCA-FACA</button>
-            <button id="btn-dodge" class="btn btn-action">DESVIAR</button>
+            <div id="btn-attack" class="btn btn-action">
+              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
+              ATACAR
+            </div>
+            <div id="btn-esp-atk" class="btn btn-action">
+              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
+              RISCA-FACA
+            </div>
+            <div id="btn-dodge" class="btn btn-action">
+              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
+              DESVIAR
+            </div>
+            <div id="btn-potion" class="btn btn-action">
+              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
+              POÇÃO X<span id="potion-count"></span>
+            </div>
           </div>
 
           <div
@@ -96,8 +96,20 @@
             class="explore-buttons"
             style="display: none"
           >
-            <button id="btn-left" class="btn btn-action">ESQUERDA</button>
-            <button id="btn-right" class="btn btn-action">DIREITA</button>
+            <button id="btn-left" class="btn btn-action">
+              <img
+                class="btn-image"
+                src="images/ui/lambedor.webp"
+                alt=""
+              />ESQUERDA
+            </button>
+            <button id="btn-right" class="btn btn-action">
+              <img
+                class="btn-image"
+                src="images/ui/lambedor.webp"
+                alt=""
+              />DIREITA
+            </button>
           </div>
 
           <div
@@ -106,16 +118,19 @@
             style="display: none"
           >
             <button id="special-action-button" class="btn btn-action">
+              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
               AÇÃO ESPECIAL
             </button>
           </div>
 
           <div id="chest-buttons" class="chest-buttons" style="display: none">
             <button id="open-action-button" class="btn btn-action">
+              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
               ABRIR BUTIJA
             </button>
 
             <button id="ignore-action-button" class="btn btn-action">
+              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
               IGNORAR
             </button>
           </div>
@@ -134,31 +149,26 @@
           </div>
         </div>
 
-        <div class="inventory" id="inventory">
-          <div class="inventory-title">INVENTÁRIO</div>
-          <div class="inventory-content">
-            <div class="item-container">
-              <p class="item-titulo">PEIXERA</p>
-              <div class="item-qtd-container">
-                <img src="images/ui/faca.webp" alt="" />
-                <p p class="item-qtd"><span id="damage-bonus">1-10</span></p>
-              </div>
+        <div class="status-container">
+          <div class="life-bar">
+            <span id="player-hp">20</span>/<span id="player-max-hp">20</span>
+          </div>
+          <div class="status-bar">
+            <div class="status-item">
+              <img src="ui/sword.svg" alt="" />
+              <span id="player-damage">1</span>
+            </div>
+            <div class="status-item">
+              <img src="ui/shield.svg" alt="" />
+              <span id="player-ac">15</span>
             </div>
 
-            <div class="item-container">
-              <p class="item-titulo">PATACAS</p>
-              <div class="item-qtd-container">
-                <img src="images/ui/bolsa.webp" alt="" />
-                <p class="item-qtd">x <span id="player-gold">0</span></p>
-              </div>
+            <div class="status-item">
+              <img src="ui/sword.svg" alt="" /> <span id="damage-bonus">1</span>
             </div>
 
-            <div class="item-container" id="btn-potion">
-              <p class="item-titulo">LAMBEDOR</p>
-              <div class="item-qtd-container">
-                <img src="images/ui/lambedor.webp" alt="" />
-                <p class="item-qtd">x <span id="potion-count">1</span></p>
-              </div>
+            <div class="status-item">
+              <img src="ui/sword.svg" alt="" /> <span id="player-gold">1</span>
             </div>
           </div>
         </div>

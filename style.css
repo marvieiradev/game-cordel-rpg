@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Barriecito&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Underdog&display=swap");
 
 :root {
   /* Colors */
@@ -9,8 +10,8 @@
 }
 
 body {
-  font-family: "Barriecito", cursive;
-  font-weight: semibold;
+  font-family: "Underdog", system-ui;
+  font-weight: bold;
   background-color: var(--primary-color);
   color: var(--text-color);
   margin: 0;
@@ -24,10 +25,11 @@ body {
 
 .screen {
   max-width: 500px;
-  width: 100%;
-  padding: 20px;
-  box-sizing: border-box;
-  overflow: hidden;
+  width: 100vh;
+  padding: 0px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 h1 {
@@ -44,10 +46,9 @@ h2 {
 
 /* Botões */
 .btn {
-  font-family: "Barriecito", cursive;
+  font-family: "Underdog", system-ui;
   font-weight: bold;
   padding: 10px 20px;
-  margin: 10px;
   border: none;
   cursor: pointer;
   text-transform: uppercase;
@@ -73,6 +74,12 @@ h2 {
 .btn-action {
   background-color: var(--secondary-color);
   border: 3px solid var(--text-color);
+  width: 25%;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-action:hover {
@@ -117,6 +124,13 @@ h2 {
   transform: scale(1.05);
 }
 
+.btn-image {
+  width: 50px;
+  height: 50px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
 /* Menu */
 .menu-buttons {
   display: flex;
@@ -142,13 +156,42 @@ h2 {
 }
 
 /* Jogo */
+
+.game-title {
+  background-color: var(--secondary-color);
+  border: 3px solid var(--text-color);
+  padding: 5px 0px;
+  font-weight: semibold;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  margin-top: 5px;
+  color: var(--text-color);
+}
+
+.status-container {
+  margin-bottom: 10px;
+}
+
+.life-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--text-color);
+  background-color: red;
+  margin-top: 10px;
+  margin-bottom: 2px;
+}
+
 .status-bar {
   display: flex;
   justify-content: space-around;
   background-color: var(--secondary-color);
   padding: 10px;
   border: 3px solid var(--text-color);
-  margin-bottom: 10px;
 }
 
 .status-item {
@@ -172,6 +215,7 @@ h2 {
   padding: 10px;
   border: 3px solid var(--text-color);
   margin-bottom: 10px;
+  height: 100%;
 }
 
 .monster-name {
@@ -250,14 +294,16 @@ h2 {
 }
 
 #orientation {
-  font-size: 0.8rem;
-  margin-bottom: 10px;
-  margin-top: 0px;
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+  margin-top: 10px;
+  height: 20px;
 }
 
 .action-buttons,
 .explore-buttons,
 .special-action-container,
+.chest-buttons,
 .safe-room-buttons {
   display: flex;
   justify-content: space-around;
@@ -267,31 +313,7 @@ h2 {
 .action-buttons {
   align-items: center;
   justify-content: space-around;
-}
-
-.action-container {
-  height: 80px;
-}
-
-.inventory {
-  background-color: var(--secondary-color);
-  border: 3px solid var(--text-color);
-  padding: 5px 0px;
-  margin-top: 10px;
-  font-weight: semibold;
-}
-
-.inventory-title {
-  font-size: 0.8rem;
-  margin-bottom: 10px;
-  margin-top: 5px;
-  color: var(--text-color);
-}
-
-.inventory-content {
-  display: flex;
-  align-items: center;
-  font-size: 0.6rem;
+  gap: 5px;
 }
 
 .item-container {
@@ -305,32 +327,15 @@ h2 {
   height: 70px;
 }
 
-.item-titulo {
-  font-size: 1rem;
-  margin-bottom: 0px;
-  margin-top: 5px;
-}
-
-.item-qtd-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-}
-
-.item-qtd {
-  font-size: 1.2rem;
-}
-
-.inventory img {
-  width: 40px;
-  height: 40px;
-}
-
 .action-area {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  height: 225px;
+}
+
+.action-container {
+  margin-top: 10px;
+  height: 120px;
 }
 
 /* Game Over e Créditos */
@@ -424,8 +429,8 @@ h2 {
   }
 
   .btn {
-    font-size: 1.2rem;
-    padding: 5px 10px;
+    font-size: 0.8rem;
+    padding: 5px;
   }
 
   .btn-small {
