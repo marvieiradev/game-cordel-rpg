@@ -45,6 +45,7 @@ h2 {
 /* Botões */
 .btn {
   font-family: "Barriecito", cursive;
+  font-weight: bold;
   padding: 10px 20px;
   margin: 10px;
   border: none;
@@ -114,13 +115,6 @@ h2 {
   background-color: #cc0000;
   color: #fff3d2;
   transform: scale(1.05);
-}
-
-#btn-potion {
-  border: 2px solid white;
-  margin: 0;
-  font-size: 0.6rem;
-  padding: 5px 15px;
 }
 
 /* Menu */
@@ -270,6 +264,11 @@ h2 {
   margin-bottom: 15px;
 }
 
+.action-buttons {
+  align-items: center;
+  justify-content: space-around;
+}
+
 .action-container {
   height: 80px;
 }
@@ -279,6 +278,7 @@ h2 {
   border: 3px solid var(--text-color);
   padding: 5px 0px;
   margin-top: 10px;
+  font-weight: semibold;
 }
 
 .inventory-title {
@@ -298,12 +298,27 @@ h2 {
   border: 2px solid var(--text-color);
   padding: 5px 0px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  gap: 10px;
   margin: 5px;
-  width: 50%;
-  height: 60px;
+  width: 30%;
+  height: 70px;
+}
+
+.item-titulo {
+  font-size: 1rem;
+  margin-bottom: 0px;
+  margin-top: 5px;
+}
+
+.item-qtd-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.item-qtd {
+  font-size: 1.2rem;
 }
 
 .inventory img {
@@ -403,13 +418,13 @@ h2 {
 }
 
 /* Responsividade */
-@media (max-width: 600px) {
+@media (max-width: 500px) {
   h1 {
     font-size: 2rem;
   }
 
   .btn {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     padding: 5px 10px;
   }
 
@@ -430,8 +445,12 @@ h2 {
     font-size: 1.1rem;
   }
 
+  .inventory-title {
+    font-size: 1.1rem;
+  }
+
   .inventory img {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
   }
 }

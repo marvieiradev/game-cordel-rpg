@@ -19,7 +19,8 @@ const BOSS_ROOM = 50;
 const SAFE_ROOMS = [15, 30, 45];
 const MESSAGE_DELAY = 2000; // 2 segundos entre mensagens
 const UPGRADE_COST = 20; // Custo em ouro para melhorar um atributo
-
+const TURNS = 0;
+/*
 // Estado inicial do jogador
 const playerInitialState = {
   hp: 20,
@@ -32,19 +33,19 @@ const playerInitialState = {
   currentRoom: 0,
   lastRoomTypes: [],
 };
+*/
 
-/*
 const playerInitialState = {
   hp: 200,
   maxHp: 200,
   ac: 55,
   attackBonus: 50,
   damageBonus: 20,
-  potions: 20,
+  potions: 2,
   gold: 0,
   currentRoom: 0,
   lastRoomTypes: [],
-};*/
+};
 
 // Estado global do jogo
 let player = { ...playerInitialState };
@@ -78,9 +79,12 @@ const instructionsButton = document.getElementById("btn-instructions");
 const deleteDataButton = document.getElementById("btn-delete-data");
 const startGameButton = document.getElementById("btn-start-game");
 const attackButton = document.getElementById("btn-attack");
+const specialAtkButton = document.getElementById("btn-esp-atk");
 const dodgeButton = document.getElementById("btn-dodge");
 const leftButton = document.getElementById("btn-left");
 const rightButton = document.getElementById("btn-right");
+const openChestButton = document.getElementById("open-action-button");
+const ignoreChestButton = document.getElementById("ignore-action-button");
 const inventory = document.getElementById("inventory");
 const potionButton = document.getElementById("btn-potion");
 const restartButton = document.getElementById("btn-restart");
@@ -112,9 +116,8 @@ const logAreaEl = document.getElementById("log-area");
 const orientationText = document.getElementById("orientation");
 const actionButtons = document.getElementById("action-buttons");
 const exploreButtons = document.getElementById("explore-buttons");
-const specialActionContainer = document.getElementById(
-  "special-action-container"
-);
+const specialButtons = document.getElementById("special-buttons");
+const chestButtons = document.getElementById("chest-buttons");
 const safeRoomButtons = document.getElementById("safe-room-buttons");
 const bonusDamageEl = document.getElementById("damage-bonus");
 
@@ -133,10 +136,13 @@ startGameButton.addEventListener("click", startGameFromStory);
 
 // Game
 attackButton.addEventListener("click", playerAttack);
+specialAtkButton.addEventListener("click", playerSpecialAtk);
 dodgeButton.addEventListener("click", playerDodge);
 leftButton.addEventListener("click", () => moveToNextRoom("left"));
 rightButton.addEventListener("click", () => moveToNextRoom("right"));
 potionButton.addEventListener("click", usePotion);
+openChestButton.addEventListener("click", openChest);
+ignoreChestButton.addEventListener("click", ignoreChest);
 
 // Game Over and Credits
 restartButton.addEventListener("click", () => showScreen(menuScreen));
@@ -175,7 +181,8 @@ function addMessage(message) {
 function hideAllActions() {
   actionButtons.style.display = "none";
   exploreButtons.style.display = "none";
-  specialActionContainer.style.display = "none";
+  specialButtons.style.display = "none";
+  chestButtons.style.display = "none";
   safeRoomButtons.style.display = "none";
   btnPotion.disabled = true;
   orientationText.textContent = "";
@@ -185,7 +192,6 @@ function processMessageQueue() {
   if (messageQueue.length === 0) {
     processingMessages = false;
 
-    // Quando todas as mensagens forem processadas, mostrar os botões apropriados
     if (waitingForAction) {
       showAppropriateActions();
       btnPotion.disabled = false;
@@ -359,7 +365,8 @@ function showCombatActions() {
     orientationText.textContent = "O que fazer?";
     actionButtons.style.display = "flex";
     exploreButtons.style.display = "none";
-    specialActionContainer.style.display = "none";
+    specialButtons.style.display = "none";
+    chestButtons.style.display = "none";
     safeRoomButtons.style.display = "none";
   }
 }
@@ -369,10 +376,21 @@ function showExploreActions() {
     orientationText.textContent = "Pra onde ir?";
     actionButtons.style.display = "none";
     exploreButtons.style.display = "flex";
-    specialActionContainer.style.display = "none";
+    specialButtons.style.display = "none";
+    chestButtons.style.display = "none";
     safeRoomButtons.style.display = "none";
+    roomElementEl.className = "room-element";
+  }
+}
 
-    // Remover o elemento visual da sala quando mostrar os botões de exploração
+function showChestActions() {
+  if (!processingMessages) {
+    orientationText.textContent = "O que fazer?";
+    actionButtons.style.display = "none";
+    exploreButtons.style.display = "none";
+    specialButtons.style.display = "none";
+    safeRoomButtons.style.display = "none";
+    chestButtons.style.display = "flex";
     roomElementEl.className = "room-element";
   }
 }
@@ -382,9 +400,9 @@ function showSpecialAction(actionText, actionFunction) {
     orientationText.textContent = "O que fazer?";
     actionButtons.style.display = "none";
     exploreButtons.style.display = "none";
-    specialActionContainer.style.display = "flex";
+    specialButtons.style.display = "flex";
     safeRoomButtons.style.display = "none";
-
+    chestButtons.style.display = "none";
     specialActionButton.textContent = actionText;
     specialActionButton.onclick = actionFunction;
   }
@@ -406,12 +424,8 @@ function showAppropriateActions() {
       }
       break;
     case ROOM_TYPES.CHEST:
-      showSpecialAction("ABRIR BAÚ", () => {
-        openChest();
-        // Após abrir o baú, ele desaparece
-        roomElementEl.className = "room-element";
-        waitingForAction = true;
-      });
+      showChestActions();
+      waitingForAction = true;
       break;
     case ROOM_TYPES.TRAP:
       showSpecialAction("LEVANTAR", () => {
@@ -679,6 +693,49 @@ function playerAttack() {
   }
 
   // Monster's turn
+  setTimeout(() => {
+    monsterTurn();
+  }, MESSAGE_DELAY * 2);
+}
+
+function playerSpecialAtk() {
+  if (processingMessages) return;
+  const attackRoll = rollDice(20);
+  const attackTotal = attackRoll + player.attackBonus;
+
+  addMessage("Você ataca furiosamente!");
+
+  if (attackTotal >= currentMonster.ac) {
+    const damageRoll = rollDice(6);
+    let damageTotal = damageRoll + player.damageBonus;
+
+    if (attackRoll === 20) {
+      damageTotal *= 2;
+      addMessage(`CRÍTICO! você causa ${damageTotal} de dano ao inimigo!`);
+    } else if (attackTotal === currentMonster.ac) {
+      damageTotal = Math.floor(damageTotal / 2);
+      addMessage(`De raspão! você causa ${damageTotal} de dano ao inimigo.`);
+    } else if (
+      attackTotal >=
+      currentMonster.ac + Math.ceil(currentMonster.ac * 0.5)
+    ) {
+      damageTotal = Math.floor(damageTotal * 1.5);
+      addMessage(`Golpe forte! você causa ${damageTotal} de dano ao inimigo!`);
+    } else {
+      addMessage(`Você causa ${damageTotal} de dano ao inimigo.`);
+    }
+
+    currentMonster.hp -= damageTotal + 5;
+
+    if (currentMonster.hp <= 0) {
+      currentMonster.hp = 0;
+      addMessage(`${currentMonster.name} foi derrotado!`);
+      monsterDefeated();
+      return;
+    }
+  } else {
+    addMessage("Você errou!");
+  }
   setTimeout(() => {
     monsterTurn();
   }, MESSAGE_DELAY * 2);
@@ -1019,6 +1076,12 @@ function openChest() {
 
   // Adicionar uma mensagem final para garantir que a fila de mensagens seja processada
 
+  addMessage(tempMessage);
+}
+
+function ignoreChest() {
+  addMessage("Você decide não mexer na butija.");
+  currentRoomData.type = ROOM_TYPES.EMPTY;
   addMessage(tempMessage);
 }
 
