@@ -18,7 +18,7 @@ const ROOM_PROBABILITIES = [
 const BOSS_ROOM = 50;
 const SAFE_ROOMS = [15, 30, 45];
 const MESSAGE_DELAY = 2000; // 2 segundos entre mensagens
-const UPGRADE_COST = 20; // Custo em ouro para melhorar um atributo
+const UPGRADE_COST = 20; // Custo em gold para melhorar um atributo
 const TURNS = 0;
 /*
 // Estado inicial do jogador
@@ -53,7 +53,6 @@ let currentMonster = null;
 let playerDodging = false;
 let monsterDodging = false;
 let gameRooms = {};
-let playerDeaths = {};
 let messageQueue = [];
 let processingMessages = false;
 let waitingForAction = false;
@@ -85,13 +84,13 @@ const leftButton = document.getElementById("btn-left");
 const rightButton = document.getElementById("btn-right");
 const openChestButton = document.getElementById("open-action-button");
 const ignoreChestButton = document.getElementById("ignore-action-button");
-const inventory = document.getElementById("inventory");
+const liftActionButton = document.getElementById("lift-action-button");
+const observeActionButton = document.getElementById("observe-action-button");
 const potionButton = document.getElementById("btn-potion");
 const restartButton = document.getElementById("btn-restart");
 const creditsMenuButton = document.getElementById("btn-credits-menu");
 const aboutMenuButton = document.getElementById("btn-about-menu");
 const instructionsMenuButton = document.getElementById("btn-instructions-menu");
-const specialActionButton = document.getElementById("special-action-button");
 const strengthenButton = document.getElementById("btn-strengthen");
 const saveContinueButton = document.getElementById("btn-save-continue");
 const upgradeAttackButton = document.getElementById("btn-upgrade-attack");
@@ -116,7 +115,7 @@ const logAreaEl = document.getElementById("log-area");
 const orientationText = document.getElementById("orientation");
 const actionButtons = document.getElementById("action-buttons");
 const exploreButtons = document.getElementById("explore-buttons");
-const specialButtons = document.getElementById("special-buttons");
+const trapButtons = document.getElementById("trap-buttons");
 const chestButtons = document.getElementById("chest-buttons");
 const safeRoomButtons = document.getElementById("safe-room-buttons");
 const bonusDamageEl = document.getElementById("damage-bonus");
@@ -144,6 +143,9 @@ potionButton.addEventListener("click", usePotion);
 openChestButton.addEventListener("click", openChest);
 ignoreChestButton.addEventListener("click", ignoreChest);
 
+liftActionButton.addEventListener("click", liftAction);
+observeActionButton.addEventListener("click", observeAction);
+
 // Game Over and Credits
 restartButton.addEventListener("click", () => showScreen(menuScreen));
 creditsMenuButton.addEventListener("click", () => showScreen(menuScreen));
@@ -160,7 +162,6 @@ upgradeDefenseButton.addEventListener("click", () =>
   upgradeAttribute("defense")
 );
 upgradeHpButton.addEventListener("click", () => upgradeAttribute("hp"));
-upgradeDamageButton.addEventListener("click", () => upgradeAttribute("damage"));
 closeModalButton.addEventListener("click", hideStrengthenModal);
 
 //Modal Erase
@@ -181,7 +182,7 @@ function addMessage(message) {
 function hideAllActions() {
   actionButtons.style.display = "none";
   exploreButtons.style.display = "none";
-  specialButtons.style.display = "none";
+  trapButtons.style.display = "none";
   chestButtons.style.display = "none";
   safeRoomButtons.style.display = "none";
   btnPotion.disabled = true;
@@ -247,7 +248,6 @@ function initializeGame() {
     continueButton.disabled = true;
     continueButton.style.display = "none";
   }
-
   // Iniciar com a tela de menu
   showScreen(menuScreen);
 }
@@ -306,7 +306,6 @@ function deleteAllData() {
   document.getElementById("btn-erase-yes").addEventListener("click", () => {
     localStorage.removeItem("saveGameRooms");
     localStorage.removeItem("gameSafeSave");
-    playerDeaths = {};
     generateAllRooms();
     localStorage.setItem("saveGameRooms", JSON.stringify(gameRooms));
     continueButton.disabled = true;
@@ -355,56 +354,41 @@ function updateUI() {
     roomElementEl.classList.add(currentRoomData.type);
   }
 
-  bonusDamageEl.textContent = `${player.damageBonus + 1}-${
-    player.damageBonus + 6
-  }`;
+  //bonusDamageEl.textContent = player.damageBonus;
 }
 
 function showCombatActions() {
   if (!processingMessages) {
+    hideAllActions();
     orientationText.textContent = "O que fazer?";
     actionButtons.style.display = "flex";
-    exploreButtons.style.display = "none";
-    specialButtons.style.display = "none";
-    chestButtons.style.display = "none";
-    safeRoomButtons.style.display = "none";
   }
 }
 
 function showExploreActions() {
   if (!processingMessages) {
+    hideAllActions();
     orientationText.textContent = "Pra onde ir?";
-    actionButtons.style.display = "none";
     exploreButtons.style.display = "flex";
-    specialButtons.style.display = "none";
-    chestButtons.style.display = "none";
-    safeRoomButtons.style.display = "none";
     roomElementEl.className = "room-element";
   }
 }
 
 function showChestActions() {
   if (!processingMessages) {
+    hideAllActions();
     orientationText.textContent = "O que fazer?";
-    actionButtons.style.display = "none";
-    exploreButtons.style.display = "none";
-    specialButtons.style.display = "none";
-    safeRoomButtons.style.display = "none";
     chestButtons.style.display = "flex";
     roomElementEl.className = "room-element";
   }
 }
 
-function showSpecialAction(actionText, actionFunction) {
+function showTrapActions() {
   if (!processingMessages) {
+    hideAllActions();
     orientationText.textContent = "O que fazer?";
-    actionButtons.style.display = "none";
-    exploreButtons.style.display = "none";
-    specialButtons.style.display = "flex";
-    safeRoomButtons.style.display = "none";
-    chestButtons.style.display = "none";
-    specialActionButton.textContent = actionText;
-    specialActionButton.onclick = actionFunction;
+    trapButtons.style.display = "flex";
+    roomElementEl.className = "room-element";
   }
 }
 
@@ -428,23 +412,15 @@ function showAppropriateActions() {
       waitingForAction = true;
       break;
     case ROOM_TYPES.TRAP:
-      showSpecialAction("LEVANTAR", () => {
-        addMessage("Você se levanta com cuidado.");
-        // Após levantar, a armadilha desaparece e a sala é marcada como vazia
-        setTimeout(() => {
-          imageMonster.src = "";
-        }, MESSAGE_DELAY * 1.5);
-        roomElementEl.className = "room-element";
-        currentRoomData.type = ROOM_TYPES.EMPTY;
-        addMessage("Você está pronto para seguir em frente.");
-        waitingForAction = true;
-      });
+      showTrapActions();
+      waitingForAction = true;
       break;
     case ROOM_TYPES.SAFE:
       // Em sala segura, mostrar os botões específicos de sala segura
       actionButtons.style.display = "none";
       exploreButtons.style.display = "none";
-      specialActionContainer.style.display = "none";
+      trapButtons.style.display = "none";
+      chestButtons.style.display = "none";
 
       if (!processingMessages) {
         safeRoomButtons.style.display = "flex";
@@ -456,13 +432,7 @@ function showAppropriateActions() {
 
 // --- Lógica de Salas ---
 function determineRoomType(roomNumber) {
-  // Verificar se o jogador já morreu nesta sala
-  if (playerDeaths[roomNumber] && roomNumber !== BOSS_ROOM) {
-    return ROOM_TYPES.CORPSE;
-  }
-
-  // Salas fixas
-  if (roomNumber === 0) return ROOM_TYPES.EMPTY; // Start room
+  if (roomNumber === 0) return ROOM_TYPES.EMPTY; // Sala inicial é sempre vazia
   if (roomNumber === BOSS_ROOM) return ROOM_TYPES.BOSS;
   if (SAFE_ROOMS.includes(roomNumber)) return ROOM_TYPES.SAFE;
   if (roomNumber === BOSS_ROOM - 1) return ROOM_TYPES.CHEST; // Sala 49 sempre é baú
@@ -501,8 +471,7 @@ function determineRoomType(roomNumber) {
     }
     random -= room.weight;
   }
-
-  return ROOM_TYPES.MONSTER; // Fallback
+  return ROOM_TYPES.MONSTER;
 }
 
 function generateRoomType(roomNumber) {
@@ -566,11 +535,11 @@ function enterRoom(roomNumber) {
       logMessage(`${currentMonster.name} apareceu!`);
       break;
     case ROOM_TYPES.CHEST:
-      imageMonster.src = "images/bau.webp"; // Imagem de baú
+      imageMonster.src = "images/chest.png";
       logMessage("Você encontrou uma botija!");
       break;
     case ROOM_TYPES.TRAP:
-      imageMonster.src = "images/armadilha.webp";
+      imageMonster.src = "images/trap.png";
       logMessage("Você caiu em uma arapuca!");
 
       // Aplicar dano da armadilha
@@ -589,7 +558,7 @@ function enterRoom(roomNumber) {
       }
       break;
     case ROOM_TYPES.SAFE:
-      imageMonster.src = "images/fogueira.webp";
+      imageMonster.src = "images/bonfire.png";
       logMessage("Você sente que está em um lugar seguro.");
       break;
   }
@@ -619,7 +588,7 @@ function generateAllRooms() {
   // Gerar as outras salas aleatoriamente
   for (let i = 1; i < BOSS_ROOM; i++) {
     if (gameRooms[i] === undefined) {
-      gameRooms[i] = null; // Será determinado quando o jogador entrar na sala
+      gameRooms[i] = null;
     }
   }
 }
@@ -756,23 +725,23 @@ function monsterTurn() {
     return;
   }
 
-  // Attack
-  // Calculate effective player AC (including dodge bonus)
+  // Ataque do monstro
+  // Calcular CA efetiva do jogador (considerando esquiva)
   const effectivePlayerAC = player.ac + (playerDodging ? 5 : 0);
 
-  // Roll d20 + monster attack bonus
+  // Rolar d20 + bônus de ataque do monstro
   const attackRoll = rollDice(20);
   const attackTotal = attackRoll + currentMonster.attackBonus;
 
   addMessage(`${currentMonster.name} vai te atacar`);
 
-  // Check if hit
+  // Verifica se o ataque acerta
   if (attackTotal >= effectivePlayerAC) {
-    // Roll damage
+    // Calcula o dano
     const damageRoll = rollDice(6);
     let damageTotal = damageRoll + currentMonster.damageBonus;
 
-    // Nova lógica de dano
+    // Lógica de dano
     if (attackRoll === 20) {
       // Ataque crítico - dobro do dano
       damageTotal *= 2;
@@ -795,7 +764,7 @@ function monsterTurn() {
 
     player.hp -= damageTotal;
 
-    // Check if player is defeated
+    // veirficar se o jogador morreu
     if (player.hp <= 0) {
       player.hp = 0;
       setTimeout(() => {
@@ -814,21 +783,21 @@ function monsterTurn() {
     }
   }
 
-  // Reset dodge status
+  // Resetar estados de esquiva
   playerDodging = false;
   monsterDodging = false;
 
-  // Update UI
+  // Atualizar UI após o turno do monstro
   setTimeout(() => {
     updateUI();
   }, MESSAGE_DELAY * 2);
 
-  // Re-enable combat buttons after a delay
+  // Retornar o controle ao jogador
   waitingForAction = true;
 }
 
+//Quando o monstro for derrotado gerar loot
 function monsterDefeated() {
-  // Handle monster loot
   setTimeout(() => {
     imageMonster.src = "";
     monsterNameEl.textContent = "";
@@ -840,8 +809,7 @@ function monsterDefeated() {
     }, MESSAGE_DELAY * 2);
     return;
   }
-
-  // Generate loot based on monster type
+  // Determinar loot baseado no tipo do monstro
   let goldAmount = 0;
   let potionChance = 0;
 
@@ -860,20 +828,17 @@ function monsterDefeated() {
       break;
   }
 
-  // Add gold
+  // Adicionar ouro ao jogador
   player.gold += goldAmount;
   addMessage(`Você achou ${goldAmount} patacas!`);
 
-  // Chance for potion
+  //Chance de achar potion
   if (Math.random() < potionChance) {
     player.potions += 1;
-    addMessage("Você achou 1 lambedor!");
+    addMessage("Você achou 1 potion!");
   }
-
-  // Allow player to continue exploring
   currentMonster = null;
   waitingForAction = true;
-
   setTimeout(() => {
     updateUI();
   }, MESSAGE_DELAY * 4);
@@ -881,17 +846,15 @@ function monsterDefeated() {
 
 function usePotion() {
   if (player.potions <= 0) {
-    addMessage("Você não tem mais lambedor!");
+    addMessage("Você não tem mais aluá!");
     waitingForAction = true;
     return;
   }
-
   if (player.hp >= player.maxHp) {
     addMessage("Sua vida já está no máximo!");
     waitingForAction = true;
     return;
   }
-
   player.potions--;
   const healAmount = 10;
   const healedLife =
@@ -899,7 +862,7 @@ function usePotion() {
       ? player.maxHp - player.hp
       : healAmount;
   player.hp = Math.min(player.hp + healAmount, player.maxHp);
-  addMessage(`Você usou um lambedor! curou ${healedLife} de vida.`);
+  addMessage(`Você bebeu um aluá! curou ${healedLife} de vida.`);
   updateUI();
   waitingForAction = true;
 }
@@ -907,7 +870,7 @@ function usePotion() {
 function gameOver() {
   logMessage("Você sente um frio na espinha, vê seu sangue escorrer...");
 
-  // Remover o save em sala segura
+  // Remover o save do jogo
   localStorage.removeItem("gameSafeSave");
 
   // Mostrar tela de game over
@@ -931,7 +894,7 @@ function logMessage(message) {
 
 // --- Lógica de Monstros ---
 function generateMonster(roomNumber) {
-  // Determine monster type based on room number
+  // Determina o tipo do monstro baseado no número da sala
   let monsterType;
 
   if (roomNumber < 10) {
@@ -942,7 +905,7 @@ function generateMonster(roomNumber) {
     monsterType = "elite";
   }
 
-  // Generate monster stats based on type
+  // Gerar estatísticas do monstro baseado no tipo
   let selectedMonster;
   let monsterStats;
   let monsterName;
@@ -958,13 +921,13 @@ function generateMonster(roomNumber) {
         damageBonus: Math.floor(Math.random() * 2) + 1, // 1-2 Damage Bonus
       };
 
-      // Choose random name and image
+      // Escolher nome e imagem aleatória do Monstro (tipo fraco)
       const weakMonsters = [
-        { name: "Porco do Mato", image: "images/goblin.webp" },
-        { name: "Cachorro Doido", image: "images/rato.webp" },
-        { name: "Visagem", image: "images/kobold.webp" },
-        { name: "Cobra Caninana", image: "images/esqueleto.webp" },
-        { name: "Jaguatirica", image: "images/aranha.webp" },
+        { name: "Porco do Mato", image: "images/monster.png" },
+        { name: "Cachorro Doido", image: "images/monster.png" },
+        { name: "Visagem", image: "images/monster.png" },
+        { name: "Cobra Caninana", image: "images/monster.png" },
+        { name: "Jaguatirica", image: "images/monster.png" },
       ];
       selectedMonster =
         weakMonsters[Math.floor(Math.random() * weakMonsters.length)];
@@ -981,13 +944,13 @@ function generateMonster(roomNumber) {
         damageBonus: Math.floor(Math.random() * 2) + 2, // 2-3 Damage Bonus
       };
 
-      // Choose random name and image
+      // Escolher nome e imagem aleatória do Monstro (tipo normal)
       const normalMonsters = [
-        { name: "Boitatá", image: "images/orc.webp" },
-        { name: "Matinta", image: "images/lobo.webp" },
-        { name: "Cangaceiro", image: "images/bandido.webp" },
-        { name: "Mão de Couro", image: "images/zumbi.webp" },
-        { name: "Saci", image: "images/cultista.webp" },
+        { name: "Boitatá", image: "images/monster.png" },
+        { name: "Matinta", image: "images/monster.png" },
+        { name: "Cangaceiro", image: "images/monster.png" },
+        { name: "Mão de Cgold", image: "images/monster.png" },
+        { name: "Saci", image: "images/monster.png" },
       ];
       selectedMonster =
         normalMonsters[Math.floor(Math.random() * normalMonsters.length)];
@@ -1005,13 +968,13 @@ function generateMonster(roomNumber) {
         damageBonus: Math.floor(Math.random() * 2) + 3, // 3-4 Damage Bonus
       };
 
-      // Choose random name and image
+      // Escolher nome e imagem aleatória do Monstro (tipo elite)
       const eliteMonsters = [
-        { name: "Papa Figo", image: "images/cav-negro.webp" },
-        { name: "Corpo Seco", image: "images/ogro.webp" },
-        { name: "Cabra Cabriola", image: "images/mago-sombrio.webp" },
-        { name: "Lobisomem", image: "images/minotauro.webp" },
-        { name: "Caipora", image: "images/troll.webp" },
+        { name: "Papa Figo", image: "images/monster.png" },
+        { name: "Corpo Seco", image: "images/monster.png" },
+        { name: "Cabra Cabriola", image: "images/monster.png" },
+        { name: "Lobisomem", image: "images/monster.png" },
+        { name: "Caipora", image: "images/monster.png" },
       ];
       selectedMonster =
         eliteMonsters[Math.floor(Math.random() * eliteMonsters.length)];
@@ -1031,11 +994,12 @@ function generateMonster(roomNumber) {
   };
 }
 
+//Gerar o boss da sala
 function generateBoss() {
   const bossName = [
-    { name: "Curupira", image: "images/dragao.webp" },
-    { name: "Cuca", image: "images/lich.webp" },
-    { name: "Mula sem Cabeça", image: "images/manticora.webp" },
+    { name: "Curupira", image: "images/monster.png" },
+    { name: "Cuca", image: "images/monster.png" },
+    { name: "Mula sem Cabeça", image: "images/monster.png" },
   ];
   selectedMonster = bossName[Math.floor(Math.random() * bossName.length)];
   imageMonster.src = `${selectedMonster.image}`;
@@ -1050,9 +1014,9 @@ function generateBoss() {
   };
 }
 
-// --- Lógica de Baús e Cadáveres ---
+// --- Lógica de Baús ---
 function openChest() {
-  // Determine chest type
+  // Determinar o tipo do baú
   const roll = Math.random() * 100;
   let chestType;
 
@@ -1064,27 +1028,42 @@ function openChest() {
     chestType = "lendario";
   }
 
-  // Generate loot based on chest type
+  // Gerar o loot do baú com base no tipo
   const loot = generateChestLoot(chestType);
 
-  // Apply loot effects
+  // Aplicar o loot ao jogador
   applyLoot(loot);
 
   // Marcar o tipo da sala como vazia após abrir o baú
-  // para evitar que o botão "ABRIR BAÚ" apareça novamente
   currentRoomData.type = ROOM_TYPES.EMPTY;
-
-  // Adicionar uma mensagem final para garantir que a fila de mensagens seja processada
-
   addMessage(tempMessage);
 }
 
 function ignoreChest() {
   addMessage("Você decide não mexer na butija.");
+  imageMonster.src = "";
   currentRoomData.type = ROOM_TYPES.EMPTY;
   addMessage(tempMessage);
 }
 
+function liftAction() {
+  addMessage("Você se levanta com cuidado.");
+  // Após levantar, a armadilha desaparece e a sala é marcada como vazia
+  setTimeout(() => {
+    imageMonster.src = "";
+  }, MESSAGE_DELAY * 1.5);
+  roomElementEl.className = "room-element";
+  currentRoomData.type = ROOM_TYPES.EMPTY;
+  addMessage("Você está pronto para seguir em frente.");
+  addMessage(tempMessage);
+}
+
+function observeAction() {
+  addMessage("Você não vê nada de incomum neste lugar.");
+  addMessage(tempMessage);
+}
+
+//Função para gerar loot baseado no tipo do baú
 function generateChestLoot(chestType) {
   const roll = Math.random() * 100;
   let loot = {};
@@ -1092,43 +1071,37 @@ function generateChestLoot(chestType) {
   switch (chestType) {
     case "normal":
       if (roll < 30) {
-        loot = { type: "lambedor", amount: 1 };
-      } else if (roll < 55) {
-        loot = { type: "ouro", amount: 20 };
-      } else if (roll < 70) {
-        loot = { type: "arma_comum" };
+        loot = { type: "potion", amount: 1 };
+      } else if (roll < 60) {
+        loot = { type: "gold", amount: 20 };
       } else if (roll < 80) {
-        loot = { type: "armadura_comum" };
+        loot = { type: "common_armor" };
       } else if (roll < 90) {
-        loot = { type: "cha_amargo" };
+        loot = { type: "common_attack" };
       } else {
-        loot = { type: "alua" };
+        loot = { type: "common_hp" };
       }
       break;
     case "raro":
       if (roll < 30) {
-        loot = { type: "lambedor", amount: 2, ouro: 30 };
-      } else if (roll < 55) {
-        loot = { type: "arma_rara", ouro: 10 };
-      } else if (roll < 80) {
-        loot = { type: "armadura_rara", ouro: 10 };
+        loot = { type: "potion", amount: 2, gold: 30 };
+      } else if (roll < 60) {
+        loot = { type: "rare_armor", gold: 10 };
       } else if (roll < 90) {
-        loot = { type: "cha_forte", ouro: 10 };
+        loot = { type: "rare_attack", gold: 10 };
       } else {
-        loot = { type: "alua_forte", ouro: 10 };
+        loot = { type: "rare_hp", gold: 10 };
       }
       break;
     case "lendario":
       if (roll < 30) {
-        loot = { type: "lambedor", amount: 3, ouro: 50 };
+        loot = { type: "potion", amount: 3, gold: 50 };
       } else if (roll < 60) {
-        loot = { type: "arma_lendaria", ouro: 30 };
-      } else if (roll < 75) {
-        loot = { type: "cha_encantado", ouro: 30 };
+        loot = { type: "legendary_armor", gold: 30 };
       } else if (roll < 90) {
-        loot = { type: "armadura_lendaria", ouro: 30 };
+        loot = { type: "legendary_attack", gold: 30 };
       } else {
-        loot = { type: "alua_santo", ouro: 30 };
+        loot = { type: "legendary_hp", gold: 30 };
       }
       break;
   }
@@ -1136,79 +1109,70 @@ function generateChestLoot(chestType) {
   return loot;
 }
 
+//Função para aplicar o loot ao jogador
 function applyLoot(loot) {
   setTimeout(() => {
     imageMonster.src = "";
   }, MESSAGE_DELAY);
-  // Apply gold
-  if (loot.type === "parata") {
-    player.gold += loot.ouro;
+  // Achar gold
+  if (loot.type === "gold") {
+    player.gold += loot.gold;
     addMessage(`Você achou ${loot.amount} patacas!`);
     playerGoldEl.textContent = player.gold;
   }
 
-  // Apply potions
-  if (loot.type === "lambedor") {
+  // Achar potion
+  if (loot.type === "potion") {
     player.potions += loot.amount;
     addMessage(
       `Você achou ${loot.amount} ${
         loot.amount == 1 ? "garrafa" : "garrafas"
-      } de lambedor!`
+      } de Aluá!`
     );
     potionCountEl.textContent = player.potions;
   }
 
-  // Apply weapon upgrades
-  if (loot.type === "arma_comum") {
-    player.damageBonus += 1;
-    addMessage("Achou uma arma enferrujada! Seu dano aumenta +1!");
-  } else if (loot.type === "arma_rara") {
-    player.damageBonus += 2;
-    addMessage("Achou uma arma cega! Seu dano aumenta +2!");
-  } else if (loot.type === "arma_lendaria") {
-    player.damageBonus += 3;
-    addMessage("Achou uma arma amolada! Seu dano aumenta +3!");
-  }
-
-  // Apply armor upgrades
-  if (loot.type === "armadura_comum") {
+  // Aumentar defesa
+  if (loot.type === "common_armor") {
     player.ac += 1;
-    addMessage("Achou um gibão de trapos! Sua defesa aumenta +1!");
-  } else if (loot.type === "armadura_rara") {
+    addMessage("Achou um tônico! Sua defesa aumenta +1!");
+  } else if (loot.type === "rare_armor") {
     player.ac += 2;
-    addMessage("Achou uma gibão de couro! Sua defesa aumenta +2!");
-  } else if (loot.type === "armadura_lendaria") {
+    addMessage("Achou um tônico amargo! Sua defesa aumenta +2!");
+  } else if (loot.type === "legendary_armor") {
     player.ac += 3;
-    addMessage("Achou uma gibão metálico! Sua defesa aumenta +3!");
+    addMessage("Achou um tônico forte! Sua defesa aumenta +3!");
   }
 
-  // Apply elixirs (increase max HP)
-  if (loot.type === "alua") {
+  // Aumentar vida máxima
+  if (loot.type === "common_hp") {
     player.maxHp += 5;
     player.hp += 5;
-    addMessage("Achou um aluá! Sua vida máxima aumenta +5!");
-  } else if (loot.type === "alua_forte") {
+    addMessage("Achou um elixir! Sua vida máxima aumenta +5!");
+  } else if (loot.type === "rare_hp") {
     player.maxHp += 10;
     player.hp += 10;
-    addMessage("Achou um aluá forte! Sua vida máxima aumenta +10!");
-  } else if (loot.type === "alua_santo") {
+    addMessage("Achou um exlixir forte! Sua vida máxima aumenta +10!");
+  } else if (loot.type === "legendary_hp") {
     player.maxHp += 15;
     player.hp += 15;
-    addMessage("Achou um aluá santo! Sua vida máxima aumenta +15!");
+    addMessage("Achou um exlixir santo! Sua vida máxima aumenta +15!");
   }
 
-  // Apply attack bonus
-  if (loot.type === "cha_amargo") {
+  // Aumentar ataque
+  if (loot.type === "common_attack") {
     player.attackBonus += 1;
+    player.damageBonus = Math.floor(player.attackBonus / 2);
     addMessage("Achou um chá amargo! Seu ataque aumenta +1");
-  } else if (loot.type === "cha_forte") {
+  } else if (loot.type === "rare_attack") {
     player.attackBonus += 2;
+    player.damageBonus = Math.floor(player.attackBonus / 2);
     addMessage("Achou um chá forte de raiz! Seu ataque aumenta +2");
-  } else if (loot.type === "cha_encantado") {
+  } else if (loot.type === "legendary_attack") {
     player.attackBonus += 3;
+    player.damageBonus = Math.floor(player.attackBonus / 2);
     addMessage("Achou um chá encantado! Seu ataque aumenta +3");
   }
-  // Update UI
   updateUI();
 }
 
@@ -1225,24 +1189,20 @@ function saveAndContinue() {
   }, MESSAGE_DELAY);
   // Após salvar, marcar a sala como vazia para mostrar opções de direção
   currentRoomData.type = ROOM_TYPES.EMPTY;
-
-  // Adicionar uma mensagem final para garantir que a fila de mensagens seja processada
   addMessage("Você se sente revigorado e pronto para continuar sua jornada.");
   waitingForAction = true;
 }
 
 // --- Lógica de Fortalecimento ---
 function showStrengthenModal() {
-  // Verificar se o jogador tem ouro suficiente
+  // Verificar se o jogador tem gold suficiente
   const hasEnoughGold = player.gold >= UPGRADE_COST;
 
   // Atualizar estado dos botões de upgrade
   upgradeAttackButton.disabled = !hasEnoughGold;
   upgradeDefenseButton.disabled = !hasEnoughGold;
   upgradeHpButton.disabled = !hasEnoughGold;
-  upgradeDamageButton.disabled = !hasEnoughGold;
-
-  // Mostrar o modal
+  //Exibir o modal
   strengthenModal.style.display = "flex";
 }
 
@@ -1251,7 +1211,7 @@ function hideStrengthenModal() {
 }
 
 function upgradeAttribute(attribute) {
-  // Verificar se o jogador tem ouro suficiente
+  // Verificar se o jogador tem gold suficiente
   if (player.gold < UPGRADE_COST) {
     document.getElementById("strengthen-modal").disabled = true;
     addMessage("Patacas insuficientes!");
@@ -1259,13 +1219,14 @@ function upgradeAttribute(attribute) {
     return;
   }
 
-  // Gastar o ouro
+  // Gastar o gold
   player.gold -= UPGRADE_COST;
 
   // Aplicar o upgrade
   switch (attribute) {
     case "attack":
       player.attackBonus += 1;
+      player.damageBonus = Math.floor(player.attackBonus / 2);
       addMessage(
         `Ataque aumentado! (${player.attackBonus - 1} -> ${player.attackBonus})`
       );
@@ -1281,24 +1242,14 @@ function upgradeAttribute(attribute) {
         `Vida máxima aumentada! (${player.maxHp - 1} -> ${player.maxHp})`
       );
       break;
-    case "damage":
-      player.damageBonus += 1;
-      addMessage(
-        `Dano aumentado! (${player.damageBonus - 1} -> ${player.damageBonus})`
-      );
-      break;
   }
 
   // Fechar o modal
   hideStrengthenModal();
-
-  // Atualizar UI
   updateUI();
 
   // Após fortalecer, marcar a sala como vazia para mostrar opções de direção
-
-  // Adicionar uma mensagem final para garantir que a fila de mensagens seja processada
-  addMessage("Você ficou mais parrudo!");
+  addMessage("Você se sente mais forte!");
   waitingForAction = true;
 }
 

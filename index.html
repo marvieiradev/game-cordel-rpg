@@ -11,7 +11,7 @@
     <!-- Tela de Menu -->
     <div id="menu-screen" class="screen">
       <h1>SOMBRAS DO SERTÃO</h1>
-      <img src="images/ui/lua.png" alt="" width="150px" />
+      <img src="images/moon.png" alt="" width="150px" />
       <div class="menu-buttons">
         <button id="btn-start" class="btn btn-menu">INICIAR</button>
         <button id="btn-continue" class="btn btn-menu" disabled>
@@ -55,8 +55,25 @@
 
     <!-- Tela de Jogo -->
     <div id="game-screen" class="screen" style="display: none">
-      <div class="game-title">
-        <p class="title">TÍTULO</p>
+      <div class="status-container">
+        <div class="status-bar">
+          <div class="status-item">
+            <img src="images/life.png" alt="" />
+            <span id="player-hp">20</span>/<span id="player-max-hp">20</span>
+          </div>
+          <div class="status-item">
+            <img src="images/sword.png" alt="" />
+            <span id="player-damage">1</span>
+          </div>
+          <div class="status-item">
+            <img src="images/shield.png" alt="" />
+            <span id="player-ac">15</span>
+          </div>
+          <div class="status-item">
+            <img src="images/money.png" alt="" />
+            <span id="player-gold">1</span>
+          </div>
+        </div>
       </div>
       <div class="game-area">
         <div class="room-container">
@@ -74,20 +91,20 @@
         <div class="action-container">
           <div id="action-buttons" class="action-buttons" style="display: none">
             <div id="btn-attack" class="btn btn-action">
-              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
+              <img class="btn-image" src="images/sword.png" alt="" />
               ATACAR
             </div>
             <div id="btn-esp-atk" class="btn btn-action">
-              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
+              <img class="btn-image" src="images/swords.png" alt="" />
               RISCA-FACA
             </div>
             <div id="btn-dodge" class="btn btn-action">
-              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
+              <img class="btn-image" src="images/run.png" alt="" />
               DESVIAR
             </div>
             <div id="btn-potion" class="btn btn-action">
-              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
-              POÇÃO X<span id="potion-count"></span>
+              <img class="btn-image" src="images/potion.png" alt="" />
+              <span>ALUÁ X<span id="potion-count"></span></span>
             </div>
           </div>
 
@@ -97,40 +114,33 @@
             style="display: none"
           >
             <button id="btn-left" class="btn btn-action">
-              <img
-                class="btn-image"
-                src="images/ui/lambedor.webp"
-                alt=""
-              />ESQUERDA
+              <img class="btn-image" src="images/left.png" alt="" />ESQUERDA
             </button>
             <button id="btn-right" class="btn btn-action">
-              <img
-                class="btn-image"
-                src="images/ui/lambedor.webp"
-                alt=""
-              />DIREITA
+              <img class="btn-image" src="images/right.png" alt="" />DIREITA
             </button>
           </div>
 
-          <div
-            id="special-buttons"
-            class="special-buttons"
-            style="display: none"
-          >
-            <button id="special-action-button" class="btn btn-action">
-              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
-              AÇÃO ESPECIAL
+          <div id="trap-buttons" class="trap-buttons" style="display: none">
+            <button id="lift-action-button" class="btn btn-action">
+              <img class="btn-image" src="images/run.png" alt="" />
+              LEVANTAR
+            </button>
+
+            <button id="observe-action-button" class="btn btn-action">
+              <img class="btn-image" src="images/eye.png" alt="" />
+              OBSERVAR LOCAL
             </button>
           </div>
 
           <div id="chest-buttons" class="chest-buttons" style="display: none">
             <button id="open-action-button" class="btn btn-action">
-              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
+              <img class="btn-image" src="images/hand.png" alt="" />
               ABRIR BUTIJA
             </button>
 
             <button id="ignore-action-button" class="btn btn-action">
-              <img class="btn-image" src="images/ui/lambedor.webp" alt="" />
+              <img class="btn-image" src="images/run.png" alt="" />
               IGNORAR
             </button>
           </div>
@@ -146,30 +156,6 @@
             <button id="btn-save-continue" class="btn btn-action">
               SALVAR E CONTINUAR
             </button>
-          </div>
-        </div>
-
-        <div class="status-container">
-          <div class="life-bar">
-            <span id="player-hp">20</span>/<span id="player-max-hp">20</span>
-          </div>
-          <div class="status-bar">
-            <div class="status-item">
-              <img src="ui/sword.svg" alt="" />
-              <span id="player-damage">1</span>
-            </div>
-            <div class="status-item">
-              <img src="ui/shield.svg" alt="" />
-              <span id="player-ac">15</span>
-            </div>
-
-            <div class="status-item">
-              <img src="ui/sword.svg" alt="" /> <span id="damage-bonus">1</span>
-            </div>
-
-            <div class="status-item">
-              <img src="ui/sword.svg" alt="" /> <span id="player-gold">1</span>
-            </div>
           </div>
         </div>
       </div>

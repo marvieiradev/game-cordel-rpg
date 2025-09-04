@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Barriecito&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Underdog&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Tagesschrift&display=swap");
 
 :root {
   /* Colors */
@@ -10,7 +11,7 @@
 }
 
 body {
-  font-family: "Underdog", system-ui;
+  font-family: "Tagesschrift", system-ui;
   font-weight: bold;
   background-color: var(--primary-color);
   color: var(--text-color);
@@ -33,26 +34,26 @@ body {
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: 3rem;
   margin-bottom: 10px;
   text-shadow: 2px 2px 0px var(--secondary-color);
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   margin-bottom: 1.5rem;
   text-shadow: 2px 2px 0px #222;
 }
 
 /* Botões */
 .btn {
-  font-family: "Underdog", system-ui;
+  font-family: "Tagesschrift", system-ui;
   font-weight: bold;
   padding: 10px 20px;
   border: none;
   cursor: pointer;
   text-transform: uppercase;
-  font-size: 0.8rem;
+  font-size: 1rem;
   transition: all 0.2s;
   color: var(--text-color);
 }
@@ -64,6 +65,7 @@ h2 {
   padding: 15px;
   margin: 10px auto;
   display: block;
+  font-size: 1.25rem;
 }
 
 .btn-menu:hover {
@@ -74,7 +76,7 @@ h2 {
 .btn-action {
   background-color: var(--secondary-color);
   border: 3px solid var(--text-color);
-  width: 25%;
+  width: 40%;
   height: 80px;
   display: flex;
   flex-direction: column;
@@ -88,14 +90,13 @@ h2 {
 }
 
 .btn-upgrade {
-  background-color: #000000;
-  border: 3px solid #9966cc;
+  background-color: var(--secondary-color);
+  border: 3px solid var(--text-color);
   width: 100%;
   margin: 10px 0;
 }
 
 .btn-upgrade:hover {
-  background-color: #9966cc;
   transform: scale(1.02);
 }
 
@@ -111,8 +112,8 @@ h2 {
 }
 
 .btn-small {
-  margin-top: 40px;
-  font-size: 0.6rem;
+  margin-top: 30px;
+  font-size: 0.8rem;
   padding: 8px;
   background-color: #fcb7b7;
   border: 3px solid #cc0000;
@@ -152,28 +153,12 @@ h2 {
   border: 3px solid #333;
   margin-bottom: 20px;
   line-height: 1.6;
-  font-size: 0.8rem;
+  font-size: 1.25rem;
 }
 
 /* Jogo */
-
-.game-title {
-  background-color: var(--secondary-color);
-  border: 3px solid var(--text-color);
-  padding: 5px 0px;
-  font-weight: semibold;
-  margin-bottom: 10px;
-}
-
-.title {
-  font-size: 1rem;
-  margin-bottom: 10px;
-  margin-top: 5px;
-  color: var(--text-color);
-}
-
 .status-container {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .life-bar {
@@ -182,22 +167,22 @@ h2 {
   justify-content: center;
   border: 3px solid var(--text-color);
   background-color: red;
-  margin-top: 10px;
   margin-bottom: 2px;
+  font-size: 1.25rem;
 }
 
 .status-bar {
   display: flex;
   justify-content: space-around;
   background-color: var(--secondary-color);
-  padding: 10px;
+  padding: 5px;
   border: 3px solid var(--text-color);
 }
 
 .status-item {
   display: flex;
   align-items: center;
-  font-size: 0.8rem;
+  font-size: 1.25rem;
 }
 
 .status-item i {
@@ -219,23 +204,23 @@ h2 {
 }
 
 .monster-name {
-  font-size: 0.7rem;
+  font-size: 1rem;
   margin-bottom: 40px;
   text-shadow: 2px 2px 0px #000;
   background-color: #000;
+  color: #fff;
   padding: 5px 10px;
 }
 
 .room-container {
   position: relative;
-  background-color: blue;
   height: 300px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-bottom: 10px;
-  background-image: url("images/wall.webp");
+  background-image: url("images/forest.png");
   background-size: cover;
   background-position: center;
 }
@@ -243,33 +228,11 @@ h2 {
 .room-element {
   width: 150px;
   height: 150px;
-  background-color: transparent;
-}
-
-.room-element.monster {
-  background-color: transparent;
 }
 
 .room-element.boss {
-  background-color: transparent;
   width: 200px;
   height: 150px;
-}
-
-.room-element.chest {
-  background-color: transparent;
-}
-
-.room-element.trap {
-  background-color: transparent;
-}
-
-.room-element.safe {
-  background-color: transparent;
-}
-
-.room-element.corpse {
-  background-color: #ffffff;
 }
 
 .room-number {
@@ -288,7 +251,7 @@ h2 {
   padding: 5px;
   border: 3px solid var(--text-color);
   min-height: 55px;
-  font-size: 0.8rem;
+  font-size: 1.25rem;
   text-align: center;
   line-height: 1.5;
 }
@@ -302,7 +265,7 @@ h2 {
 
 .action-buttons,
 .explore-buttons,
-.special-action-container,
+.trap-buttons,
 .chest-buttons,
 .safe-room-buttons {
   display: flex;
@@ -323,7 +286,6 @@ h2 {
   flex-direction: column;
   justify-content: center;
   margin: 5px;
-  width: 30%;
   height: 70px;
 }
 
@@ -367,15 +329,15 @@ h2 {
 }
 
 .modal-content {
-  background-color: #000;
-  border: 5px solid #663399;
+  background-color: var(--primary-color);
+  border: 5px solid var(--text-color);
   padding: 20px;
   max-width: 500px;
   width: 90%;
 }
 
 #erase-modal .modal-content {
-  background-color: #000;
+  background-color: var(--primary-color);
   border: 5px solid #d10000;
   padding: 20px;
   max-width: 500px;
@@ -406,14 +368,14 @@ h2 {
 
 #btn-yes,
 #btn-erase-yes {
-  background-color: #000;
-  border: 3px solid #d80000;
+  background-color: #d80000;
+  border: 3px solid var(--text-color);
 }
 #btn-no,
 #btn-erase-no,
 #btn-ok {
-  background-color: #000;
-  border: 3px solid #ffffff;
+  background-color: var(--primary-color);
+  border: 3px solid var(--text-color);
 }
 
 .strengthen-options {
