@@ -35,6 +35,7 @@ const playerInitialState = {
 };
 */
 
+//Definições para testes
 const playerInitialState = {
   hp: 200,
   maxHp: 200,
@@ -96,7 +97,6 @@ const saveContinueButton = document.getElementById("btn-save-continue");
 const upgradeAttackButton = document.getElementById("btn-upgrade-attack");
 const upgradeDefenseButton = document.getElementById("btn-upgrade-defense");
 const upgradeHpButton = document.getElementById("btn-upgrade-hp");
-const upgradeDamageButton = document.getElementById("btn-upgrade-damage");
 const closeModalButton = document.getElementById("btn-close-modal");
 const btnPotion = document.getElementById("btn-potion");
 
@@ -536,7 +536,7 @@ function enterRoom(roomNumber) {
       break;
     case ROOM_TYPES.CHEST:
       imageMonster.src = "images/chest.png";
-      logMessage("Você encontrou uma botija!");
+      logMessage("Você encontrou uma butija!");
       break;
     case ROOM_TYPES.TRAP:
       imageMonster.src = "images/trap.png";
@@ -835,7 +835,7 @@ function monsterDefeated() {
   //Chance de achar potion
   if (Math.random() < potionChance) {
     player.potions += 1;
-    addMessage("Você achou 1 potion!");
+    addMessage("Você achou 1 aluá!");
   }
   currentMonster = null;
   waitingForAction = true;
@@ -949,7 +949,7 @@ function generateMonster(roomNumber) {
         { name: "Boitatá", image: "images/monster.png" },
         { name: "Matinta", image: "images/monster.png" },
         { name: "Cangaceiro", image: "images/monster.png" },
-        { name: "Mão de Cgold", image: "images/monster.png" },
+        { name: "Mão de Ouro", image: "images/monster.png" },
         { name: "Saci", image: "images/monster.png" },
       ];
       selectedMonster =
@@ -1127,7 +1127,7 @@ function applyLoot(loot) {
     addMessage(
       `Você achou ${loot.amount} ${
         loot.amount == 1 ? "garrafa" : "garrafas"
-      } de Aluá!`
+      } de aluá!`
     );
     potionCountEl.textContent = player.potions;
   }
