@@ -535,11 +535,11 @@ function enterRoom(roomNumber) {
       logMessage(`${currentMonster.name} apareceu!`);
       break;
     case ROOM_TYPES.CHEST:
-      imageMonster.src = "images/chest.png";
+      imageMonster.src = "images/objects/butija.webp";
       logMessage("Você encontrou uma butija!");
       break;
     case ROOM_TYPES.TRAP:
-      imageMonster.src = "images/trap.png";
+      imageMonster.src = "images/objects/arapuca.webp";
       logMessage("Você caiu em uma arapuca!");
 
       // Aplicar dano da armadilha
@@ -558,7 +558,7 @@ function enterRoom(roomNumber) {
       }
       break;
     case ROOM_TYPES.SAFE:
-      imageMonster.src = "images/bonfire.png";
+      imageMonster.src = "images/objects/fogueira.webp";
       logMessage("Você sente que está em um lugar seguro.");
       break;
   }
@@ -923,11 +923,11 @@ function generateMonster(roomNumber) {
 
       // Escolher nome e imagem aleatória do Monstro (tipo fraco)
       const weakMonsters = [
-        { name: "Porco do Mato", image: "images/monster.png" },
-        { name: "Cachorro Doido", image: "images/monster.png" },
-        { name: "Visagem", image: "images/monster.png" },
-        { name: "Cobra Caninana", image: "images/monster.png" },
-        { name: "Jaguatirica", image: "images/monster.png" },
+        { name: "Porco do Mato", image: "images/monster/monster.webp" },
+        { name: "Cachorro Doido", image: "images/monster/cachorro-doido.webp" },
+        { name: "Guabiru", image: "images/monster/guabiru.webp" },
+        { name: "Cobra Cascavel", image: "images/monster/cobra-cascavel.webp" },
+        { name: "Escorpião", image: "images/monster/escorpiao.webp" },
       ];
       selectedMonster =
         weakMonsters[Math.floor(Math.random() * weakMonsters.length)];
@@ -946,11 +946,11 @@ function generateMonster(roomNumber) {
 
       // Escolher nome e imagem aleatória do Monstro (tipo normal)
       const normalMonsters = [
-        { name: "Boitatá", image: "images/monster.png" },
-        { name: "Matinta", image: "images/monster.png" },
-        { name: "Cangaceiro", image: "images/monster.png" },
-        { name: "Mão de Ouro", image: "images/monster.png" },
-        { name: "Saci", image: "images/monster.png" },
+        { name: "Jaguatitica", image: "images/monster/jaguatirica.webp" },
+        { name: "Gato Maracajá", image: "images/monster/gato-maracaja.webp" },
+        { name: "Cangaceiro", image: "images/monster/monster.webp" },
+        { name: "Visage", image: "images/monster/visage.webp" },
+        { name: "Saci Pererê", image: "images/monster/saci-perere.webp" },
       ];
       selectedMonster =
         normalMonsters[Math.floor(Math.random() * normalMonsters.length)];
@@ -970,11 +970,11 @@ function generateMonster(roomNumber) {
 
       // Escolher nome e imagem aleatória do Monstro (tipo elite)
       const eliteMonsters = [
-        { name: "Papa Figo", image: "images/monster.png" },
-        { name: "Corpo Seco", image: "images/monster.png" },
-        { name: "Cabra Cabriola", image: "images/monster.png" },
-        { name: "Lobisomem", image: "images/monster.png" },
-        { name: "Caipora", image: "images/monster.png" },
+        { name: "Caipora", image: "images/monster/caipora.webp" },
+        { name: "Corpo Seco", image: "images/monster/monster.webp" },
+        { name: "Cabra Cabriola", image: "images/monster/cabra-cabriola.webp" },
+        { name: "Lobisomem", image: "images/monster/lobisomen.webp" },
+        { name: "Boitatá", image: "images/monster/boitata.webp" },
       ];
       selectedMonster =
         eliteMonsters[Math.floor(Math.random() * eliteMonsters.length)];
@@ -997,9 +997,9 @@ function generateMonster(roomNumber) {
 //Gerar o boss da sala
 function generateBoss() {
   const bossName = [
-    { name: "Curupira", image: "images/monster.png" },
-    { name: "Cuca", image: "images/monster.png" },
-    { name: "Mula sem Cabeça", image: "images/monster.png" },
+    { name: "Curupira", image: "images/monster/monster.webp" },
+    { name: "Cuca", image: "images/monster/cuca.webp" },
+    { name: "Mula sem Cabeça", image: "images/monster/mula-sem-cabeca.webp" },
   ];
   selectedMonster = bossName[Math.floor(Math.random() * bossName.length)];
   imageMonster.src = `${selectedMonster.image}`;
@@ -1073,7 +1073,8 @@ function generateChestLoot(chestType) {
       if (roll < 30) {
         loot = { type: "potion", amount: 1 };
       } else if (roll < 60) {
-        loot = { type: "gold", amount: 20 };
+        console.log("Problema");
+        loot = { type: "gold", amount: 20, gold: 20 };
       } else if (roll < 80) {
         loot = { type: "common_armor" };
       } else if (roll < 90) {
@@ -1094,6 +1095,7 @@ function generateChestLoot(chestType) {
       }
       break;
     case "lendario":
+      console.log("Lendario");
       if (roll < 30) {
         loot = { type: "potion", amount: 3, gold: 50 };
       } else if (roll < 60) {
