@@ -4,8 +4,8 @@
 
 :root {
   /* Colors */
-  --primary-color: #fff3d2;
-  --secondary-color: #fdd0d0;
+  --primary-color: #d9c4a3;
+  --secondary-color: #d9c4a3;
   --hover-color: #fcb7b7;
   --text-color: #161616;
 }
@@ -225,14 +225,31 @@ h2 {
   background-position: center;
 }
 
+.room-element img {
+  display: flex;
+  height: 150px;
+  position: absolute;
+  bottom: 0;
+  object-fit: contain;
+}
+
 .room-element {
+  position: absolute;
   width: 150px;
   height: 150px;
+  bottom: 10px;
 }
 
 .room-element.boss {
+  position: absolute;
   width: 200px;
   height: 150px;
+  bottom: 10px;
+}
+
+.monster-name {
+  position: absolute;
+  top: 10px;
 }
 
 .room-number {
@@ -401,6 +418,12 @@ h2 {
 
   .room-container {
     height: 225px;
+  }
+
+  .room-element img {
+    height: 120px;
+    position: absolute;
+    bottom: 0;
   }
 
   .status-item,
