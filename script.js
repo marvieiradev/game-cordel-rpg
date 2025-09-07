@@ -948,7 +948,7 @@ function generateMonster(roomNumber) {
       const normalMonsters = [
         { name: "Jaguatitica", image: "images/monster/jaguatirica.webp" },
         { name: "Gato Maracajá", image: "images/monster/gato-maracaja.webp" },
-        { name: "Cangaceiro", image: "images/monster/monster.webp" },
+        { name: "Cabeça de Cuia", image: "images/monster/cabeca-de-cuia.webp" },
         { name: "Visage", image: "images/monster/visage.webp" },
         { name: "Saci Pererê", image: "images/monster/saci-perere.webp" },
       ];
@@ -971,7 +971,7 @@ function generateMonster(roomNumber) {
       // Escolher nome e imagem aleatória do Monstro (tipo elite)
       const eliteMonsters = [
         { name: "Caipora", image: "images/monster/caipora.webp" },
-        { name: "Corpo Seco", image: "images/monster/monster.webp" },
+        { name: "Corpo Seco", image: "images/monster/corpo-seco.webp" },
         { name: "Cabra Cabriola", image: "images/monster/cabra-cabriola.webp" },
         { name: "Lobisomem", image: "images/monster/lobisomen.webp" },
         { name: "Boitatá", image: "images/monster/boitata.webp" },
@@ -997,7 +997,7 @@ function generateMonster(roomNumber) {
 //Gerar o boss da sala
 function generateBoss() {
   const bossName = [
-    { name: "Curupira", image: "images/monster/monster.webp" },
+    { name: "Curupira", image: "images/monster/curupira.webp" },
     { name: "Cuca", image: "images/monster/cuca.webp" },
     { name: "Mula sem Cabeça", image: "images/monster/mula-sem-cabeca.webp" },
   ];
