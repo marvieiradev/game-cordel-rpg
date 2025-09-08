@@ -5,14 +5,12 @@
 :root {
   /* Colors */
   --primary-color: #d9c4a3;
-  --secondary-color: #d9c4a3;
-  --hover-color: #fcb7b7;
-  --text-color: #161616;
+  --secondary-color: #f3e3c9;
+  --text-color: #0a0a0a;
 }
 
 body {
   font-family: "Tagesschrift", system-ui;
-  font-weight: bold;
   background-color: var(--primary-color);
   color: var(--text-color);
   margin: 0;
@@ -48,7 +46,6 @@ h2 {
 /* Botões */
 .btn {
   font-family: "Tagesschrift", system-ui;
-  font-weight: bold;
   padding: 10px 20px;
   border: none;
   cursor: pointer;
@@ -74,8 +71,9 @@ h2 {
 }
 
 .btn-action {
-  background-color: var(--secondary-color);
-  border: 3px solid var(--text-color);
+  background-color: var(--text-color);
+  border: 3px solid var(--primary-color);
+  color: var(--secondary-color);
   width: 40%;
   height: 80px;
   display: flex;
@@ -157,37 +155,32 @@ h2 {
 }
 
 /* Jogo */
-.status-container {
-  margin-bottom: 5px;
+#game-screen {
+  flex-direction: column;
+  border: 3px solid var(--text-color);
+  padding: 10px;
+  margin: 5px;
 }
 
-.life-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.status-container {
+  margin-bottom: 5px;
   border: 3px solid var(--text-color);
-  background-color: red;
-  margin-bottom: 2px;
-  font-size: 1.25rem;
 }
 
 .status-bar {
   display: flex;
+  align-items: center;
+  justify-items: center;
   justify-content: space-around;
-  background-color: var(--secondary-color);
+  background-color: var(--text-color);
   padding: 5px;
-  border: 3px solid var(--text-color);
+  border: 3px solid var(--primary-color);
 }
 
 .status-item {
   display: flex;
   align-items: center;
-  font-size: 1.25rem;
-}
-
-.status-item i {
-  margin-right: 5px;
-  color: var(--text-color);
+  color: var(--secondary-color);
 }
 
 .status-item img {
@@ -195,20 +188,23 @@ h2 {
   margin-right: 5px;
 }
 
+.status-item span {
+  font-size: 1.5rem;
+}
+
 .game-area {
-  background-color: var(--secondary-color);
-  padding: 10px;
-  border: 3px solid var(--text-color);
-  margin-bottom: 10px;
+  background-color: var(--text-color);
+  padding: 5px;
+  margin-bottom: 7px;
   height: 100%;
 }
 
 .monster-name {
-  font-size: 1rem;
+  font-size: 1.25rem;
   margin-bottom: 40px;
-  text-shadow: 2px 2px 0px #000;
-  background-color: #000;
-  color: #fff;
+  background-color: var(--text-color);
+  color: var(--secondary-color);
+  border: 2px solid var(--primary-color);
   padding: 5px 10px;
 }
 
@@ -223,6 +219,7 @@ h2 {
   background-image: url("images/forest.png");
   background-size: cover;
   background-position: center;
+  border: 3px solid var(--primary-color);
 }
 
 .room-element img {
@@ -263,10 +260,10 @@ h2 {
 }
 
 .log-area {
-  background-color: var(--secondary-color);
-  color: var(--text-color);
+  background-color: var(--text-color);
+  color: var(--secondary-color);
   padding: 5px;
-  border: 3px solid var(--text-color);
+  border: 3px solid var(--primary-color);
   min-height: 55px;
   font-size: 1.25rem;
   text-align: center;
@@ -278,6 +275,7 @@ h2 {
   margin-bottom: 20px;
   margin-top: 10px;
   height: 20px;
+  color: var(--secondary-color);
 }
 
 .action-buttons,
@@ -288,6 +286,7 @@ h2 {
   display: flex;
   justify-content: space-around;
   margin-bottom: 15px;
+  padding: 5px;
 }
 
 .action-buttons {
@@ -310,6 +309,7 @@ h2 {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  background-color: var(--text-color);
 }
 
 .action-container {
