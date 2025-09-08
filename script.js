@@ -37,10 +37,10 @@ const playerInitialState = {
 
 //Definições para testes
 const playerInitialState = {
-  hp: 200,
-  maxHp: 200,
-  ac: 55,
-  attackBonus: 50,
+  hp: 50,
+  maxHp: 50,
+  ac: 30,
+  attackBonus: 20,
   damageBonus: 20,
   potions: 2,
   gold: 0,
@@ -441,7 +441,7 @@ function disableSpecialButton() {
   specialAtkButton.style.pointerEvents = "none";
   specialAtkButton.style.opacity = 0.5;
   specialAtkButton.innerHTML = `
-              <img class="btn-image" src="images/swords.png" alt="" />
+              <img class="btn-image" src="images/ui/special-attack.webp" alt="" />
              (${turnsToSpecial + 1})`;
 }
 
@@ -449,7 +449,7 @@ function enableSpecialButton() {
   specialAtkButton.style.pointerEvents = "auto";
   specialAtkButton.style.opacity = 1;
   specialAtkButton.innerHTML = `
-              <img class="btn-image" src="images/swords.png" alt="" />
+              <img class="btn-image" src="images/ui/special-attack.webp" alt="" />
               RISCA-FACA`;
 }
 
