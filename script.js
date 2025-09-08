@@ -59,6 +59,7 @@ let processingMessages = false;
 let waitingForAction = false;
 let currentRoomData = { number: 0, type: ROOM_TYPES.EMPTY };
 let tempMessage = "";
+let turnsToSpecial = 0;
 
 // --- DOM Elements ---
 // Screens
@@ -359,6 +360,12 @@ function updateUI() {
 
 function showCombatActions() {
   if (!processingMessages) {
+    if (turnsToSpecial > 0) {
+      turnsToSpecial -= 1;
+      disableSpecialButton();
+    } else {
+      enableSpecialButton();
+    }
     hideAllActions();
     orientationText.textContent = "O que fazer?";
     actionButtons.style.display = "flex";
@@ -428,6 +435,22 @@ function showAppropriateActions() {
       }
       break;
   }
+}
+
+function disableSpecialButton() {
+  specialAtkButton.style.pointerEvents = "none";
+  specialAtkButton.style.opacity = 0.5;
+  specialAtkButton.innerHTML = `
+              <img class="btn-image" src="images/swords.png" alt="" />
+             (${turnsToSpecial + 1})`;
+}
+
+function enableSpecialButton() {
+  specialAtkButton.style.pointerEvents = "auto";
+  specialAtkButton.style.opacity = 1;
+  specialAtkButton.innerHTML = `
+              <img class="btn-image" src="images/swords.png" alt="" />
+              RISCA-FACA`;
 }
 
 // --- Lógica de Salas ---
@@ -671,6 +694,8 @@ function playerSpecialAtk() {
   if (processingMessages) return;
   const attackRoll = rollDice(20);
   const attackTotal = attackRoll + player.attackBonus;
+
+  turnsToSpecial += 3;
 
   addMessage("Você ataca furiosamente!");
 
