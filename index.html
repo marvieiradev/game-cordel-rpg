@@ -10,8 +10,7 @@
   <body>
     <!-- Tela de Menu -->
     <div id="menu-screen" class="screen">
-      <h1>SOMBRAS DO SERTÃO</h1>
-      <img src="images/moon.png" alt="" width="150px" />
+      <img src="images/logo.webp" alt="" class="logo" />
       <div class="menu-buttons">
         <button id="btn-start" class="btn btn-menu">INICIAR</button>
         <button id="btn-continue" class="btn btn-menu" disabled>
@@ -48,9 +47,7 @@
           atravessar essa mata de espinho.
         </p>
       </div>
-      <button id="btn-start-game" class="btn btn-action">
-        COMEÇAR AVENTURA
-      </button>
+      <button id="btn-start-game" class="btn btn-game">COMEÇAR AVENTURA</button>
     </div>
 
     <!-- Tela de Jogo -->
@@ -108,7 +105,7 @@
             </div>
             <div id="btn-potion" class="btn btn-action">
               <img class="btn-image" src="images/ui/potion.webp" alt="" />
-              <span>ALUÁ X<span id="potion-count"></span></span>
+              <span>ALUÁ x <span id="potion-count"></span></span>
             </div>
           </div>
 
@@ -117,36 +114,36 @@
             class="explore-buttons"
             style="display: none"
           >
-            <button id="btn-left" class="btn btn-action">
+            <div id="btn-left" class="btn btn-action">
               <img class="btn-image" src="images/ui/left.webp" alt="" />ESQUERDA
-            </button>
-            <button id="btn-right" class="btn btn-action">
+            </div>
+            <div id="btn-right" class="btn btn-action">
               <img class="btn-image" src="images/ui/right.webp" alt="" />DIREITA
-            </button>
+            </div>
           </div>
 
           <div id="trap-buttons" class="trap-buttons" style="display: none">
-            <button id="lift-action-button" class="btn btn-action">
+            <div id="lift-action-button" class="btn btn-action">
               <img class="btn-image" src="images/ui/run.webp" alt="" />
               LEVANTAR
-            </button>
+            </div>
 
-            <button id="observe-action-button" class="btn btn-action">
+            <div id="observe-action-button" class="btn btn-action">
               <img class="btn-image" src="images/ui/eye.webp" alt="" />
               OBSERVAR LOCAL
-            </button>
+            </div>
           </div>
 
           <div id="chest-buttons" class="chest-buttons" style="display: none">
-            <button id="open-action-button" class="btn btn-action">
+            <div id="open-action-button" class="btn btn-action">
               <img class="btn-image" src="images/ui/hand.webp" alt="" />
               ABRIR BUTIJA
-            </button>
+            </div>
 
-            <button id="ignore-action-button" class="btn btn-action">
+            <div id="ignore-action-button" class="btn btn-action">
               <img class="btn-image" src="images/ui/run.webp" alt="" />
               IGNORAR
-            </button>
+            </div>
           </div>
 
           <div
@@ -154,12 +151,14 @@
             class="safe-room-buttons"
             style="display: none"
           >
-            <button id="btn-strengthen" class="btn btn-action">
+            <div id="btn-strengthen" class="btn btn-action">
+              <img class="btn-image" src="images/ui/strength.webp" alt="" />
               FORTALECER HERÓI
-            </button>
-            <button id="btn-save-continue" class="btn btn-action">
+            </div>
+            <div id="btn-save-continue" class="btn btn-action">
+              <img class="btn-image" src="images/ui/save.webp" alt="" />
               SALVAR E CONTINUAR
-            </button>
+            </div>
           </div>
         </div>
       </div>
@@ -181,7 +180,7 @@
             AUMENTAR HP (+1)
           </button>
         </div>
-        <button id="btn-close-modal" class="btn btn-action">CANCELAR</button>
+        <button id="btn-close-modal" class="btn btn-game">CANCELAR</button>
       </div>
     </div>
 
@@ -240,8 +239,8 @@
           E assim termina a lenda, de um guerreiro sem sorte, que encontrou nos
           braços da mata o silêncio frio da morte.
         </p>
-        <button id="btn-restart" class="btn btn-action">VOLTAR AO MENU</button>
       </div>
+      <button id="btn-restart" class="btn btn-game">VOLTAR AO MENU</button>
     </div>
 
     <!-- Tela de Créditos (Vitória) -->
@@ -265,9 +264,7 @@
           veredas do sertão.
         </p>
       </div>
-      <button id="btn-credits-menu" class="btn btn-action">
-        VOLTAR AO MENU
-      </button>
+      <button id="btn-credits-menu" class="btn btn-game">VOLTAR AO MENU</button>
     </div>
 
     <!-- Tela Sobre o Jogo -->
@@ -286,7 +283,7 @@
           JavaScript.
         </p>
       </div>
-      <button id="btn-about-menu" class="btn btn-action">VOLTAR AO MENU</button>
+      <button id="btn-about-menu" class="btn btn-game">VOLTAR AO MENU</button>
     </div>
 
     <!-- Tela de Instruções -->
@@ -303,7 +300,7 @@
         </p>
         <p>Derrote o todos os inimigos e tente sair vivo!</p>
       </div>
-      <button id="btn-instructions-menu" class="btn btn-action">
+      <button id="btn-instructions-menu" class="btn btn-game">
         VOLTAR AO MENU
       </button>
     </div>

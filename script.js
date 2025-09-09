@@ -37,9 +37,9 @@ const playerInitialState = {
 
 //Definições para testes
 const playerInitialState = {
-  hp: 50,
+  hp: 1,
   maxHp: 50,
-  ac: 30,
+  ac: 1,
   attackBonus: 20,
   damageBonus: 20,
   potions: 2,
@@ -61,8 +61,7 @@ let currentRoomData = { number: 0, type: ROOM_TYPES.EMPTY };
 let tempMessage = "";
 let turnsToSpecial = 0;
 
-// --- DOM Elements ---
-// Screens
+// Telas
 const menuScreen = document.getElementById("menu-screen");
 const storyScreen = document.getElementById("story-screen");
 const gameScreen = document.getElementById("game-screen");
@@ -72,7 +71,7 @@ const aboutScreen = document.getElementById("about-screen");
 const instructionsScreen = document.getElementById("instructions-screen");
 const strengthenModal = document.getElementById("strengthen-modal");
 
-// Buttons
+// Botões
 const startButton = document.getElementById("btn-start");
 const continueButton = document.getElementById("btn-continue");
 const aboutButton = document.getElementById("btn-about");
@@ -101,7 +100,7 @@ const upgradeHpButton = document.getElementById("btn-upgrade-hp");
 const closeModalButton = document.getElementById("btn-close-modal");
 const btnPotion = document.getElementById("btn-potion");
 
-// Game UI
+// UI do jogo
 const playerHpEl = document.getElementById("player-hp");
 const playerMaxHpEl = document.getElementById("player-max-hp");
 const playerAcEl = document.getElementById("player-ac");
@@ -121,7 +120,6 @@ const chestButtons = document.getElementById("chest-buttons");
 const safeRoomButtons = document.getElementById("safe-room-buttons");
 const bonusDamageEl = document.getElementById("damage-bonus");
 
-// --- Event Listeners ---
 // Menu
 startButton.addEventListener("click", startNewGame);
 continueButton.addEventListener("click", continueGame);
@@ -131,10 +129,10 @@ instructionsButton.addEventListener("click", () =>
 );
 deleteDataButton.addEventListener("click", deleteAllData);
 
-// Story
+// Historia
 startGameButton.addEventListener("click", startGameFromStory);
 
-// Game
+// Jogo
 attackButton.addEventListener("click", playerAttack);
 specialAtkButton.addEventListener("click", playerSpecialAtk);
 dodgeButton.addEventListener("click", playerDodge);
@@ -147,17 +145,17 @@ ignoreChestButton.addEventListener("click", ignoreChest);
 liftActionButton.addEventListener("click", liftAction);
 observeActionButton.addEventListener("click", observeAction);
 
-// Game Over and Credits
+// Fim de Jogo e Créditos
 restartButton.addEventListener("click", () => showScreen(menuScreen));
 creditsMenuButton.addEventListener("click", () => showScreen(menuScreen));
 aboutMenuButton.addEventListener("click", () => showScreen(menuScreen));
 instructionsMenuButton.addEventListener("click", () => showScreen(menuScreen));
 
-// Safe Room
+// Sala segura
 strengthenButton.addEventListener("click", showStrengthenModal);
 saveContinueButton.addEventListener("click", saveAndContinue);
 
-// Strengthen Modal
+// Modal de fortalecimento
 upgradeAttackButton.addEventListener("click", () => upgradeAttribute("attack"));
 upgradeDefenseButton.addEventListener("click", () =>
   upgradeAttribute("defense")
@@ -165,13 +163,13 @@ upgradeDefenseButton.addEventListener("click", () =>
 upgradeHpButton.addEventListener("click", () => upgradeAttribute("hp"));
 closeModalButton.addEventListener("click", hideStrengthenModal);
 
-//Modal Erase
+// Modal apagar dados
 const eraseModal = document.getElementById("erase-modal");
 const confirmOptions = document.getElementById("confirm-options");
 const okOptions = document.getElementById("ok-buttons");
 const eraseOptions = document.getElementById("erase-options");
 
-// --- Helper Functions ---
+// --- Funcões auxiliares ---
 function addMessage(message) {
   messageQueue.push(message);
   tempMessage = message;
@@ -305,8 +303,7 @@ function deleteAllData() {
   });
 
   document.getElementById("btn-erase-yes").addEventListener("click", () => {
-    localStorage.removeItem("saveGameRooms");
-    localStorage.removeItem("gameSafeSave");
+    deleteSaveGame();
     generateAllRooms();
     localStorage.setItem("saveGameRooms", JSON.stringify(gameRooms));
     continueButton.disabled = true;
@@ -330,6 +327,11 @@ function resetEraseModal() {
   confirmOptions.style.display = "block";
   eraseOptions.style.display = "none";
   okOptions.style.display = "none";
+}
+
+function deleteSaveGame() {
+  localStorage.removeItem("saveGameRooms");
+  localStorage.removeItem("gameSafeSave");
 }
 
 // --- Atualização da UI ---
@@ -399,6 +401,14 @@ function showTrapActions() {
   }
 }
 
+function showSecureRoomActions() {
+  hideAllActions();
+  if (!processingMessages) {
+    orientationText.textContent = "O que fazer?";
+    safeRoomButtons.style.display = "flex";
+  }
+}
+
 function showAppropriateActions() {
   waitingForAction = false;
 
@@ -424,15 +434,8 @@ function showAppropriateActions() {
       break;
     case ROOM_TYPES.SAFE:
       // Em sala segura, mostrar os botões específicos de sala segura
-      actionButtons.style.display = "none";
-      exploreButtons.style.display = "none";
-      trapButtons.style.display = "none";
-      chestButtons.style.display = "none";
-
-      if (!processingMessages) {
-        safeRoomButtons.style.display = "flex";
-        potionButton.style.display = "flex";
-      }
+      showSecureRoomActions();
+      //waitingForAction = true;
       break;
   }
 }
@@ -441,8 +444,8 @@ function disableSpecialButton() {
   specialAtkButton.style.pointerEvents = "none";
   specialAtkButton.style.opacity = 0.5;
   specialAtkButton.innerHTML = `
-              <img class="btn-image" src="images/ui/special-attack.webp" alt="" />
-             (${turnsToSpecial + 1})`;
+              <img class="btn-image" src="images/ui/timer.webp" alt="" />
+             ESPERE ( ${turnsToSpecial + 1} )`;
 }
 
 function enableSpecialButton() {
@@ -622,8 +625,14 @@ function moveToNextRoom(direction) {
 
   if (direction === "left") {
     nextRoom = player.currentRoom + 1;
+    if (player.currentRoom >= 49) {
+      nextRoom = 50;
+    }
   } else {
     nextRoom = player.currentRoom + 2;
+    if (player.currentRoom >= 49) {
+      nextRoom = 50;
+    }
   }
 
   // Entrar na próxima sala
@@ -896,7 +905,7 @@ function gameOver() {
   logMessage("Você sente um frio na espinha, vê seu sangue escorrer...");
 
   // Remover o save do jogo
-  localStorage.removeItem("gameSafeSave");
+  deleteSaveGame();
 
   // Mostrar tela de game over
   setTimeout(() => {
@@ -910,6 +919,7 @@ function victory() {
   // Mostrar tela de créditos
   setTimeout(() => {
     showScreen(creditsScreen);
+    deleteSaveGame();
   }, MESSAGE_DELAY * 4);
 }
 
@@ -948,7 +958,7 @@ function generateMonster(roomNumber) {
 
       // Escolher nome e imagem aleatória do Monstro (tipo fraco)
       const weakMonsters = [
-        { name: "Porco do Mato", image: "images/monster/monster.webp" },
+        { name: "Porco do Mato", image: "images/monster/porco-do-mato.webp" },
         { name: "Cachorro Doido", image: "images/monster/cachorro-doido.webp" },
         { name: "Guabiru", image: "images/monster/guabiru.webp" },
         { name: "Cobra Cascavel", image: "images/monster/cobra-cascavel.webp" },
@@ -1069,6 +1079,7 @@ function ignoreChest() {
   imageMonster.src = "";
   currentRoomData.type = ROOM_TYPES.EMPTY;
   addMessage(tempMessage);
+  console.log(currentRoomData);
 }
 
 function liftAction() {

@@ -3,7 +3,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Tagesschrift&display=swap");
 
 :root {
-  /* Colors */
   --primary-color: #d9c4a3;
   --secondary-color: #f3e3c9;
   --text-color: #0a0a0a;
@@ -40,7 +39,11 @@ h1 {
 h2 {
   font-size: 2.5rem;
   margin-bottom: 1.5rem;
-  text-shadow: 2px 2px 0px #222;
+}
+
+.logo {
+  width: 80%;
+  margin-bottom: 10px;
 }
 
 /* Botões */
@@ -49,25 +52,31 @@ h2 {
   padding: 10px 20px;
   border: none;
   cursor: pointer;
-  text-transform: uppercase;
   font-size: 1rem;
   transition: all 0.2s;
   color: var(--text-color);
 }
 
-.btn-menu {
-  background-color: var(--secondary-color);
-  border: 3px solid var(--text-color);
-  width: 80%;
-  padding: 15px;
-  margin: 10px auto;
-  display: block;
-  font-size: 1.25rem;
+.btn:hover {
+  transform: scale(1.05);
+  transform: translateY(-5px);
 }
 
-.btn-menu:hover {
-  background-color: var(--hover-color);
-  transform: scale(1.05);
+.btn-menu {
+  background-color: var(--primary-color);
+  border: 4px solid var(--text-color);
+  width: 80%;
+  padding: 10px;
+  margin: 10px auto;
+  display: block;
+  font-size: 1.5rem;
+}
+
+.btn-game {
+  background-color: var(--text-color);
+  color: var(--primary-color);
+  padding: 15px;
+  margin: 10px auto;
 }
 
 .btn-action {
@@ -76,15 +85,14 @@ h2 {
   color: var(--secondary-color);
   width: 40%;
   height: 80px;
+  padding: 5px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.btn-action:hover {
-  background-color: #333;
-  transform: scale(1.05);
+  gap: 10px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .btn-upgrade {
@@ -99,9 +107,7 @@ h2 {
 }
 
 .btn-upgrade:disabled {
-  background-color: #333;
-  border: 3px solid #666;
-  color: #888;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -113,14 +119,8 @@ h2 {
   margin-top: 30px;
   font-size: 0.8rem;
   padding: 8px;
-  background-color: #fcb7b7;
-  border: 3px solid #cc0000;
-}
-
-.btn-small:hover {
-  background-color: #cc0000;
-  color: #fff3d2;
-  transform: scale(1.05);
+  background-color: var(--text-color);
+  color: var(--secondary-color);
 }
 
 .btn-image {
@@ -140,7 +140,6 @@ h2 {
 
 .versao {
   font-size: 1rem;
-  color: #2c2300;
   margin-top: 30px;
 }
 
@@ -148,7 +147,7 @@ h2 {
 .story-content {
   background-color: var(--primary-color);
   padding: 20px;
-  border: 3px solid #333;
+  border: 3px solid var(--text-color);
   margin-bottom: 20px;
   line-height: 1.6;
   font-size: 1.25rem;
@@ -224,7 +223,7 @@ h2 {
 
 .room-element img {
   display: flex;
-  height: 150px;
+  height: 175px;
   position: absolute;
   bottom: 0;
   object-fit: contain;
@@ -232,15 +231,15 @@ h2 {
 
 .room-element {
   position: absolute;
-  width: 150px;
-  height: 150px;
+  width: 175px;
+  height: 175px;
   bottom: 10px;
 }
 
 .room-element.boss {
   position: absolute;
-  width: 200px;
-  height: 150px;
+  width: 225px;
+  height: 175px;
   bottom: 10px;
 }
 
@@ -254,8 +253,7 @@ h2 {
   top: 10px;
   right: 10px;
   font-size: 0.5rem;
-  color: #fff;
-  text-shadow: 2px 2px 0px #000;
+  color: var(--primary-color);
   z-index: 10;
 }
 
@@ -264,10 +262,10 @@ h2 {
   color: var(--secondary-color);
   padding: 5px;
   border: 3px solid var(--primary-color);
-  min-height: 55px;
+  min-height: 60px;
   font-size: 1.25rem;
   text-align: center;
-  line-height: 1.5;
+  line-height: 1.2;
 }
 
 #orientation {
@@ -327,7 +325,7 @@ h2 {
   border: 3px solid var(--text-color);
   margin-bottom: 20px;
   line-height: 1.6;
-  font-size: 0.8rem;
+  font-size: 1.25rem;
   text-align: center;
 }
 
@@ -355,7 +353,7 @@ h2 {
 
 #erase-modal .modal-content {
   background-color: var(--primary-color);
-  border: 5px solid #d10000;
+  border: 5px solid var(--text-color);
   padding: 20px;
   max-width: 500px;
   width: 80%;
@@ -368,7 +366,7 @@ h2 {
 }
 
 #erase-modal p {
-  font-size: 0.8rem;
+  font-size: 1rem;
   margin-bottom: 20px;
 }
 
@@ -385,8 +383,9 @@ h2 {
 
 #btn-yes,
 #btn-erase-yes {
-  background-color: #d80000;
+  background-color: var(--text-color);
   border: 3px solid var(--text-color);
+  color: var(--secondary-color);
 }
 #btn-no,
 #btn-erase-no,
@@ -412,8 +411,16 @@ h2 {
     padding: 5px;
   }
 
+  .btn-menu {
+    font-size: 1.3rem;
+  }
+
+  .btn-game {
+    font-size: 1.2rem;
+  }
+
   .btn-small {
-    font-size: 1rem;
+    font-size: 0.8rem;
   }
 
   .room-container {
@@ -421,9 +428,17 @@ h2 {
   }
 
   .room-element img {
-    height: 120px;
-    position: absolute;
-    bottom: 0;
+    height: 135px;
+  }
+
+  .room-element {
+    width: 135px;
+    height: 135px;
+  }
+
+  .room-element.boss {
+    width: 185px;
+    height: 135px;
   }
 
   .status-item,
