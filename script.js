@@ -37,13 +37,13 @@ const playerInitialState = {
 
 //Definições para testes
 const playerInitialState = {
-  hp: 1,
-  maxHp: 50,
-  ac: 1,
+  hp: 20,
+  maxHp: 20,
+  ac: 20,
   attackBonus: 20,
   damageBonus: 20,
-  potions: 2,
-  gold: 0,
+  potions: 20,
+  gold: 20,
   currentRoom: 0,
   lastRoomTypes: [],
 };
