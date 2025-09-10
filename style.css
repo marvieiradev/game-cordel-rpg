@@ -423,6 +423,10 @@ h2 {
     font-size: 0.8rem;
   }
 
+  .action-buttons .btn-action {
+    font-size: 0.7rem;
+  }
+
   .room-container {
     height: 225px;
   }
