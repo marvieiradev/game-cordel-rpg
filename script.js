@@ -60,6 +60,7 @@ let waitingForAction = false;
 let currentRoomData = { number: 0, type: ROOM_TYPES.EMPTY };
 let tempMessage = "";
 let turnsToSpecial = 0;
+let deaths = 0;
 
 // Telas
 const menuScreen = document.getElementById("menu-screen");
@@ -243,6 +244,8 @@ function initializeGame() {
   if (savedGame) {
     continueButton.disabled = false;
     continueButton.style.display = "block";
+    //Verifica a quantidade de mortes
+    deaths = JSON.parse(savedGame).deaths;
   } else {
     continueButton.disabled = true;
     continueButton.style.display = "none";
@@ -252,7 +255,15 @@ function initializeGame() {
 }
 
 function startNewGame() {
-  player = { ...playerInitialState };
+  //Ao iniciar o jogo, adiciona o numero de mortes a alguns status do personagem, deixando-o mais forte
+  //Mecanica semelhante a um jogo rogue-like onde o personagem fica mais forte, a cada aventura mal-sucedida
+  player = {
+    ...playerInitialState,
+    ac: player.ac + deaths,
+    attackBonus: player.attackBonus + deaths,
+    hp: player.hp + deaths,
+    maxHp: player.maxHp + deaths,
+  };
   currentMonster = null;
   playerDodging = false;
   monsterDodging = false;
