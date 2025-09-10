@@ -41,10 +41,10 @@ const playerInitialState = {
   maxHp: 20,
   ac: 20,
   attackBonus: 20,
-  damageBonus: 20,
   potions: 20,
   gold: 20,
   currentRoom: 0,
+  deaths: 0,
   lastRoomTypes: [],
 };
 
@@ -356,8 +356,6 @@ function updateUI() {
   if (currentRoomData.type) {
     roomElementEl.classList.add(currentRoomData.type);
   }
-
-  //bonusDamageEl.textContent = player.damageBonus;
 }
 
 function showCombatActions() {
@@ -435,7 +433,6 @@ function showAppropriateActions() {
     case ROOM_TYPES.SAFE:
       // Em sala segura, mostrar os botões específicos de sala segura
       showSecureRoomActions();
-      //waitingForAction = true;
       break;
   }
 }
@@ -650,14 +647,18 @@ function playerAttack() {
   // Roll d20 + attack bonus
   const attackRoll = rollDice(20);
   const attackTotal = attackRoll + player.attackBonus;
+  const damageBonus = Math.floor(player.attackBonus / 2);
 
   addMessage("Você ataca!");
+
+  //Animação de ataque
+  animationHandle("player");
 
   // Check if hit
   if (attackTotal >= currentMonster.ac) {
     // Roll damage
     const damageRoll = rollDice(6);
-    let damageTotal = damageRoll + player.damageBonus;
+    let damageTotal = damageRoll + damageBonus;
 
     // Nova lógica de dano
     if (attackRoll === 20) {
@@ -703,14 +704,19 @@ function playerSpecialAtk() {
   if (processingMessages) return;
   const attackRoll = rollDice(20);
   const attackTotal = attackRoll + player.attackBonus;
+  const damageBonus = Math.floor(player.attackBonus / 2);
 
+  //Animação de ataque
+  animationHandle("player");
+
+  // A cada uso do especial, adicionar 3 turnos para o próximo uso
   turnsToSpecial += 3;
 
   addMessage("Você ataca furiosamente!");
 
   if (attackTotal >= currentMonster.ac) {
     const damageRoll = rollDice(6);
-    let damageTotal = damageRoll + player.damageBonus;
+    let damageTotal = damageRoll + damageBonus;
 
     if (attackRoll === 20) {
       damageTotal *= 2;
@@ -762,6 +768,9 @@ function monsterTurn() {
   // Ataque do monstro
   // Calcular CA efetiva do jogador (considerando esquiva)
   const effectivePlayerAC = player.ac + (playerDodging ? 5 : 0);
+
+  //Animação de ataque
+  animationHandle("monster");
 
   // Rolar d20 + bônus de ataque do monstro
   const attackRoll = rollDice(20);
@@ -833,7 +842,7 @@ function monsterTurn() {
 //Quando o monstro for derrotado gerar loot
 function monsterDefeated() {
   setTimeout(() => {
-    imageMonster.src = "";
+    animationHandle("object");
     monsterNameEl.textContent = "";
     monsterNameEl.style.opacity = 0;
   }, MESSAGE_DELAY * 2);
@@ -876,6 +885,32 @@ function monsterDefeated() {
   setTimeout(() => {
     updateUI();
   }, MESSAGE_DELAY * 4);
+}
+
+function animationHandle(character) {
+  let time;
+  setTimeout(() => {
+    switch (character) {
+      case "player":
+        imageMonster.classList.add("zoomOut");
+        time = 1000;
+        break;
+      case "monster":
+        imageMonster.classList.add("zoomIn");
+        time = 2000;
+        break;
+      case "object":
+        imageMonster.classList.add("gone");
+        time = 2000;
+        setTimeout(() => {
+          imageMonster.src = "";
+        }, time);
+        break;
+    }
+  }, time);
+  imageMonster.classList.remove("zoomIn");
+  imageMonster.classList.remove("zoomOut");
+  imageMonster.classList.remove("gone");
 }
 
 function usePotion() {
@@ -1066,6 +1101,8 @@ function openChest() {
   // Gerar o loot do baú com base no tipo
   const loot = generateChestLoot(chestType);
 
+  animationHandle("object");
+
   // Aplicar o loot ao jogador
   applyLoot(loot);
 
@@ -1076,15 +1113,18 @@ function openChest() {
 
 function ignoreChest() {
   addMessage("Você decide não mexer na butija.");
-  imageMonster.src = "";
-  currentRoomData.type = ROOM_TYPES.EMPTY;
   addMessage(tempMessage);
-  console.log(currentRoomData);
+
+  //Animação de ignorar botija
+  animationHandle("object");
+  currentRoomData.type = ROOM_TYPES.EMPTY;
 }
 
 function liftAction() {
   addMessage("Você se levanta com cuidado.");
   // Após levantar, a armadilha desaparece e a sala é marcada como vazia
+  //Animação de sair da arapuca
+  animationHandle("object");
   setTimeout(() => {
     imageMonster.src = "";
   }, MESSAGE_DELAY * 1.5);
@@ -1109,7 +1149,6 @@ function generateChestLoot(chestType) {
       if (roll < 30) {
         loot = { type: "potion", amount: 1 };
       } else if (roll < 60) {
-        console.log("Problema");
         loot = { type: "gold", amount: 20, gold: 20 };
       } else if (roll < 80) {
         loot = { type: "common_armor" };
@@ -1200,15 +1239,12 @@ function applyLoot(loot) {
   // Aumentar ataque
   if (loot.type === "common_attack") {
     player.attackBonus += 1;
-    player.damageBonus = Math.floor(player.attackBonus / 2);
     addMessage("Achou um chá amargo! Seu ataque aumenta +1");
   } else if (loot.type === "rare_attack") {
     player.attackBonus += 2;
-    player.damageBonus = Math.floor(player.attackBonus / 2);
     addMessage("Achou um chá forte de raiz! Seu ataque aumenta +2");
   } else if (loot.type === "legendary_attack") {
     player.attackBonus += 3;
-    player.damageBonus = Math.floor(player.attackBonus / 2);
     addMessage("Achou um chá encantado! Seu ataque aumenta +3");
   }
   updateUI();
@@ -1264,7 +1300,6 @@ function upgradeAttribute(attribute) {
   switch (attribute) {
     case "attack":
       player.attackBonus += 1;
-      player.damageBonus = Math.floor(player.attackBonus / 2);
       addMessage(
         `Ataque aumentado! (${player.attackBonus - 1} -> ${player.attackBonus})`
       );
