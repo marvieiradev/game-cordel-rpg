@@ -41,9 +41,9 @@ const playerInitialState = {
 
 //Definições para testes
 const playerInitialState = {
-  hp: 1,
-  maxHp: 1,
-  ac: 1,
+  hp: 20,
+  maxHp: 20,
+  ac: 20,
   attackBonus: 20,
   potions: 20,
   gold: 20,
@@ -245,11 +245,16 @@ function initializeGame() {
 
   // Verificar se existe jogo salvo em sala segura
   const savedGame = localStorage.getItem("gameSafeSave");
+  let currentRoom;
+  //Verifica a quantidade de mortes
   if (savedGame) {
+    currentRoom = JSON.parse(savedGame).currentRoom;
+    deaths = JSON.parse(savedGame).deaths;
+  }
+
+  if (savedGame && currentRoom > 0) {
     continueButton.disabled = false;
     continueButton.style.display = "block";
-    //Verifica a quantidade de mortes
-    deaths = JSON.parse(savedGame).deaths;
   } else {
     continueButton.disabled = true;
     continueButton.style.display = "none";
@@ -319,14 +324,13 @@ function deleteAllData() {
 
   document.getElementById("btn-erase-yes").addEventListener("click", () => {
     deleteSaveGame();
-    generateAllRooms();
     localStorage.setItem("saveGameRooms", JSON.stringify(gameRooms));
     continueButton.disabled = true;
     continueButton.style.display = "none";
     eraseOptions.style.display = "none";
     okOptions.style.display = "flex";
     document.getElementById("btn-ok").addEventListener("click", () => {
-      resetEraseModal();
+      window.location.reload();
     });
   });
 
