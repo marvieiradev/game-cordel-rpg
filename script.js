@@ -27,7 +27,7 @@ const playerInitialState = {
   maxHp: 20,
   ac: 15,
   attackBonus: 5,
-  damageBonus: 2,
+  deaths: 0,
   potions: 2,
   gold: 0,
   currentRoom: 0,
@@ -37,9 +37,9 @@ const playerInitialState = {
 
 //Definições para testes
 const playerInitialState = {
-  hp: 20,
-  maxHp: 20,
-  ac: 20,
+  hp: 1,
+  maxHp: 1,
+  ac: 1,
   attackBonus: 20,
   potions: 20,
   gold: 20,
@@ -147,7 +147,7 @@ liftActionButton.addEventListener("click", liftAction);
 observeActionButton.addEventListener("click", observeAction);
 
 // Fim de Jogo e Créditos
-restartButton.addEventListener("click", () => showScreen(menuScreen));
+restartButton.addEventListener("click", () => window.location.reload());
 creditsMenuButton.addEventListener("click", () => showScreen(menuScreen));
 aboutMenuButton.addEventListener("click", () => showScreen(menuScreen));
 instructionsMenuButton.addEventListener("click", () => showScreen(menuScreen));
@@ -768,7 +768,9 @@ function playerDodge() {
   playerDodging = true;
 
   // Monster's turn
-  monsterTurn();
+  setTimeout(() => {
+    monsterTurn();
+  }, 3000);
 }
 
 function monsterTurn() {
@@ -949,9 +951,14 @@ function usePotion() {
 
 function gameOver() {
   logMessage("Você sente um frio na espinha, vê seu sangue escorrer...");
+  //Salvar os dados do jogador para a próxima partida
+  localStorage.setItem(
+    "gameSafeSave",
+    JSON.stringify({ ...playerInitialState, deaths: deaths + 1 })
+  );
 
   // Remover o save do jogo
-  deleteSaveGame();
+  localStorage.removeItem("saveGameRooms");
 
   // Mostrar tela de game over
   setTimeout(() => {
@@ -965,7 +972,7 @@ function victory() {
   // Mostrar tela de créditos
   setTimeout(() => {
     showScreen(creditsScreen);
-    deleteSaveGame();
+    localStorage.removeItem("saveGameRooms");
   }, MESSAGE_DELAY * 4);
 }
 

@@ -386,12 +386,14 @@ h2 {
   background-color: var(--text-color);
   border: 3px solid var(--text-color);
   color: var(--secondary-color);
+  padding: 5px 10px;
 }
 #btn-no,
 #btn-erase-no,
 #btn-ok {
   background-color: var(--primary-color);
   border: 3px solid var(--text-color);
+  padding: 5px 10px;
 }
 
 .strengthen-options {
