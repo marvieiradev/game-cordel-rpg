@@ -20,6 +20,10 @@ const SAFE_ROOMS = [15, 30, 45];
 const MESSAGE_DELAY = 2000; // 2 segundos entre mensagens
 const UPGRADE_COST = 20; // Custo em gold para melhorar um atributo
 const TURNS = 0;
+
+const sounds = {
+  test: "",
+};
 /*
 // Estado inicial do jogador
 const playerInitialState = {
@@ -1342,6 +1346,11 @@ function upgradeAttribute(attribute) {
   // Após fortalecer, marcar a sala como vazia para mostrar opções de direção
   addMessage("Você se sente mais forte!");
   waitingForAction = true;
+}
+
+function playSound(sound) {
+  const audio = new Audio(sound);
+  audio.play();
 }
 
 // --- Inicialização ---
