@@ -910,7 +910,7 @@ function animationHandle(character) {
         break;
       case "monster":
         imageMonster.classList.add("zoomIn");
-        time = 2000;
+        time = 3000;
         break;
       case "object":
         imageMonster.classList.add("gone");
