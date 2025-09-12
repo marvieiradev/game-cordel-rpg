@@ -22,9 +22,18 @@ const UPGRADE_COST = 20; // Custo em gold para melhorar um atributo
 const TURNS = 0;
 
 const sounds = {
-  test: "",
+  playerAtk: "sounds/player_atk.mp3",
+  playerDamage: "sounds/player_damage.mp3",
+  playerDeath: "sounds/player_death.mp3",
+  playerSpecialAtk: "sounds/player_special_atk.mp3",
+  monsterAtk: "sounds/monster_atk.mp3",
+  monsterDeath: "sounds/monster_death.mp3",
+  chest: "sounds/chest.mp3",
+  trap: "sounds/trap.mp3",
+  walk: "sounds/walk.mp3",
+  potion: "sounds/potion.mp3",
 };
-/*
+
 // Estado inicial do jogador
 const playerInitialState = {
   hp: 20,
@@ -37,20 +46,20 @@ const playerInitialState = {
   currentRoom: 0,
   lastRoomTypes: [],
 };
-*/
 
+/*
 //Definições para testes
 const playerInitialState = {
-  hp: 20,
-  maxHp: 20,
-  ac: 20,
-  attackBonus: 20,
+  hp: 1,
+  maxHp: 1,
+  ac: 1,
+  attackBonus: 50,
   potions: 20,
   gold: 20,
   currentRoom: 0,
   deaths: 0,
   lastRoomTypes: [],
-};
+};*/
 
 // Estado global do jogo
 let player = { ...playerInitialState };
@@ -65,6 +74,8 @@ let currentRoomData = { number: 0, type: ROOM_TYPES.EMPTY };
 let tempMessage = "";
 let turnsToSpecial = 0;
 let deaths = 0;
+let handlePlayerDamage = false;
+let isSpecialAtk = false;
 
 // Telas
 const menuScreen = document.getElementById("menu-screen");
@@ -138,8 +149,12 @@ deleteDataButton.addEventListener("click", deleteAllData);
 startGameButton.addEventListener("click", startGameFromStory);
 
 // Jogo
-attackButton.addEventListener("click", playerAttack);
-specialAtkButton.addEventListener("click", playerSpecialAtk);
+attackButton.addEventListener("click", () => {
+  playerAttack(false);
+});
+specialAtkButton.addEventListener("click", () => {
+  playerAttack(true);
+});
 dodgeButton.addEventListener("click", playerDodge);
 leftButton.addEventListener("click", () => moveToNextRoom("left"));
 rightButton.addEventListener("click", () => moveToNextRoom("right"));
@@ -581,6 +596,7 @@ function enterRoom(roomNumber) {
       logMessage("Você encontrou uma butija!");
       break;
     case ROOM_TYPES.TRAP:
+      playSound(sounds.playerDamage);
       imageMonster.src = "images/objects/arapuca.webp";
       logMessage("Você caiu em uma arapuca!");
 
@@ -639,6 +655,9 @@ function moveToNextRoom(direction) {
   // Determinar o próximo número de sala
   let nextRoom;
 
+  //Toca o efeito sonoro
+  playSound(sounds.walk);
+
   if (direction === "left") {
     nextRoom = player.currentRoom + 1;
     if (player.currentRoom >= 49) {
@@ -660,15 +679,24 @@ function rollDice(sides) {
   return Math.floor(Math.random() * sides) + 1;
 }
 
-function playerAttack() {
+function playerAttack(specialAtk) {
   if (processingMessages) return;
+  let special = specialAtk ? 5 : 0;
+
+  if (special > 0) {
+    // A cada uso do especial, adicionar 3 turnos para o próximo uso
+    turnsToSpecial += 3;
+    addMessage("Você ataca furiosamente!");
+    isSpecialAtk = true;
+  } else {
+    addMessage("Você ataca!");
+    isSpecialAtk = false;
+  }
 
   // Roll d20 + attack bonus
   const attackRoll = rollDice(20);
-  const attackTotal = attackRoll + player.attackBonus;
+  const attackTotal = attackRoll + player.attackBonus + special;
   const damageBonus = Math.floor(player.attackBonus / 2);
-
-  addMessage("Você ataca!");
 
   //Animação de ataque
   animationHandle("player");
@@ -700,7 +728,7 @@ function playerAttack() {
       addMessage(`Você causa ${damageTotal} de dano ao inimigo.`);
     }
 
-    currentMonster.hp -= damageTotal;
+    currentMonster.hp -= damageTotal + special;
 
     // Check if monster is defeated
     if (currentMonster.hp <= 0) {
@@ -714,56 +742,6 @@ function playerAttack() {
   }
 
   // Monster's turn
-  setTimeout(() => {
-    monsterTurn();
-  }, MESSAGE_DELAY * 2);
-}
-
-function playerSpecialAtk() {
-  if (processingMessages) return;
-  const attackRoll = rollDice(20);
-  const attackTotal = attackRoll + player.attackBonus;
-  const damageBonus = Math.floor(player.attackBonus / 2);
-
-  //Animação de ataque
-  animationHandle("player");
-
-  // A cada uso do especial, adicionar 3 turnos para o próximo uso
-  turnsToSpecial += 3;
-
-  addMessage("Você ataca furiosamente!");
-
-  if (attackTotal >= currentMonster.ac) {
-    const damageRoll = rollDice(6);
-    let damageTotal = damageRoll + damageBonus;
-
-    if (attackRoll === 20) {
-      damageTotal *= 2;
-      addMessage(`CRÍTICO! você causa ${damageTotal} de dano ao inimigo!`);
-    } else if (attackTotal === currentMonster.ac) {
-      damageTotal = Math.floor(damageTotal / 2);
-      addMessage(`De raspão! você causa ${damageTotal} de dano ao inimigo.`);
-    } else if (
-      attackTotal >=
-      currentMonster.ac + Math.ceil(currentMonster.ac * 0.5)
-    ) {
-      damageTotal = Math.floor(damageTotal * 1.5);
-      addMessage(`Golpe forte! você causa ${damageTotal} de dano ao inimigo!`);
-    } else {
-      addMessage(`Você causa ${damageTotal} de dano ao inimigo.`);
-    }
-
-    currentMonster.hp -= damageTotal + 5;
-
-    if (currentMonster.hp <= 0) {
-      currentMonster.hp = 0;
-      addMessage(`${currentMonster.name} foi derrotado!`);
-      monsterDefeated();
-      return;
-    }
-  } else {
-    addMessage("Você errou!");
-  }
   setTimeout(() => {
     monsterTurn();
   }, MESSAGE_DELAY * 2);
@@ -797,10 +775,11 @@ function monsterTurn() {
   const attackRoll = rollDice(20);
   const attackTotal = attackRoll + currentMonster.attackBonus;
 
-  addMessage(`${currentMonster.name} vai te atacar`);
+  addMessage(`${currentMonster.name} te ataca!`);
 
   // Verifica se o ataque acerta
   if (attackTotal >= effectivePlayerAC) {
+    handlePlayerDamage = true;
     // Calcula o dano
     const damageRoll = rollDice(6);
     let damageTotal = damageRoll + currentMonster.damageBonus;
@@ -833,6 +812,7 @@ function monsterTurn() {
       player.hp = 0;
       setTimeout(() => {
         updateUI();
+        playSound(sounds.playerDeath);
       }, MESSAGE_DELAY * 2);
       setTimeout(() => {
         gameOver();
@@ -840,6 +820,7 @@ function monsterTurn() {
       return;
     }
   } else {
+    handlePlayerDamage = false;
     if (playerDodging) {
       addMessage("Você desviou do ataque!");
     } else {
@@ -864,6 +845,8 @@ function monsterTurn() {
 function monsterDefeated() {
   setTimeout(() => {
     animationHandle("object");
+    //Toca o efeito sonoro
+    playSound(sounds.monsterDeath);
     monsterNameEl.textContent = "";
     monsterNameEl.style.opacity = 0;
   }, MESSAGE_DELAY * 2);
@@ -909,26 +892,34 @@ function monsterDefeated() {
 }
 
 function animationHandle(character) {
-  let time;
   setTimeout(() => {
     switch (character) {
       case "player":
         imageMonster.classList.add("zoomOut");
-        time = 1000;
+        if (isSpecialAtk) {
+          playSound(sounds.playerSpecialAtk);
+        } else {
+          playSound(sounds.playerAtk);
+        }
         break;
       case "monster":
         imageMonster.classList.add("zoomIn");
-        time = 3000;
+        if (handlePlayerDamage) {
+          playSound(sounds.playerDamage);
+        } else {
+          playSound(sounds.monsterAtk);
+        }
         break;
       case "object":
         imageMonster.classList.add("gone");
-        time = 2000;
         setTimeout(() => {
           imageMonster.src = "";
-        }, time);
+        }, 1000);
         break;
+      case "damage":
+        playSound(sounds.playerDamage);
     }
-  }, time);
+  }, 500);
   imageMonster.classList.remove("zoomIn");
   imageMonster.classList.remove("zoomOut");
   imageMonster.classList.remove("gone");
@@ -953,6 +944,7 @@ function usePotion() {
       : healAmount;
   player.hp = Math.min(player.hp + healAmount, player.maxHp);
   addMessage(`Você bebeu um aluá! curou ${healedLife} de vida.`);
+  playSound(sounds.potion);
   updateUI();
   waitingForAction = true;
 }
@@ -1128,6 +1120,7 @@ function openChest() {
   const loot = generateChestLoot(chestType);
 
   animationHandle("object");
+  playSound(sounds.chest);
 
   // Aplicar o loot ao jogador
   applyLoot(loot);
@@ -1143,6 +1136,7 @@ function ignoreChest() {
 
   //Animação de ignorar botija
   animationHandle("object");
+  playSound(sounds.walk);
   currentRoomData.type = ROOM_TYPES.EMPTY;
 }
 
@@ -1151,6 +1145,7 @@ function liftAction() {
   // Após levantar, a armadilha desaparece e a sala é marcada como vazia
   //Animação de sair da arapuca
   animationHandle("object");
+  playSound(sounds.trap);
   setTimeout(() => {
     imageMonster.src = "";
   }, MESSAGE_DELAY * 1.5);
