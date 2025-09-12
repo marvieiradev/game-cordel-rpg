@@ -19,7 +19,6 @@ const BOSS_ROOM = 50;
 const SAFE_ROOMS = [15, 30, 45];
 const MESSAGE_DELAY = 2000; // 2 segundos entre mensagens
 const UPGRADE_COST = 20; // Custo em gold para melhorar um atributo
-const TURNS = 0;
 
 const sounds = {
   playerAtk: "sounds/player_atk.mp3",
@@ -32,7 +31,16 @@ const sounds = {
   trap: "sounds/trap.mp3",
   walk: "sounds/walk.mp3",
   potion: "sounds/potion.mp3",
+  gameMusic: "sounds/game_music.mp3",
+  menuMusic: "sounds/menu_music.mp3",
 };
+
+const gameMusic = new Audio(sounds.gameMusic);
+gameMusic.loop = true;
+const menuMusic = new Audio(sounds.menuMusic);
+menuMusic.loop = true;
+//Função para tocar a musica de fundo do menu
+playMusicMenu();
 
 // Estado inicial do jogador
 const playerInitialState = {
@@ -47,9 +55,8 @@ const playerInitialState = {
   lastRoomTypes: [],
 };
 
-/*
 //Definições para testes
-const playerInitialState = {
+/*const playerInitialState = {
   hp: 1,
   maxHp: 1,
   ac: 1,
@@ -243,6 +250,8 @@ function showScreen(screen) {
   aboutScreen.style.display = "none";
   instructionsScreen.style.display = "none";
 
+  if (menuScreen.style.display === "block") playMusicMenu();
+
   // Mostrar a tela solicitada
   screen.style.display = "block";
 }
@@ -297,6 +306,7 @@ function startNewGame() {
 
   // Mostrar a tela de história
   showScreen(storyScreen);
+  playMusicGame();
 }
 
 function continueGame() {
@@ -311,6 +321,7 @@ function continueGame() {
     }
 
     showScreen(gameScreen);
+    playMusicGame();
     updateUI();
 
     // Definir o tipo da sala atual como vazia para garantir que apenas as opções de direção apareçam
@@ -596,9 +607,10 @@ function enterRoom(roomNumber) {
       logMessage("Você encontrou uma butija!");
       break;
     case ROOM_TYPES.TRAP:
-      playSound(sounds.playerDamage);
       imageMonster.src = "images/objects/arapuca.webp";
       logMessage("Você caiu em uma arapuca!");
+
+      setTimeout(() => playSound(sounds.playerDamage), 2000);
 
       // Aplicar dano da armadilha
       const trapDamage = 5;
@@ -964,6 +976,7 @@ function gameOver() {
   setTimeout(() => {
     imageMonster.src = "";
     showScreen(gameOverScreen);
+    playMusicMenu();
   }, MESSAGE_DELAY * 3);
 }
 
@@ -973,6 +986,7 @@ function victory() {
   setTimeout(() => {
     showScreen(creditsScreen);
     localStorage.removeItem("saveGameRooms");
+    playMusicMenu();
   }, MESSAGE_DELAY * 4);
 }
 
@@ -1350,6 +1364,16 @@ function upgradeAttribute(attribute) {
 function playSound(sound) {
   const audio = new Audio(sound);
   audio.play();
+}
+
+function playMusicGame() {
+  menuMusic.pause();
+  gameMusic.play();
+}
+
+function playMusicMenu() {
+  gameMusic.pause();
+  menuMusic.play();
 }
 
 // --- Inicialização ---
