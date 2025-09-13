@@ -525,8 +525,6 @@ h2 {
     height: 135px;
   }
 
-  .status-item,
-  .log-area,
   .story-content,
   .credits-content,
   .about-content,
@@ -534,6 +532,12 @@ h2 {
   .instructions-content {
     padding: 10px;
     font-size: 1.1rem;
+  }
+
+  .status-item,
+  .log-area {
+    padding: 7px;
+    font-size: 1rem;
   }
 
   .instructions-content {
