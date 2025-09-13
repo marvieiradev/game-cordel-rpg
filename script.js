@@ -1,26 +1,30 @@
-// --- Game Constants and State ---
-const ROOM_TYPES = {
+/*--- Constantes e estados do jogo ---*/
+const ROOM_TYPES = Object.freeze({
   EMPTY: "empty",
   MONSTER: "monster",
   BOSS: "boss",
   CHEST: "chest",
   TRAP: "trap",
   SAFE: "safe",
-};
+});
 
+// Probabilidade de qual sala pode aparecer para o jogador
 const ROOM_PROBABILITIES = [
-  { type: ROOM_TYPES.MONSTER, weight: 60 },
-  { type: ROOM_TYPES.CHEST, weight: 20 },
-  { type: ROOM_TYPES.TRAP, weight: 15 },
-  { type: ROOM_TYPES.EMPTY, weight: 5 },
+  { type: ROOM_TYPES.MONSTER, weight: 60 }, //Chance 60% Monstro
+  { type: ROOM_TYPES.CHEST, weight: 20 }, //Chance 20% Butija
+  { type: ROOM_TYPES.TRAP, weight: 15 }, //Chance 15% Arapuca
+  { type: ROOM_TYPES.EMPTY, weight: 5 }, //Chance 5% Sala vazia
 ];
 
-const BOSS_ROOM = 50;
-const SAFE_ROOMS = [15, 30, 45];
+//Constantes do jogo
+const BOSS_ROOM = 50; // Sala do chefe sempre será a ultima (50)
+const SAFE_ROOMS = [15, 30, 45]; // Salas seguras serão as 15,30 e 45
 const MESSAGE_DELAY = 2000; // 2 segundos entre mensagens
-const UPGRADE_COST = 20; // Custo em gold para melhorar um atributo
+const UPGRADE_COST = 25; // Custo em dinheiro para melhorar um atributo
+const TRAP_DAMAGE = 5; // Dano a cair na armadilha
 
-const sounds = {
+// Sons do jogo
+const SOUNDS = Object.freeze({
   playerAtk: "sounds/player_atk.mp3",
   playerDamage: "sounds/player_damage.mp3",
   playerDeath: "sounds/player_death.mp3",
@@ -33,46 +37,85 @@ const sounds = {
   potion: "sounds/potion.mp3",
   gameMusic: "sounds/game_music.mp3",
   menuMusic: "sounds/menu_music.mp3",
+});
+
+// Função auxiliar para carregar os áudios
+const createAudio = (src, loop = false) => {
+  const a = new Audio(src);
+  a.loop = loop;
+  return a;
+};
+const gameMusic = createAudio(SOUNDS.gameMusic, true);
+const menuMusic = createAudio(SOUNDS.menuMusic, true);
+// Reproduzir efeitos sonoros
+const playSound = (src) => {
+  try {
+    new Audio(src).play();
+  } catch (e) {}
+};
+// Reproduzir musica do jogo
+const playMusicGame = () => {
+  try {
+    menuMusic.pause();
+    gameMusic.play();
+  } catch (e) {}
+};
+// Reproduzir musica do menu
+const playMusicMenu = () => {
+  try {
+    gameMusic.pause();
+    menuMusic.play();
+  } catch (e) {}
 };
 
-const gameMusic = new Audio(sounds.gameMusic);
-gameMusic.loop = true;
-const menuMusic = new Audio(sounds.menuMusic);
-menuMusic.loop = true;
-//Função para tocar a musica de fundo do menu
-playMusicMenu();
-
-// Estado inicial do jogador
-const playerInitialState = {
+// Estado inicial jogador
+const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 15,
+  ac: 5,
   attackBonus: 5,
   deaths: 0,
-  potions: 2,
+  potions: 3,
   gold: 0,
   currentRoom: 0,
   lastRoomTypes: [],
 };
 
-//Definições para testes
-/*const playerInitialState = {
-  hp: 1,
-  maxHp: 1,
-  ac: 1,
-  attackBonus: 50,
-  potions: 20,
-  gold: 20,
-  currentRoom: 0,
-  deaths: 0,
-  lastRoomTypes: [],
-};*/
+/* --- Tipos de Monstros ---*/
+const MONSTER = {
+  fraco: [
+    { name: "Porco do Mato", image: "images/monster/porco-do-mato.webp" },
+    { name: "Cachorro Doido", image: "images/monster/cachorro-doido.webp" },
+    { name: "Guabiru", image: "images/monster/guabiru.webp" },
+    { name: "Cobra Cascavel", image: "images/monster/cobra-cascavel.webp" },
+    { name: "Escorpião", image: "images/monster/escorpiao.webp" },
+  ],
+  normal: [
+    { name: "Jaguatitica", image: "images/monster/jaguatirica.webp" },
+    { name: "Gato Maracajá", image: "images/monster/gato-maracaja.webp" },
+    { name: "Cabeça de Cuia", image: "images/monster/cabeca-de-cuia.webp" },
+    { name: "Visage", image: "images/monster/visage.webp" },
+    { name: "Saci Pererê", image: "images/monster/saci-perere.webp" },
+  ],
+  elite: [
+    { name: "Caipora", image: "images/monster/caipora.webp" },
+    { name: "Corpo Seco", image: "images/monster/corpo-seco.webp" },
+    { name: "Cabra Cabriola", image: "images/monster/cabra-cabriola.webp" },
+    { name: "Lobisomem", image: "images/monster/lobisomen.webp" },
+    { name: "Boitatá", image: "images/monster/boitata.webp" },
+  ],
+};
+
+const BOSS = [
+  { name: "Curupira", image: "images/monster/curupira.webp" },
+  { name: "Cuca", image: "images/monster/cuca.webp" },
+  { name: "Mula sem Cabeça", image: "images/monster/mula-sem-cabeca.webp" },
+];
 
 // Estado global do jogo
-let player = { ...playerInitialState };
+let player = { ...PLAYER_INITIAL };
 let currentMonster = null;
 let playerDodging = false;
-let monsterDodging = false;
 let gameRooms = {};
 let messageQueue = [];
 let processingMessages = false;
@@ -81,225 +124,295 @@ let currentRoomData = { number: 0, type: ROOM_TYPES.EMPTY };
 let tempMessage = "";
 let turnsToSpecial = 0;
 let deaths = 0;
-let handlePlayerDamage = false;
+let isPlayerDamage = false;
 let isSpecialAtk = false;
 
+/* --- Cache de elementos DOM (auxuliar) ---*/
+const getEl = (id) => document.getElementById(id);
+
 // Telas
-const menuScreen = document.getElementById("menu-screen");
-const storyScreen = document.getElementById("story-screen");
-const gameScreen = document.getElementById("game-screen");
-const gameOverScreen = document.getElementById("game-over-screen");
-const creditsScreen = document.getElementById("credits-screen");
-const aboutScreen = document.getElementById("about-screen");
-const instructionsScreen = document.getElementById("instructions-screen");
-const strengthenModal = document.getElementById("strengthen-modal");
+const menuScreen = getEl("menu-screen");
+const storyScreen = getEl("story-screen");
+const gameScreen = getEl("game-screen");
+const gameOverScreen = getEl("game-over-screen");
+const creditsScreen = getEl("credits-screen");
+const aboutScreen = getEl("about-screen");
+const instructionsScreen = getEl("instructions-screen");
+const strengthenModal = getEl("strengthen-modal");
+const eraseModal = getEl("erase-modal");
 
 // Botões
-const startButton = document.getElementById("btn-start");
-const continueButton = document.getElementById("btn-continue");
-const aboutButton = document.getElementById("btn-about");
-const instructionsButton = document.getElementById("btn-instructions");
-const deleteDataButton = document.getElementById("btn-delete-data");
-const startGameButton = document.getElementById("btn-start-game");
-const attackButton = document.getElementById("btn-attack");
-const specialAtkButton = document.getElementById("btn-esp-atk");
-const dodgeButton = document.getElementById("btn-dodge");
-const leftButton = document.getElementById("btn-left");
-const rightButton = document.getElementById("btn-right");
-const openChestButton = document.getElementById("open-action-button");
-const ignoreChestButton = document.getElementById("ignore-action-button");
-const liftActionButton = document.getElementById("lift-action-button");
-const observeActionButton = document.getElementById("observe-action-button");
-const potionButton = document.getElementById("btn-potion");
-const restartButton = document.getElementById("btn-restart");
-const creditsMenuButton = document.getElementById("btn-credits-menu");
-const aboutMenuButton = document.getElementById("btn-about-menu");
-const instructionsMenuButton = document.getElementById("btn-instructions-menu");
-const strengthenButton = document.getElementById("btn-strengthen");
-const saveContinueButton = document.getElementById("btn-save-continue");
-const upgradeAttackButton = document.getElementById("btn-upgrade-attack");
-const upgradeDefenseButton = document.getElementById("btn-upgrade-defense");
-const upgradeHpButton = document.getElementById("btn-upgrade-hp");
-const closeModalButton = document.getElementById("btn-close-modal");
-const btnPotion = document.getElementById("btn-potion");
+const startButton = getEl("btn-start");
+const continueButton = getEl("btn-continue");
+const aboutButton = getEl("btn-about");
+const instructionsButton = getEl("btn-instructions");
+const deleteDataButton = getEl("btn-delete-data");
+const startGameButton = getEl("btn-start-game");
+const attackButton = getEl("btn-attack");
+const specialAtkButton = getEl("btn-esp-atk");
+const dodgeButton = getEl("btn-dodge");
+const leftButton = getEl("btn-left");
+const rightButton = getEl("btn-right");
+const openChestButton = getEl("open-action-button");
+const ignoreChestButton = getEl("ignore-action-button");
+const liftActionButton = getEl("lift-action-button");
+const observeActionButton = getEl("observe-action-button");
+const potionButton = getEl("btn-potion");
+const restartButton = getEl("btn-restart");
+const creditsMenuButton = getEl("btn-credits-menu");
+const aboutMenuButton = getEl("btn-about-menu");
+const instructionsMenuButton = getEl("btn-instructions-menu");
+const strengthenButton = getEl("btn-strengthen");
+const saveContinueButton = getEl("btn-save-continue");
+const upgradeAttackButton = getEl("btn-upgrade-attack");
+const upgradeDefenseButton = getEl("btn-upgrade-defense");
+const upgradeHpButton = getEl("btn-upgrade-hp");
+const closeModalButton = getEl("btn-close-modal");
+const btnPotion = getEl("btn-potion");
 
 // UI do jogo
-const playerHpEl = document.getElementById("player-hp");
-const playerMaxHpEl = document.getElementById("player-max-hp");
-const playerAcEl = document.getElementById("player-ac");
-const playerDamageEl = document.getElementById("player-damage");
-const playerGoldEl = document.getElementById("player-gold");
-const potionCountEl = document.getElementById("potion-count");
-const monsterNameEl = document.getElementById("monster-name");
-const roomNumberEl = document.getElementById("room-number");
-const roomElementEl = document.getElementById("room-element");
-const imageMonster = document.getElementById("image-monster");
-const logAreaEl = document.getElementById("log-area");
-const orientationText = document.getElementById("orientation");
-const actionButtons = document.getElementById("action-buttons");
-const exploreButtons = document.getElementById("explore-buttons");
-const trapButtons = document.getElementById("trap-buttons");
-const chestButtons = document.getElementById("chest-buttons");
-const safeRoomButtons = document.getElementById("safe-room-buttons");
-const bonusDamageEl = document.getElementById("damage-bonus");
+const playerHpEl = getEl("player-hp");
+const playerMaxHpEl = getEl("player-max-hp");
+const playerAcEl = getEl("player-ac");
+const playerDamageEl = getEl("player-damage");
+const playerGoldEl = getEl("player-gold");
+const potionCountEl = getEl("potion-count");
+const monsterNameEl = getEl("monster-name");
+const roomNumberEl = getEl("room-number");
+const roomElementEl = getEl("room-element");
+const imageMonster = getEl("image-monster");
+const logAreaEl = getEl("log-area");
+const orientationText = getEl("orientation");
+const actionButtons = getEl("action-buttons");
+const exploreButtons = getEl("explore-buttons");
+const trapButtons = getEl("trap-buttons");
+const chestButtons = getEl("chest-buttons");
+const safeRoomButtons = getEl("safe-room-buttons");
+const bonusDamageEl = getEl("damage-bonus");
 
-// Menu
-startButton.addEventListener("click", startNewGame);
-continueButton.addEventListener("click", continueGame);
-aboutButton.addEventListener("click", () => showScreen(aboutScreen));
-instructionsButton.addEventListener("click", () =>
-  showScreen(instructionsScreen)
-);
-deleteDataButton.addEventListener("click", deleteAllData);
+// Botões do modal "Apagar dados"
+const confirmOptions = getEl("confirm-options");
+const okOptions = getEl("ok-buttons");
+const eraseOptions = getEl("erase-options");
 
-// Historia
-startGameButton.addEventListener("click", startGameFromStory);
+/* --- Listeners: conectar botões do jogo com suas funções correspondentes ---*/
+const connectListeners = () => {
+  // Menu
+  if (startButton) startButton.addEventListener("click", startNewGame);
+  if (continueButton) continueButton.addEventListener("click", continueGame);
+  if (aboutButton)
+    aboutButton.addEventListener("click", () => showScreen(aboutScreen));
+  if (instructionsButton)
+    instructionsButton.addEventListener("click", () =>
+      showScreen(instructionsScreen)
+    );
+  if (deleteDataButton)
+    deleteDataButton.addEventListener("click", deleteAllData);
 
-// Jogo
-attackButton.addEventListener("click", () => {
-  playerAttack(false);
-});
-specialAtkButton.addEventListener("click", () => {
-  playerAttack(true);
-});
-dodgeButton.addEventListener("click", playerDodge);
-leftButton.addEventListener("click", () => moveToNextRoom("left"));
-rightButton.addEventListener("click", () => moveToNextRoom("right"));
-potionButton.addEventListener("click", usePotion);
-openChestButton.addEventListener("click", openChest);
-ignoreChestButton.addEventListener("click", ignoreChest);
+  // História
+  if (startGameButton)
+    startGameButton.addEventListener("click", startGameFromStory);
 
-liftActionButton.addEventListener("click", liftAction);
-observeActionButton.addEventListener("click", observeAction);
+  // Jogo
+  if (leftButton)
+    leftButton.addEventListener("click", () => moveToNextRoom("left"));
+  if (rightButton)
+    rightButton.addEventListener("click", () => moveToNextRoom("right"));
+  if (attackButton)
+    attackButton.addEventListener("click", () => playerAttack(false));
+  if (specialAtkButton)
+    specialAtkButton.addEventListener("click", () => playerAttack(true));
+  if (dodgeButton) dodgeButton.addEventListener("click", playerDodge);
+  if (potionButton) potionButton.addEventListener("click", usePotion);
+  if (openChestButton) openChestButton.addEventListener("click", openChest);
+  if (ignoreChestButton)
+    ignoreChestButton.addEventListener("click", ignoreChest);
+  if (liftActionButton) liftActionButton.addEventListener("click", liftAction);
+  if (observeActionButton)
+    observeActionButton.addEventListener("click", observeAction);
 
-// Fim de Jogo e Créditos
-restartButton.addEventListener("click", () => window.location.reload());
-creditsMenuButton.addEventListener("click", () => showScreen(menuScreen));
-aboutMenuButton.addEventListener("click", () => showScreen(menuScreen));
-instructionsMenuButton.addEventListener("click", () => showScreen(menuScreen));
+  // Sala segura
+  if (strengthenButton)
+    strengthenButton.addEventListener("click", showStrengthenModal);
+  if (saveContinueButton)
+    saveContinueButton.addEventListener("click", saveAndContinue);
 
-// Sala segura
-strengthenButton.addEventListener("click", showStrengthenModal);
-saveContinueButton.addEventListener("click", saveAndContinue);
+  // Modal de fortalecimento
+  if (upgradeAttackButton)
+    upgradeAttackButton.addEventListener("click", () =>
+      upgradeAttribute("attack")
+    );
+  if (upgradeDefenseButton)
+    upgradeDefenseButton.addEventListener("click", () =>
+      upgradeAttribute("defense")
+    );
+  if (upgradeHpButton)
+    upgradeHpButton.addEventListener("click", () => upgradeAttribute("hp"));
+  if (closeModalButton)
+    closeModalButton.addEventListener("click", hideStrengthenModal);
 
-// Modal de fortalecimento
-upgradeAttackButton.addEventListener("click", () => upgradeAttribute("attack"));
-upgradeDefenseButton.addEventListener("click", () =>
-  upgradeAttribute("defense")
-);
-upgradeHpButton.addEventListener("click", () => upgradeAttribute("hp"));
-closeModalButton.addEventListener("click", hideStrengthenModal);
+  // Fim de Jogo e Créditos
+  if (restartButton)
+    restartButton.addEventListener("click", () => window.location.reload());
+  if (creditsMenuButton)
+    creditsMenuButton.addEventListener("click", () => showScreen(menuScreen));
+  if (aboutMenuButton)
+    aboutMenuButton.addEventListener("click", () => showScreen(menuScreen));
+  if (instructionsMenuButton)
+    instructionsMenuButton.addEventListener("click", () =>
+      showScreen(menuScreen)
+    );
+};
 
-// Modal apagar dados
-const eraseModal = document.getElementById("erase-modal");
-const confirmOptions = document.getElementById("confirm-options");
-const okOptions = document.getElementById("ok-buttons");
-const eraseOptions = document.getElementById("erase-options");
-
-// --- Funcões auxiliares ---
-function addMessage(message) {
+/* --- Sistema de fila e proecessamento de mensagens ---*/
+const addMessage = (message) => {
   messageQueue.push(message);
   tempMessage = message;
-  if (!processingMessages) {
-    processMessageQueue();
-  }
-}
-
-function hideAllActions() {
-  actionButtons.style.display = "none";
-  exploreButtons.style.display = "none";
-  trapButtons.style.display = "none";
-  chestButtons.style.display = "none";
-  safeRoomButtons.style.display = "none";
-  btnPotion.disabled = true;
-  orientationText.textContent = "";
-}
+  if (!processingMessages) processMessageQueue();
+};
 
 function processMessageQueue() {
   if (messageQueue.length === 0) {
     processingMessages = false;
-
     if (waitingForAction) {
       showAppropriateActions();
-      btnPotion.disabled = false;
     }
-
     return;
   }
 
   processingMessages = true;
   const message = messageQueue.shift();
-  logAreaEl.textContent = message;
-
-  // Esconder todos os botões enquanto as mensagens estão sendo exibidas
-  hideAllActions();
-
-  setTimeout(() => {
-    processMessageQueue();
-  }, MESSAGE_DELAY);
+  if (logAreaEl) logAreaEl.textContent = message;
+  hideAllActions(); //Esconde todos os boões quando as mensdagnes estão sendo geradas/exibidas
+  setTimeout(processMessageQueue, MESSAGE_DELAY); //Delay entre mensagens para dar tempo do jogador ler
 }
 
-// --- Gerenciamento de Telas ---
-function showScreen(screen) {
-  // Esconder todas as telas
-  menuScreen.style.display = "none";
-  storyScreen.style.display = "none";
-  gameScreen.style.display = "none";
-  gameOverScreen.style.display = "none";
-  creditsScreen.style.display = "none";
-  aboutScreen.style.display = "none";
-  instructionsScreen.style.display = "none";
+/* --- Funções axiliares para a exibição e atualização da UI ---*/
+// Esconde e reseta todas as ações
+const hideAllActions = () => {
+  [
+    actionButtons,
+    exploreButtons,
+    trapButtons,
+    chestButtons,
+    safeRoomButtons,
+  ].forEach((el) => {
+    if (el) el.style.display = "none";
+  });
+  if (btnPotion) btnPotion.disabled = true;
+  if (orientationText) orientationText.textContent = "";
+};
 
-  if (menuScreen.style.display === "block") playMusicMenu();
+// Mostra a ação correspondente após o processamento de mensagens
+const showActions = (buttonsEl, text) => {
+  if (processingMessages) return;
+  hideAllActions();
+  if (orientationText) orientationText.textContent = text;
+  if (buttonsEl) buttonsEl.style.display = "flex";
+};
 
+// Desabilita o botão "Ataque Especial" quando estiver aguandado os turnos de espera
+const disableSpecialButton = () => {
+  if (!specialAtkButton) return;
+  specialAtkButton.style.pointerEvents = "none";
+  specialAtkButton.style.opacity = 0.5;
+  specialAtkButton.innerHTML = `<img class="btn-image" src="images/ui/timer.webp" alt=""/> ESPERE ( ${turnsToSpecial} )`;
+};
+// Habilita o botão "Ataque Especial" quando os turnos de espara acabarem
+const enableSpecialButton = () => {
+  if (!specialAtkButton) return;
+  specialAtkButton.style.pointerEvents = "auto";
+  specialAtkButton.style.opacity = 1;
+  specialAtkButton.innerHTML = `<img class="btn-image" src="images/ui/special-attack.webp" alt=""/> RISCA-FACA`;
+};
+
+/* --- Gerenciamento de Telas ---*/
+const showScreen = (screen) => {
+  [
+    menuScreen,
+    storyScreen,
+    gameScreen,
+    gameOverScreen,
+    creditsScreen,
+    aboutScreen,
+    instructionsScreen,
+  ].forEach((scr) => {
+    // Esconder todas as telas
+    if (scr) scr.style.display = "none";
+  });
+  if (!screen) return;
   // Mostrar a tela solicitada
   screen.style.display = "block";
-}
+};
 
-// --- Inicialização do Jogo ---
+/* --- Gerenciamento do armazenamento de dados salvos do jogo ---*/
+// Salvar os dados das salas no armazenamento
+const saveRoomsToStorage = () =>
+  localStorage.setItem("saveGameRooms", JSON.stringify(gameRooms));
+// Carregar os dados das salas no armazenamento
+const loadRoomsFromStorage = () => {
+  const save = localStorage.getItem("saveGameRooms");
+  return save ? JSON.parse(save) : null;
+};
+// Verificar se existe jogo salvo em sala segura
+const saveSafeGame = (data) =>
+  localStorage.setItem("gameSafeSave", JSON.stringify(data));
+const loadSafeGame = () => {
+  const save = localStorage.getItem("gameSafeSave");
+  return save ? JSON.parse(save) : null; //Carrega os dados salvos se houver
+};
+// Remover todos os dados salvos
+const removeSaveGame = () => {
+  localStorage.removeItem("saveGameRooms");
+  localStorage.removeItem("gameSafeSave");
+};
+
+/* --- Inicialização do jogo ---*/
 function initializeGame() {
   // Carregar ou gerar salas
-  const roomsData = localStorage.getItem("saveGameRooms");
-  if (roomsData) {
-    gameRooms = JSON.parse(roomsData);
-  } else {
+  const rooms = loadRoomsFromStorage();
+  if (rooms) gameRooms = rooms;
+  else {
     generateAllRooms();
-    localStorage.setItem("saveGameRooms", JSON.stringify(gameRooms));
+    saveRoomsToStorage();
   }
 
-  // Verificar se existe jogo salvo em sala segura
-  const savedGame = localStorage.getItem("gameSafeSave");
-  let currentRoom;
-  //Verifica a quantidade de mortes
-  if (savedGame) {
-    currentRoom = JSON.parse(savedGame).currentRoom;
-    deaths = JSON.parse(savedGame).deaths;
-  }
-
-  if (savedGame && currentRoom > 0) {
-    continueButton.disabled = false;
-    continueButton.style.display = "block";
+  // Verificar save em sala segura, se hover, o botão continuar será exibido
+  const saved = loadSafeGame();
+  if (saved) {
+    // Verifica a quantidade de mortes
+    deaths = saved.deaths || 0;
+    if (saved.currentRoom > 0) {
+      continueButton.disabled = false;
+      continueButton.style.display = "block";
+    } else {
+      continueButton.disabled = true;
+      continueButton.style.display = "none";
+    }
   } else {
     continueButton.disabled = true;
     continueButton.style.display = "none";
   }
+
   // Iniciar com a tela de menu
   showScreen(menuScreen);
+  playMusicMenu();
 }
 
+/* --- Iniciar novo jogo / continuar jogo ---*/
 function startNewGame() {
-  //Ao iniciar o jogo, adiciona o numero de mortes a alguns status do personagem, deixando-o mais forte
-  //Mecanica semelhante a um jogo rogue-like onde o personagem fica mais forte, a cada aventura mal-sucedida
+  // "Meta-progresso" por número de mortes (torna personagem ligeiramente mais forte)
+  // Mecanica semelhante a um jogo "Rogue-like"
   player = {
-    ...playerInitialState,
-    ac: player.ac + deaths,
-    attackBonus: player.attackBonus + deaths,
-    hp: player.hp + deaths,
-    maxHp: player.maxHp + deaths,
+    ...PLAYER_INITIAL,
+    ac: PLAYER_INITIAL.ac + deaths,
+    attackBonus: PLAYER_INITIAL.attackBonus + deaths,
+    hp: PLAYER_INITIAL.hp + deaths,
+    maxHp: PLAYER_INITIAL.maxHp + deaths,
+    lastRoomTypes: [],
   };
   currentMonster = null;
   playerDodging = false;
-  monsterDodging = false;
   messageQueue = [];
   processingMessages = false;
   waitingForAction = false;
@@ -310,84 +423,97 @@ function startNewGame() {
 }
 
 function continueGame() {
-  const savedGame = localStorage.getItem("gameSafeSave");
-  if (savedGame) {
-    player = JSON.parse(savedGame);
-
-    // Converter a sala segura em sala vazia para evitar salvar novamente
-    if (SAFE_ROOMS.includes(player.currentRoom)) {
-      gameRooms[player.currentRoom] = ROOM_TYPES.EMPTY;
-      localStorage.setItem("saveGameRooms", JSON.stringify(gameRooms));
-    }
-
-    showScreen(gameScreen);
-    playMusicGame();
-    updateUI();
-
-    // Definir o tipo da sala atual como vazia para garantir que apenas as opções de direção apareçam
-    currentRoomData = {
-      number: player.currentRoom,
-      type: ROOM_TYPES.EMPTY,
-    };
-
-    addMessage("Você acorda em um local seguro.");
-    waitingForAction = true;
+  const saved = loadSafeGame();
+  if (!saved) return;
+  player = { ...saved };
+  // Converter sala segura em vazia para evitar salvar novamente
+  if (SAFE_ROOMS.includes(player.currentRoom)) {
+    gameRooms[player.currentRoom] = ROOM_TYPES.EMPTY;
+    saveRoomsToStorage();
   }
-}
+  showScreen(gameScreen);
+  playMusicGame();
+  updateUI();
 
+  // Definir o tipo da sala atual como vazia para garantir que apenas as opções de direção apareçam
+  currentRoomData = { number: player.currentRoom, type: ROOM_TYPES.EMPTY };
+  addMessage("Você acorda em um local seguro.");
+  waitingForAction = true;
+}
+// Iniciar o jogo apartir da tela inicial da história
 function startGameFromStory() {
   showScreen(gameScreen);
   updateUI();
   enterRoom(0);
 }
 
+/* --- Apagar dados salvos e Gerenciar o modal "Apagar dados" ---*/
 function deleteAllData() {
+  if (!eraseModal) return;
   eraseModal.style.display = "flex";
-  document.getElementById("btn-yes").addEventListener("click", () => {
-    confirmOptions.style.display = "none";
-    eraseOptions.style.display = "block";
-  });
 
-  document.getElementById("btn-erase-yes").addEventListener("click", () => {
-    deleteSaveGame();
-    localStorage.setItem("saveGameRooms", JSON.stringify(gameRooms));
-    continueButton.disabled = true;
-    continueButton.style.display = "none";
-    eraseOptions.style.display = "none";
-    okOptions.style.display = "flex";
-    document.getElementById("btn-ok").addEventListener("click", () => {
-      window.location.reload();
-    });
-  });
+  // Botões e listeners do modal
+  const btnYes = getEl("btn-yes");
+  const btnNo = getEl("btn-no");
+  const btnEraseYes = getEl("btn-erase-yes");
+  const btnEraseNo = getEl("btn-erase-no");
+  const btnOk = getEl("btn-ok");
 
-  document.getElementById("btn-erase-no").addEventListener("click", () => {
-    resetEraseModal();
-  });
-  document.getElementById("btn-no").addEventListener("click", () => {
-    resetEraseModal();
-  });
+  const onYes = () => {
+    if (confirmOptions) confirmOptions.style.display = "none";
+    if (eraseOptions) eraseOptions.style.display = "block";
+  };
+  const onEraseYes = () => {
+    removeSaveGame();
+    generateAllRooms();
+    saveRoomsToStorage();
+    if (continueButton) {
+      continueButton.disabled = true;
+      continueButton.style.display = "none";
+    }
+    if (eraseOptions) eraseOptions.style.display = "none";
+    if (okOptions) okOptions.style.display = "flex";
+  };
+  const onOk = () => window.location.reload();
+  const onNo = () => resetEraseModal();
+
+  if (btnYes) {
+    btnYes.onclick = onYes;
+  }
+  if (btnEraseYes) {
+    btnEraseYes.onclick = onEraseYes;
+  }
+  if (btnEraseNo) {
+    btnEraseNo.onclick = onNo;
+  }
+  if (btnNo) {
+    btnNo.onclick = onNo;
+  }
+  if (btnOk) {
+    btnOk.onclick = onOk;
+  }
 }
+
+// Reseta o modal
 function resetEraseModal() {
+  if (!eraseModal) return;
   eraseModal.style.display = "none";
-  confirmOptions.style.display = "block";
-  eraseOptions.style.display = "none";
-  okOptions.style.display = "none";
+  if (confirmOptions) confirmOptions.style.display = "block";
+  if (eraseOptions) eraseOptions.style.display = "none";
+  if (okOptions) okOptions.style.display = "none";
 }
 
-function deleteSaveGame() {
-  localStorage.removeItem("saveGameRooms");
-  localStorage.removeItem("gameSafeSave");
-}
-
-// --- Atualização da UI ---
+/* --- Atualização da UI do jogo --- */
 function updateUI() {
-  playerHpEl.textContent = player.hp;
-  playerMaxHpEl.textContent = player.maxHp;
-  playerAcEl.textContent = player.ac;
-  playerDamageEl.textContent = player.attackBonus;
-  playerGoldEl.textContent = player.gold;
-  potionCountEl.textContent = player.potions;
+  if (playerHpEl) playerHpEl.textContent = player.hp;
+  if (playerMaxHpEl) playerMaxHpEl.textContent = player.maxHp;
+  if (playerAcEl) playerAcEl.textContent = player.ac;
+  if (playerDamageEl) playerDamageEl.textContent = player.attackBonus;
+  if (playerGoldEl) playerGoldEl.textContent = player.gold;
+  if (potionCountEl) potionCountEl.textContent = player.potions;
+  if (roomNumberEl) roomNumberEl.textContent = player.currentRoom;
 
+  //Exibe a imagem e o nome correto do monstro
   if (currentMonster) {
     monsterNameEl.style.opacity = 1;
     monsterNameEl.textContent = currentMonster.name;
@@ -395,110 +521,59 @@ function updateUI() {
     monsterNameEl.textContent = "";
     monsterNameEl.style.opacity = 0;
   }
-
-  // Atualizar classe do elemento da sala
-  roomElementEl.className = "room-element";
-  if (currentRoomData.type) {
-    roomElementEl.classList.add(currentRoomData.type);
-  }
-}
-
-function showCombatActions() {
-  if (!processingMessages) {
-    if (turnsToSpecial > 0) {
-      turnsToSpecial -= 1;
-      disableSpecialButton();
-    } else {
-      enableSpecialButton();
-    }
-    hideAllActions();
-    orientationText.textContent = "O que fazer?";
-    actionButtons.style.display = "flex";
-  }
-}
-
-function showExploreActions() {
-  if (!processingMessages) {
-    hideAllActions();
-    orientationText.textContent = "Pra onde ir?";
-    exploreButtons.style.display = "flex";
+  // Atualiza a classe do elemento da sala
+  if (roomElementEl) {
     roomElementEl.className = "room-element";
+    if (currentRoomData.type) roomElementEl.classList.add(currentRoomData.type);
   }
 }
 
-function showChestActions() {
-  if (!processingMessages) {
-    hideAllActions();
-    orientationText.textContent = "O que fazer?";
-    chestButtons.style.display = "flex";
-    roomElementEl.className = "room-element";
-  }
-}
-
-function showTrapActions() {
-  if (!processingMessages) {
-    hideAllActions();
-    orientationText.textContent = "O que fazer?";
-    trapButtons.style.display = "flex";
-    roomElementEl.className = "room-element";
-  }
-}
-
-function showSecureRoomActions() {
-  hideAllActions();
-  if (!processingMessages) {
-    orientationText.textContent = "O que fazer?";
-    safeRoomButtons.style.display = "flex";
-  }
-}
-
-function showAppropriateActions() {
+// Mostra ações apropriadas baseado no tipo de sala
+const showAppropriateActions = () => {
   waitingForAction = false;
-
   switch (currentRoomData.type) {
-    case ROOM_TYPES.EMPTY:
-      showExploreActions();
-      break;
-    case ROOM_TYPES.MONSTER:
+    case ROOM_TYPES.EMPTY: // Sala vazia
+      return showActions(exploreButtons, "Pra onde ir?");
+    case ROOM_TYPES.MONSTER: // Sala com monstro ou boss
     case ROOM_TYPES.BOSS:
-      if (currentMonster && currentMonster.hp > 0) {
-        showCombatActions();
-      } else {
-        showExploreActions();
-      }
-      break;
-    case ROOM_TYPES.CHEST:
-      showChestActions();
+      return currentMonster && currentMonster.hp > 0
+        ? turnsToSpecial > 0
+          ? (turnsToSpecial--,
+            disableSpecialButton(),
+            showActions(actionButtons, "O que fazer?"))
+          : (enableSpecialButton(), showActions(actionButtons, "O que fazer?"))
+        : showActions(exploreButtons, "Pra onde ir?");
+    case ROOM_TYPES.CHEST: // Sala com butija
       waitingForAction = true;
-      break;
-    case ROOM_TYPES.TRAP:
-      showTrapActions();
+      return showActions(chestButtons, "O que fazer?");
+    case ROOM_TYPES.TRAP: // Sala com armadilha
       waitingForAction = true;
-      break;
-    case ROOM_TYPES.SAFE:
-      // Em sala segura, mostrar os botões específicos de sala segura
-      showSecureRoomActions();
-      break;
+      return showActions(trapButtons, "O que fazer?");
+    case ROOM_TYPES.SAFE: // Sala segura
+      return showActions(safeRoomButtons, "O que fazer?");
+    default:
+      return showActions(exploreButtons, "Pra onde ir?");
+  }
+};
+
+/* --- Lógica das Salas --- */
+// Gerar as salas
+function generateAllRooms() {
+  gameRooms = {};
+  // Pré-definir salas fixas
+  gameRooms[0] = ROOM_TYPES.EMPTY; // Sala inical
+  gameRooms[BOSS_ROOM] = ROOM_TYPES.BOSS; // Sala do boss
+  // Garantir que as salas seguras sejam sempre do tipo SAFE
+  for (const r of SAFE_ROOMS) gameRooms[r] = ROOM_TYPES.SAFE;
+  // Sala 49 (antes do boss) sempre é baú
+  gameRooms[BOSS_ROOM - 1] = ROOM_TYPES.CHEST;
+  // Gerar as outras salas aleatoriamente
+  for (let i = 1; i < BOSS_ROOM; i++) {
+    if (gameRooms[i] === undefined) gameRooms[i] = null;
   }
 }
 
-function disableSpecialButton() {
-  specialAtkButton.style.pointerEvents = "none";
-  specialAtkButton.style.opacity = 0.5;
-  specialAtkButton.innerHTML = `
-              <img class="btn-image" src="images/ui/timer.webp" alt="" />
-             ESPERE ( ${turnsToSpecial + 1} )`;
-}
-
-function enableSpecialButton() {
-  specialAtkButton.style.pointerEvents = "auto";
-  specialAtkButton.style.opacity = 1;
-  specialAtkButton.innerHTML = `
-              <img class="btn-image" src="images/ui/special-attack.webp" alt="" />
-              RISCA-FACA`;
-}
-
-// --- Lógica de Salas ---
+// --- Determinar tipo da sala ---
 function determineRoomType(roomNumber) {
   if (roomNumber === 0) return ROOM_TYPES.EMPTY; // Sala inicial é sempre vazia
   if (roomNumber === BOSS_ROOM) return ROOM_TYPES.BOSS;
@@ -506,37 +581,32 @@ function determineRoomType(roomNumber) {
   if (roomNumber === BOSS_ROOM - 1) return ROOM_TYPES.CHEST; // Sala 49 sempre é baú
 
   // Verificar as últimas salas visitadas para aplicar as regras de sequência
-  const lastTwoRooms = player.lastRoomTypes.slice(-2);
+  const lastTwo = player.lastRoomTypes.slice(-2);
 
-  // Regra: Após 2 monstros ou monstro+armadilha ou armadilha+armadilha, próxima sala é baú
-  if (lastTwoRooms.length >= 2) {
-    const isMonsterOrTrap = (type) =>
-      type === ROOM_TYPES.MONSTER || type === ROOM_TYPES.TRAP;
-    if (isMonsterOrTrap(lastTwoRooms[0]) && isMonsterOrTrap(lastTwoRooms[1])) {
-      return ROOM_TYPES.CHEST;
-    }
+  // Regra: Após 2 monstros ou monstro + armadilha ou armadilha + armadilha, próxima sala é baú
+  const isMonsterOrTrap = (t) =>
+    t === ROOM_TYPES.MONSTER || t === ROOM_TYPES.TRAP;
+  if (
+    lastTwo.length >= 2 &&
+    isMonsterOrTrap(lastTwo[0]) &&
+    isMonsterOrTrap(lastTwo[1])
+  ) {
+    return ROOM_TYPES.CHEST;
   }
 
-  // Regra: Após sala vazia ou baú, próxima sala é monstro ou armadilha
+  // Regra: Após sala vazia ou baú, próxima sala é monstro (chance 85%) ou armadilha (chance 15%)
   if (player.lastRoomTypes.length > 0) {
-    const lastRoom = player.lastRoomTypes[player.lastRoomTypes.length - 1];
-    if (lastRoom === ROOM_TYPES.EMPTY || lastRoom === ROOM_TYPES.CHEST) {
-      // 85% monstro, 15% armadilha
+    const last = player.lastRoomTypes[player.lastRoomTypes.length - 1];
+    if (last === ROOM_TYPES.EMPTY || last === ROOM_TYPES.CHEST) {
       return Math.random() < 0.85 ? ROOM_TYPES.MONSTER : ROOM_TYPES.TRAP;
     }
   }
 
-  // Para outras situações, usar a tabela de probabilidades
-  const totalWeight = ROOM_PROBABILITIES.reduce(
-    (sum, room) => sum + room.weight,
-    0
-  );
-  let random = Math.random() * totalWeight;
-
+  // Para outras situações, usar a tabela de probabilidades padrão
+  const total = ROOM_PROBABILITIES.reduce((sum, room) => sum + room.weight, 0);
+  let random = Math.random() * total;
   for (const room of ROOM_PROBABILITIES) {
-    if (random < room.weight) {
-      return room.type;
-    }
+    if (random < room.weight) return room.type;
     random -= room.weight;
   }
   return ROOM_TYPES.MONSTER;
@@ -546,23 +616,19 @@ function generateRoomType(roomNumber) {
   // Garantir que as salas 15, 30 e 45 sejam sempre salas seguras
   if (SAFE_ROOMS.includes(roomNumber)) {
     gameRooms[roomNumber] = ROOM_TYPES.SAFE;
-    localStorage.setItem("saveGameRooms", JSON.stringify(gameRooms));
+    saveRoomsToStorage();
     return ROOM_TYPES.SAFE;
   }
-
-  // Se a sala já foi pré-determinada, usar esse valor
-  if (gameRooms[roomNumber] !== null) {
-    return gameRooms[roomNumber];
-  }
-
+  // Se a sala já foi pré-definida, usar esse valor
+  if (gameRooms[roomNumber] != null) return gameRooms[roomNumber];
   // Caso contrário, determinar o tipo e salvar
-  const roomType = determineRoomType(roomNumber);
-  gameRooms[roomNumber] = roomType;
-  localStorage.setItem("saveGameRooms", JSON.stringify(gameRooms));
-
-  return roomType;
+  const type = determineRoomType(roomNumber);
+  gameRooms[roomNumber] = type;
+  saveRoomsToStorage();
+  return type;
 }
 
+/* --- Entrar na sala --- */
 function enterRoom(roomNumber) {
   // Esconder todos os botões no início
   hideAllActions();
@@ -572,167 +638,121 @@ function enterRoom(roomNumber) {
 
   // Registrar o tipo da sala para as regras de sequência
   player.lastRoomTypes.push(roomType);
-  if (player.lastRoomTypes.length > 5) {
-    player.lastRoomTypes.shift(); // Manter apenas as últimas 5 salas
-  }
+  if (player.lastRoomTypes.length > 5) player.lastRoomTypes.shift();
 
   // Atualizar dados da sala atual
-  currentRoomData = {
-    number: roomNumber,
-    type: roomType,
-  };
-
+  currentRoomData = { number: roomNumber, type: roomType };
   // Atualizar UI
   updateUI();
 
   // Lógica específica para cada tipo de sala
   switch (roomType) {
-    case ROOM_TYPES.EMPTY:
-      if (roomNumber === 0) {
-        logMessage("Vocâ abre os olhos. Na sua frente enxerga dois caminhos.");
-      } else {
-        logMessage("Não tem nada neste lugar.");
-      }
+    case ROOM_TYPES.EMPTY: // Sala vazia
+      addMessage(
+        roomNumber === 0
+          ? "Você abre os olhos. Na sua frente enxerga dois caminhos."
+          : "Não tem nada neste lugar."
+      );
       break;
-    case ROOM_TYPES.MONSTER:
+    case ROOM_TYPES.MONSTER: // Sala monsro
       currentMonster = generateMonster(roomNumber);
-      logMessage(`${currentMonster.name} apareceu!`);
+      addMessage(`${currentMonster.name} apareceu!`);
       break;
-    case ROOM_TYPES.BOSS:
+    case ROOM_TYPES.BOSS: // Sala boos
       currentMonster = generateBoss();
-      logMessage(`${currentMonster.name} apareceu!`);
+      addMessage(`${currentMonster.name} apareceu!`);
       break;
-    case ROOM_TYPES.CHEST:
+    case ROOM_TYPES.CHEST: // Sala butija
       imageMonster.src = "images/objects/butija.webp";
-      logMessage("Você encontrou uma butija!");
+      addMessage("Você encontrou uma butija!");
       break;
-    case ROOM_TYPES.TRAP:
+    case ROOM_TYPES.TRAP: // Sala armadilha
       imageMonster.src = "images/objects/arapuca.webp";
-      logMessage("Você caiu em uma arapuca!");
-
-      setTimeout(() => playSound(sounds.playerDamage), 2000);
-
+      addMessage("Você caiu em uma arapuca!");
+      setTimeout(() => playSound(SOUNDS.playerDamage), 2000);
       // Aplicar dano da armadilha
-      const trapDamage = 5;
-      player.hp -= trapDamage;
-      logMessage(`Você perdeu ${trapDamage} de vida!`);
-
+      player.hp -= TRAP_DAMAGE;
+      addMessage(`Você perdeu ${TRAP_DAMAGE} de vida!`);
       // Verificar se o jogador morreu
       if (player.hp <= 0) {
         player.hp = 0;
         updateUI();
-        setTimeout(() => {
-          gameOver();
-        }, 4000);
+        setTimeout(gameOver, 4000);
         return;
       }
       break;
-    case ROOM_TYPES.SAFE:
+    case ROOM_TYPES.SAFE: // Sala segura
       imageMonster.src = "images/objects/fogueira.webp";
-      logMessage("Você sente que está em um lugar seguro.");
+      addMessage("Você sente que está em um lugar seguro.");
       break;
   }
 
   // Atualizar UI
   updateUI();
-
   // Marcar que estamos esperando uma ação do jogador
   waitingForAction = true;
 }
 
-function generateAllRooms() {
-  gameRooms = {};
-
-  // Pré-definir salas fixas
-  gameRooms[0] = ROOM_TYPES.EMPTY; // Sala inicial
-  gameRooms[BOSS_ROOM] = ROOM_TYPES.BOSS; // Sala do boss
-
-  // Garantir que as salas seguras sejam sempre do tipo SAFE
-  for (const safeRoom of SAFE_ROOMS) {
-    gameRooms[safeRoom] = ROOM_TYPES.SAFE;
-  }
-
-  // Sala 49 (antes do boss) sempre é baú
-  gameRooms[BOSS_ROOM - 1] = ROOM_TYPES.CHEST;
-
-  // Gerar as outras salas aleatoriamente
-  for (let i = 1; i < BOSS_ROOM; i++) {
-    if (gameRooms[i] === undefined) {
-      gameRooms[i] = null;
-    }
-  }
-}
-
+/* --- Movimento do jogador --- */
 function moveToNextRoom(direction) {
-  // Determinar o próximo número de sala
-  let nextRoom;
-
   //Toca o efeito sonoro
-  playSound(sounds.walk);
-
-  if (direction === "left") {
-    nextRoom = player.currentRoom + 1;
-    if (player.currentRoom >= 49) {
-      nextRoom = 50;
-    }
-  } else {
-    nextRoom = player.currentRoom + 2;
-    if (player.currentRoom >= 49) {
-      nextRoom = 50;
-    }
-  }
-
+  playSound(SOUNDS.walk);
+  // Determinar o próximo número de sala
+  let nextRoom = player.currentRoom;
+  if (direction === "left")
+    nextRoom = Math.min(player.currentRoom + 1, BOSS_ROOM);
+  else nextRoom = Math.min(player.currentRoom + 2, BOSS_ROOM);
   // Entrar na próxima sala
   enterRoom(nextRoom);
 }
 
-// --- Lógica de Combate ---
-function rollDice(sides) {
-  return Math.floor(Math.random() * sides) + 1;
-}
+/* --- Lógica de Combate --- */
+// Jogar o dado (aleatório)
+const rollDice = (sides) => Math.floor(Math.random() * sides) + 1;
 
-function playerAttack(specialAtk) {
-  if (processingMessages) return;
-  let special = specialAtk ? 5 : 0;
+// --- Combate: jogador ataca ---
+function playerAttack(useSpecial = false) {
+  if (processingMessages || !currentMonster) return;
+  const specialVal = useSpecial ? 5 : 0;
 
-  if (special > 0) {
-    // A cada uso do especial, adicionar 3 turnos para o próximo uso
-    turnsToSpecial += 3;
-    addMessage("Você ataca furiosamente!");
+  if (specialVal > 0) {
+    turnsToSpecial += 3; // A cada uso do especial, adicionar 3 turnos para o próximo uso
     isSpecialAtk = true;
+    addMessage("Você ataca furiosamente!");
   } else {
-    addMessage("Você ataca!");
     isSpecialAtk = false;
+    addMessage("Você ataca!");
   }
 
-  // Roll d20 + attack bonus
+  // Rolar um d20 + player.attackBonus
   const attackRoll = rollDice(20);
-  const attackTotal = attackRoll + player.attackBonus + special;
+  const attackTotal = attackRoll + player.attackBonus + specialVal;
   const damageBonus = Math.floor(player.attackBonus / 2);
 
   //Animação de ataque
-  animationHandle("player");
+  showAnimation("player");
 
-  // Check if hit
+  //Verifica se acertou
   if (attackTotal >= currentMonster.ac) {
-    // Roll damage
-    const damageRoll = rollDice(6);
+    // Rolar o dano
+    let damageRoll = rollDice(6);
     let damageTotal = damageRoll + damageBonus;
 
-    // Nova lógica de dano
     if (attackRoll === 20) {
       // Ataque crítico - dobro do dano
       damageTotal *= 2;
       addMessage(`CRÍTICO! você causa ${damageTotal} de dano ao inimigo!`);
     } else if (attackTotal === currentMonster.ac) {
-      // Ataque igual à CA - metade do dano
+      // Ataque igual à CA do monstro - causa apenas metade do dano (de raspão)
       damageTotal = Math.floor(damageTotal / 2);
       addMessage(`De raspão! você causa ${damageTotal} de dano ao inimigo.`);
     } else if (
       attackTotal >=
       currentMonster.ac + Math.ceil(currentMonster.ac * 0.5)
     ) {
-      // Ataque supera CA+50% - dano aumentado em 50%
+      // Se o ataque supera a CA do monstro + 50% - dano aumentado em 50%
+      // Exemplo: Se a CA do monstro é 10 e o ataque total do jogado d20 + player.attackBonus for igual ou maior que 15
+      // Então isso é o dano é 50% maior que a CA do monstro, logo o aatque causa 50% a mais de dano
       damageTotal = Math.floor(damageTotal * 1.5);
       addMessage(`Golpe forte! você causa ${damageTotal} de dano ao inimigo!`);
     } else {
@@ -740,9 +760,9 @@ function playerAttack(specialAtk) {
       addMessage(`Você causa ${damageTotal} de dano ao inimigo.`);
     }
 
-    currentMonster.hp -= damageTotal + special;
+    currentMonster.hp -= damageTotal + specialVal;
 
-    // Check if monster is defeated
+    // Verifica se o mostro morreu
     if (currentMonster.hp <= 0) {
       currentMonster.hp = 0;
       addMessage(`${currentMonster.name} foi derrotado!`);
@@ -753,37 +773,29 @@ function playerAttack(specialAtk) {
     addMessage("Você errou!");
   }
 
-  // Monster's turn
-  setTimeout(() => {
-    monsterTurn();
-  }, MESSAGE_DELAY * 2);
+  // Turno do monstro após um delay
+  setTimeout(() => monsterTurn(), MESSAGE_DELAY * 2);
 }
 
+/*--- Jogador esquiva/desvia do ataque ---*/
 function playerDodge() {
   if (processingMessages) return;
-
   addMessage("Você se prepara para desviar!");
   playerDodging = true;
-
-  // Monster's turn
-  setTimeout(() => {
-    monsterTurn();
-  }, 3000);
+  setTimeout(() => monsterTurn(), 3000);
 }
 
+/* --- Turno do monstro --- */
 function monsterTurn() {
-  if (currentMonster.hp <= 0) {
-    return;
-  }
+  if (!currentMonster || currentMonster.hp <= 0) return;
 
   // Ataque do monstro
   // Calcular CA efetiva do jogador (considerando esquiva)
   const effectivePlayerAC = player.ac + (playerDodging ? 5 : 0);
 
-  //Animação de ataque
-  animationHandle("monster");
+  //Animação de ataque do monstro
+  showAnimation("monster");
 
-  // Rolar d20 + bônus de ataque do monstro
   const attackRoll = rollDice(20);
   const attackTotal = attackRoll + currentMonster.attackBonus;
 
@@ -791,136 +803,119 @@ function monsterTurn() {
 
   // Verifica se o ataque acerta
   if (attackTotal >= effectivePlayerAC) {
-    handlePlayerDamage = true;
+    // Define que o jogador levou um dano
+    isPlayerDamage = true;
     // Calcula o dano
-    const damageRoll = rollDice(6);
+    let damageRoll = rollDice(6);
     let damageTotal = damageRoll + currentMonster.damageBonus;
 
-    // Lógica de dano
+    //A lógica de dano é exatamente igual ao do jogador
     if (attackRoll === 20) {
-      // Ataque crítico - dobro do dano
       damageTotal *= 2;
       addMessage(`CRÍTICO! você perde ${damageTotal} de vida!`);
     } else if (attackTotal === effectivePlayerAC) {
-      // Ataque igual à CA - metade do dano
       damageTotal = Math.floor(damageTotal / 2);
       addMessage(`De raspão! você perde ${damageTotal} de vida.`);
     } else if (
       attackTotal >=
       effectivePlayerAC + Math.ceil(effectivePlayerAC * 0.5)
     ) {
-      // Ataque supera CA+50% - dano aumentado em 50%
       damageTotal = Math.floor(damageTotal * 1.5);
       addMessage(`Golpe forte! você perde ${damageTotal} de vida!`);
     } else {
-      // Dano normal
       addMessage(`Acerto! você perde ${damageTotal} de vida.`);
     }
 
     player.hp -= damageTotal;
 
-    // veirficar se o jogador morreu
+    // Verifica se o jogador morreu
     if (player.hp <= 0) {
       player.hp = 0;
       setTimeout(() => {
         updateUI();
-        playSound(sounds.playerDeath);
+        // Tocar som de morte do jogador
+        playSound(SOUNDS.playerDeath);
       }, MESSAGE_DELAY * 2);
-      setTimeout(() => {
-        gameOver();
-      }, MESSAGE_DELAY * 2);
+      setTimeout(gameOver, MESSAGE_DELAY * 2);
       return;
     }
   } else {
-    handlePlayerDamage = false;
-    if (playerDodging) {
-      addMessage("Você desviou do ataque!");
-    } else {
-      addMessage(`${currentMonster.name} errou!`);
-    }
+    isPlayerDamage = false;
+    // Verifica se o jogador desvia
+    if (playerDodging) addMessage("Você desviou do ataque!");
+    else addMessage(`${currentMonster.name} errou!`);
   }
 
-  // Resetar estados de esquiva
+  // Resetar os estado so jogador
   playerDodging = false;
-  monsterDodging = false;
+  isPlayerDamage = false;
 
-  // Atualizar UI após o turno do monstro
-  setTimeout(() => {
-    updateUI();
-  }, MESSAGE_DELAY * 2);
-
+  setTimeout(updateUI, MESSAGE_DELAY * 2);
   // Retornar o controle ao jogador
   waitingForAction = true;
 }
 
-//Quando o monstro for derrotado gerar loot
+/* --- Quando monstro morre: gerar loot e limpar sala --- */
 function monsterDefeated() {
   setTimeout(() => {
-    animationHandle("object");
-    //Toca o efeito sonoro
-    playSound(sounds.monsterDeath);
+    showAnimation("object");
+    //Toca o som de morte do monstro
+    playSound(SOUNDS.monsterDeath);
     monsterNameEl.textContent = "";
     monsterNameEl.style.opacity = 0;
   }, MESSAGE_DELAY * 2);
+
   if (currentMonster.type === "boss") {
-    setTimeout(() => {
-      victory();
-    }, MESSAGE_DELAY * 2);
+    setTimeout(victory, MESSAGE_DELAY * 2);
     return;
   }
+
   // Determinar loot baseado no tipo do monstro
   let goldAmount = 0;
   let potionChance = 0;
-
   switch (currentMonster.type) {
     case "fraco":
-      goldAmount = Math.floor(Math.random() * 5) + 5; // 5-10 gold
-      potionChance = 0.1; // 10% chance
+      goldAmount = Math.floor(Math.random() * 5) + 5; // 5-10 de grana
+      potionChance = 0.1; // 10% chance de vir poção
       break;
     case "normal":
-      goldAmount = Math.floor(Math.random() * 5) + 10; // 10-15 gold
-      potionChance = 0.2; // 20% chance
+      goldAmount = Math.floor(Math.random() * 5) + 10; // 10-15 de grana
+      potionChance = 0.2; // 20% chance de vir poção
       break;
     case "elite":
-      goldAmount = Math.floor(Math.random() * 10) + 10; // 10-20 gold
-      potionChance = 0.3; // 30% chance
+      goldAmount = Math.floor(Math.random() * 10) + 10; // 10-20 de grana
+      potionChance = 0.3; // 30% chance de vir poção
       break;
   }
 
-  // Adicionar ouro ao jogador
+  // Adicionar dinheiro ao jogador
   player.gold += goldAmount;
   addMessage(`Você achou ${goldAmount} patacas!`);
 
-  //Chance de achar potion
+  //Chance de achar um aluá
   if (Math.random() < potionChance) {
     player.potions += 1;
     addMessage("Você achou 1 aluá!");
   }
+
   currentMonster = null;
   waitingForAction = true;
-  setTimeout(() => {
-    updateUI();
-  }, MESSAGE_DELAY * 4);
+  setTimeout(updateUI, MESSAGE_DELAY * 4);
 }
 
-function animationHandle(character) {
+/* --- Mostrar animações --- */
+function showAnimation(kind) {
   setTimeout(() => {
-    switch (character) {
+    switch (kind) {
       case "player":
         imageMonster.classList.add("zoomOut");
-        if (isSpecialAtk) {
-          playSound(sounds.playerSpecialAtk);
-        } else {
-          playSound(sounds.playerAtk);
-        }
+        if (isSpecialAtk) playSound(SOUNDS.playerSpecialAtk);
+        else playSound(SOUNDS.playerAtk);
         break;
       case "monster":
         imageMonster.classList.add("zoomIn");
-        if (handlePlayerDamage) {
-          playSound(sounds.playerDamage);
-        } else {
-          playSound(sounds.monsterAtk);
-        }
+        if (isPlayerDamage) playSound(SOUNDS.playerDamage);
+        else playSound(SOUNDS.monsterAtk);
         break;
       case "object":
         imageMonster.classList.add("gone");
@@ -929,14 +924,16 @@ function animationHandle(character) {
         }, 1000);
         break;
       case "damage":
-        playSound(sounds.playerDamage);
+        playSound(SOUNDS.playerDamage);
+        break;
     }
   }, 500);
-  imageMonster.classList.remove("zoomIn");
-  imageMonster.classList.remove("zoomOut");
-  imageMonster.classList.remove("gone");
+
+  // Remove classes (garantia)
+  imageMonster.classList.remove("zoomIn", "zoomOut", "gone");
 }
 
+/* --- Usar poção (aluá) --- */
 function usePotion() {
   if (player.potions <= 0) {
     addMessage("Você não tem mais aluá!");
@@ -950,27 +947,20 @@ function usePotion() {
   }
   player.potions--;
   const healAmount = 10;
-  const healedLife =
-    player.maxHp - player.hp < healAmount
-      ? player.maxHp - player.hp
-      : healAmount;
+  const healedLife = Math.min(healAmount, player.maxHp - player.hp);
   player.hp = Math.min(player.hp + healAmount, player.maxHp);
   addMessage(`Você bebeu um aluá! curou ${healedLife} de vida.`);
-  playSound(sounds.potion);
+  playSound(SOUNDS.potion);
   updateUI();
   waitingForAction = true;
 }
 
+/* --- Funções Game Over / Vitória ---*/
 function gameOver() {
-  logMessage("Você sente um frio na espinha, vê seu sangue escorrer...");
-  //Salvar os dados do jogador para a próxima partida
-  localStorage.setItem(
-    "gameSafeSave",
-    JSON.stringify({ ...playerInitialState, deaths: deaths + 1 })
-  );
-
-  // Remover o save do jogo
-  localStorage.removeItem("saveGameRooms");
+  addMessage("Você sente um frio na espinha, vê seu sangue escorrer...");
+  // salvar mortes para "meta-progresso" (rogue-like)
+  saveSafeGame({ ...PLAYER_INITIAL, deaths: deaths + 1 });
+  removeSaveGame(); // Remover salas geradas
 
   // Mostrar tela de game over
   setTimeout(() => {
@@ -981,112 +971,62 @@ function gameOver() {
 }
 
 function victory() {
-  logMessage("Você respira fundo e segue em frente!");
+  addMessage("Você respira fundo e segue em frente!");
   // Mostrar tela de créditos
   setTimeout(() => {
     showScreen(creditsScreen);
-    localStorage.removeItem("saveGameRooms");
-    playMusicMenu();
+    removeSaveGame(); // Remover os dados salvos do jogador
+    playMusicMenu(); // Tocar a musica do menu
   }, MESSAGE_DELAY * 4);
 }
 
-function logMessage(message) {
-  addMessage(message);
+/* --- Lógica para gerar monstros / boss ---*/
+// Randomiza os monstros
+function randFrom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// --- Lógica de Monstros ---
 function generateMonster(roomNumber) {
   // Determina o tipo do monstro baseado no número da sala
-  let monsterType;
-
-  if (roomNumber < 10) {
-    monsterType = "fraco";
-  } else if (roomNumber < 30) {
-    monsterType = "normal";
-  } else {
-    monsterType = "elite";
-  }
+  let monsterType = "fraco";
+  if (roomNumber >= 30) monsterType = "elite";
+  else if (roomNumber >= 10) monsterType = "normal";
 
   // Gerar estatísticas do monstro baseado no tipo
-  let selectedMonster;
   let monsterStats;
-  let monsterName;
-  let monsterImage;
-
-  switch (monsterType) {
-    case "fraco":
-      monsterStats = {
-        hp: Math.floor(Math.random() * 3) + 12, // 12-14 HP
-        maxHp: 14,
-        ac: Math.floor(Math.random() * 3) + 12, // 12-14 AC
-        attackBonus: Math.floor(Math.random() * 3) + 2, // 2-4 Attack Bonus
-        damageBonus: Math.floor(Math.random() * 2) + 1, // 1-2 Damage Bonus
-      };
-
-      // Escolher nome e imagem aleatória do Monstro (tipo fraco)
-      const weakMonsters = [
-        { name: "Porco do Mato", image: "images/monster/porco-do-mato.webp" },
-        { name: "Cachorro Doido", image: "images/monster/cachorro-doido.webp" },
-        { name: "Guabiru", image: "images/monster/guabiru.webp" },
-        { name: "Cobra Cascavel", image: "images/monster/cobra-cascavel.webp" },
-        { name: "Escorpião", image: "images/monster/escorpiao.webp" },
-      ];
-      selectedMonster =
-        weakMonsters[Math.floor(Math.random() * weakMonsters.length)];
-      monsterName = selectedMonster.name;
-      imageMonster.src = `${selectedMonster.image}`;
-      break;
-
-    case "normal":
-      monsterStats = {
-        hp: Math.floor(Math.random() * 10) + 15, // 15-24 HP
-        maxHp: 24,
-        ac: Math.floor(Math.random() * 3) + 14, // 14-16 AC
-        attackBonus: Math.floor(Math.random() * 2) + 5, // 5-6 Attack Bonus
-        damageBonus: Math.floor(Math.random() * 2) + 2, // 2-3 Damage Bonus
-      };
-
-      // Escolher nome e imagem aleatória do Monstro (tipo normal)
-      const normalMonsters = [
-        { name: "Jaguatitica", image: "images/monster/jaguatirica.webp" },
-        { name: "Gato Maracajá", image: "images/monster/gato-maracaja.webp" },
-        { name: "Cabeça de Cuia", image: "images/monster/cabeca-de-cuia.webp" },
-        { name: "Visage", image: "images/monster/visage.webp" },
-        { name: "Saci Pererê", image: "images/monster/saci-perere.webp" },
-      ];
-      selectedMonster =
-        normalMonsters[Math.floor(Math.random() * normalMonsters.length)];
-
-      monsterName = selectedMonster.name;
-      imageMonster.src = `${selectedMonster.image}`;
-      break;
-
-    case "elite":
-      monsterStats = {
-        hp: Math.floor(Math.random() * 15) + 26, // 26-40 HP
-        maxHp: 40,
-        ac: Math.floor(Math.random() * 3) + 16, // 16-18 AC
-        attackBonus: Math.floor(Math.random() * 2) + 7, // 7-8 Attack Bonus
-        damageBonus: Math.floor(Math.random() * 2) + 3, // 3-4 Damage Bonus
-      };
-
-      // Escolher nome e imagem aleatória do Monstro (tipo elite)
-      const eliteMonsters = [
-        { name: "Caipora", image: "images/monster/caipora.webp" },
-        { name: "Corpo Seco", image: "images/monster/corpo-seco.webp" },
-        { name: "Cabra Cabriola", image: "images/monster/cabra-cabriola.webp" },
-        { name: "Lobisomem", image: "images/monster/lobisomen.webp" },
-        { name: "Boitatá", image: "images/monster/boitata.webp" },
-      ];
-      selectedMonster =
-        eliteMonsters[Math.floor(Math.random() * eliteMonsters.length)];
-      monsterName = selectedMonster.name;
-      imageMonster.src = `${selectedMonster.image}`;
-      break;
+  if (monsterType === "fraco") {
+    monsterStats = {
+      hp: Math.floor(Math.random() * 3) + 12, // 12-14 HP
+      maxHp: 14,
+      ac: Math.floor(Math.random() * 3) + 12, // 12-14 CA (defesa)
+      attackBonus: Math.floor(Math.random() * 3) + 2, // 2-4 Bonus de Ataque
+      damageBonus: Math.floor(Math.random() * 2) + 1, // 1-2 Bonus de Dano
+    };
+  } else if (monsterType === "normal") {
+    monsterStats = {
+      hp: Math.floor(Math.random() * 10) + 15, // 15-24 HP
+      maxHp: 24,
+      ac: Math.floor(Math.random() * 3) + 14, // 14-16 CA (defesa)
+      attackBonus: Math.floor(Math.random() * 2) + 5, // 5-6 Bonus de Ataque
+      damageBonus: Math.floor(Math.random() * 2) + 2, // 2-3 Bonus de Dano
+    };
+  } else {
+    monsterStats = {
+      hp: Math.floor(Math.random() * 15) + 26, // 26-40 HP
+      maxHp: 40,
+      ac: Math.floor(Math.random() * 3) + 16, // 16-18 CA (defesa)
+      attackBonus: Math.floor(Math.random() * 2) + 7, // 7-8 Bonus de Ataque
+      damageBonus: Math.floor(Math.random() * 2) + 3, // 3-4 Bonus de Dano
+    };
   }
 
+  // Escolher monstro aleatório e definir seu nome e imagem
+  const pick = randFrom(MONSTER[monsterType]);
+  if (imageMonster) imageMonster.src = pick.image;
+
+  // Status do mostro definido
   return {
-    name: monsterName,
+    name: pick.name,
     hp: monsterStats.hp,
     maxHp: monsterStats.maxHp,
     ac: monsterStats.ac,
@@ -1096,70 +1036,61 @@ function generateMonster(roomNumber) {
   };
 }
 
-//Gerar o boss da sala
+//Gerar o boss do jogo
 function generateBoss() {
-  const bossName = [
-    { name: "Curupira", image: "images/monster/curupira.webp" },
-    { name: "Cuca", image: "images/monster/cuca.webp" },
-    { name: "Mula sem Cabeça", image: "images/monster/mula-sem-cabeca.webp" },
-  ];
-  selectedMonster = bossName[Math.floor(Math.random() * bossName.length)];
-  imageMonster.src = `${selectedMonster.image}`;
+  const pick = randFrom(BOSS);
+  if (imageMonster) imageMonster.src = pick.image;
   return {
-    name: selectedMonster.name,
-    hp: Math.floor(Math.random() * 2) + 74, // 74-75 HP
-    maxHp: 75,
-    ac: 18,
-    attackBonus: Math.floor(Math.random() * 3) + 8, // 8-10 Attack Bonus
-    damageBonus: Math.floor(Math.random() * 3) + 5, // 5-7 Damage Bonus
+    name: pick.name,
+    hp: Math.floor(Math.random() * 2) + 78, // 78-80 HP
+    maxHp: 80,
+    ac: 20, // 20 CA (defesa)
+    attackBonus: Math.floor(Math.random() * 3) + 12, // 12-14 Bonus de Ataque
+    damageBonus: Math.floor(Math.random() * 3) + 7, // 7-10 Bonus de Dano
     type: "boss",
   };
 }
 
-// --- Lógica de Baús ---
+/* --- Lógica de baús (butija) --- */
+// Abrir baú
 function openChest() {
   // Determinar o tipo do baú
   const roll = Math.random() * 100;
-  let chestType;
-
-  if (roll < 80) {
-    chestType = "normal";
-  } else if (roll < 95) {
-    chestType = "raro";
-  } else {
-    chestType = "lendario";
-  }
+  let chestType = "normal";
+  if (roll >= 95) chestType = "lendario";
+  else if (roll >= 80) chestType = "raro";
 
   // Gerar o loot do baú com base no tipo
   const loot = generateChestLoot(chestType);
-
-  animationHandle("object");
-  playSound(sounds.chest);
-
+  showAnimation("object");
+  // Tocar o som do baú
+  playSound(SOUNDS.chest);
   // Aplicar o loot ao jogador
   applyLoot(loot);
-
   // Marcar o tipo da sala como vazia após abrir o baú
   currentRoomData.type = ROOM_TYPES.EMPTY;
   addMessage(tempMessage);
 }
 
+// Ignorar baú
 function ignoreChest() {
   addMessage("Você decide não mexer na butija.");
   addMessage(tempMessage);
-
-  //Animação de ignorar botija
-  animationHandle("object");
-  playSound(sounds.walk);
+  //Animação de ignorar butija
+  showAnimation("object");
+  playSound(SOUNDS.walk);
+  // Marcar o tipo da sala como vazia após ignorar o baú
   currentRoomData.type = ROOM_TYPES.EMPTY;
 }
 
+/* Logica das armadilhas (arapucas) */
+// Levantar
 function liftAction() {
   addMessage("Você se levanta com cuidado.");
   // Após levantar, a armadilha desaparece e a sala é marcada como vazia
-  //Animação de sair da arapuca
-  animationHandle("object");
-  playSound(sounds.trap);
+  // Animação de sair da armadilha
+  showAnimation("object");
+  playSound(SOUNDS.trap);
   setTimeout(() => {
     imageMonster.src = "";
   }, MESSAGE_DELAY * 1.5);
@@ -1169,56 +1100,37 @@ function liftAction() {
   addMessage(tempMessage);
 }
 
+// Apenas olha ao redor (não gera nenhuma ação)
 function observeAction() {
   addMessage("Você não vê nada de incomum neste lugar.");
   addMessage(tempMessage);
 }
 
+/* --- Logica para aplicação dos loots ao jogador --- */
 //Função para gerar loot baseado no tipo do baú
-function generateChestLoot(chestType) {
+function generateChestLoot(type) {
   const roll = Math.random() * 100;
-  let loot = {};
-
-  switch (chestType) {
+  // Retorna objeto do loot baseado no tipo de baú e numero aleatório sorteado
+  switch (type) {
     case "normal":
-      if (roll < 30) {
-        loot = { type: "potion", amount: 1 };
-      } else if (roll < 60) {
-        loot = { type: "gold", amount: 20, gold: 20 };
-      } else if (roll < 80) {
-        loot = { type: "common_armor" };
-      } else if (roll < 90) {
-        loot = { type: "common_attack" };
-      } else {
-        loot = { type: "common_hp" };
-      }
-      break;
+      if (roll < 30) return { type: "potion", amount: 1 };
+      if (roll < 60) return { type: "gold", amount: 20, gold: 20 };
+      if (roll < 80) return { type: "common_armor" };
+      if (roll < 90) return { type: "common_attack" };
+      return { type: "common_hp" };
     case "raro":
-      if (roll < 30) {
-        loot = { type: "potion", amount: 2, gold: 30 };
-      } else if (roll < 60) {
-        loot = { type: "rare_armor", gold: 10 };
-      } else if (roll < 90) {
-        loot = { type: "rare_attack", gold: 10 };
-      } else {
-        loot = { type: "rare_hp", gold: 10 };
-      }
-      break;
+      if (roll < 30) return { type: "potion", amount: 2, gold: 30 };
+      if (roll < 60) return { type: "rare_armor", gold: 10 };
+      if (roll < 90) return { type: "rare_attack", gold: 10 };
+      return { type: "rare_hp", gold: 10 };
     case "lendario":
-      console.log("Lendario");
-      if (roll < 30) {
-        loot = { type: "potion", amount: 3, gold: 50 };
-      } else if (roll < 60) {
-        loot = { type: "legendary_armor", gold: 30 };
-      } else if (roll < 90) {
-        loot = { type: "legendary_attack", gold: 30 };
-      } else {
-        loot = { type: "legendary_hp", gold: 30 };
-      }
-      break;
+      if (roll < 30) return { type: "potion", amount: 3, gold: 50 };
+      if (roll < 60) return { type: "legendary_armor", gold: 30 };
+      if (roll < 90) return { type: "legendary_attack", gold: 30 };
+      return { type: "legendary_hp", gold: 30 };
+    default:
+      return {};
   }
-
-  return loot;
 }
 
 //Função para aplicar o loot ao jogador
@@ -1226,71 +1138,81 @@ function applyLoot(loot) {
   setTimeout(() => {
     imageMonster.src = "";
   }, MESSAGE_DELAY);
-  // Achar gold
-  if (loot.type === "gold") {
-    player.gold += loot.gold;
-    addMessage(`Você achou ${loot.amount} patacas!`);
-    playerGoldEl.textContent = player.gold;
+
+  if (!loot || !loot.type) return;
+
+  switch (loot.type) {
+    case "gold": // Achar dinheiro
+      player.gold += loot.gold || loot.amount || 0;
+      addMessage(`Você achou ${loot.amount || loot.gold} patacas!`);
+      break;
+    case "potion": // Achar poção
+      player.potions += loot.amount || 1;
+      addMessage(
+        `Você achou ${loot.amount || 1} ${
+          (loot.amount || 1) == 1 ? "garrafa" : "garrafas"
+        } de aluá!`
+      );
+      break;
+    //Aumenta a defesa baseado no tipo de loot (comum, raro e lendário)
+    case "common_armor":
+      player.ac += 1;
+      addMessage("Achou um tônico! Sua defesa aumenta +1!");
+      break;
+    case "rare_armor":
+      player.ac += 2;
+      addMessage("Achou um tônico amargo! Sua defesa aumenta +2!");
+      break;
+    case "legendary_armor":
+      player.ac += 3;
+      addMessage("Achou um tônico forte! Sua defesa aumenta +3!");
+      break;
+    //Aumenta o HP baseado no tipo de loot (comum, raro e lendário)
+    case "common_hp":
+      player.maxHp += 5;
+      player.hp += 5;
+      addMessage("Achou um elixir! Sua vida máxima aumenta +5!");
+      break;
+    case "rare_hp":
+      player.maxHp += 10;
+      player.hp += 10;
+      addMessage("Achou um exlixir forte! Sua vida máxima aumenta +10!");
+      break;
+    case "legendary_hp":
+      player.maxHp += 15;
+      player.hp += 15;
+      addMessage("Achou um exlixir santo! Sua vida máxima aumenta +15!");
+      break;
+    //Aumenta o ataque baseado no tipo de loot (comum, raro e lendário)
+    case "common_attack":
+      player.attackBonus += 1;
+      addMessage("Achou um chá amargo! Seu ataque aumenta +1");
+      break;
+    case "rare_attack":
+      player.attackBonus += 2;
+      addMessage("Achou um chá forte de raiz! Seu ataque aumenta +2");
+      break;
+    case "legendary_attack":
+      player.attackBonus += 3;
+      addMessage("Achou um chá encantado! Seu ataque aumenta +3");
+      break;
+    default:
+      // Nada
+      break;
   }
 
-  // Achar potion
-  if (loot.type === "potion") {
-    player.potions += loot.amount;
-    addMessage(
-      `Você achou ${loot.amount} ${
-        loot.amount == 1 ? "garrafa" : "garrafas"
-      } de aluá!`
-    );
-    potionCountEl.textContent = player.potions;
-  }
-
-  // Aumentar defesa
-  if (loot.type === "common_armor") {
-    player.ac += 1;
-    addMessage("Achou um tônico! Sua defesa aumenta +1!");
-  } else if (loot.type === "rare_armor") {
-    player.ac += 2;
-    addMessage("Achou um tônico amargo! Sua defesa aumenta +2!");
-  } else if (loot.type === "legendary_armor") {
-    player.ac += 3;
-    addMessage("Achou um tônico forte! Sua defesa aumenta +3!");
-  }
-
-  // Aumentar vida máxima
-  if (loot.type === "common_hp") {
-    player.maxHp += 5;
-    player.hp += 5;
-    addMessage("Achou um elixir! Sua vida máxima aumenta +5!");
-  } else if (loot.type === "rare_hp") {
-    player.maxHp += 10;
-    player.hp += 10;
-    addMessage("Achou um exlixir forte! Sua vida máxima aumenta +10!");
-  } else if (loot.type === "legendary_hp") {
-    player.maxHp += 15;
-    player.hp += 15;
-    addMessage("Achou um exlixir santo! Sua vida máxima aumenta +15!");
-  }
-
-  // Aumentar ataque
-  if (loot.type === "common_attack") {
-    player.attackBonus += 1;
-    addMessage("Achou um chá amargo! Seu ataque aumenta +1");
-  } else if (loot.type === "rare_attack") {
-    player.attackBonus += 2;
-    addMessage("Achou um chá forte de raiz! Seu ataque aumenta +2");
-  } else if (loot.type === "legendary_attack") {
-    player.attackBonus += 3;
-    addMessage("Achou um chá encantado! Seu ataque aumenta +3");
-  }
+  // Atualizar UI
   updateUI();
 }
 
-// --- Lógica de Sala Segura ---
+/* --- Logica da sala segura --- */
+// Função salvar
 function saveGameInSafeRoom() {
-  localStorage.setItem("gameSafeSave", JSON.stringify(player));
+  saveSafeGame(player);
   addMessage("Você cochila ao lado da fogueira. Jogo salvo!");
 }
 
+// Função que continua o jogo após salvar
 function saveAndContinue() {
   saveGameInSafeRoom();
   setTimeout(() => {
@@ -1302,36 +1224,36 @@ function saveAndContinue() {
   waitingForAction = true;
 }
 
-// --- Lógica de Fortalecimento ---
+/* --- Lógica de fortalecimento (modal) ---*/
+// Mostrar modal de fortalecimento
 function showStrengthenModal() {
-  // Verificar se o jogador tem gold suficiente
+  // Verificar se o jogador tem dinheiro suficiente
   const hasEnoughGold = player.gold >= UPGRADE_COST;
-
   // Atualizar estado dos botões de upgrade
-  upgradeAttackButton.disabled = !hasEnoughGold;
-  upgradeDefenseButton.disabled = !hasEnoughGold;
-  upgradeHpButton.disabled = !hasEnoughGold;
-  //Exibir o modal
+  if (upgradeAttackButton) upgradeAttackButton.disabled = !hasEnoughGold;
+  if (upgradeDefenseButton) upgradeDefenseButton.disabled = !hasEnoughGold;
+  if (upgradeHpButton) upgradeHpButton.disabled = !hasEnoughGold;
+  // Exibir o modal
   strengthenModal.style.display = "flex";
 }
 
+// Esconder o modal
 function hideStrengthenModal() {
   strengthenModal.style.display = "none";
 }
 
+// Fortalecer atributo
 function upgradeAttribute(attribute) {
-  // Verificar se o jogador tem gold suficiente
+  // Verificar se o jogador tem dinheiro suficiente
   if (player.gold < UPGRADE_COST) {
-    document.getElementById("strengthen-modal").disabled = true;
     addMessage("Patacas insuficientes!");
     hideStrengthenModal();
     return;
   }
 
-  // Gastar o gold
+  // Remover o dinhero gasto do jogador
   player.gold -= UPGRADE_COST;
-
-  // Aplicar o upgrade
+  // Aplicar o fortalecimento
   switch (attribute) {
     case "attack":
       player.attackBonus += 1;
@@ -1350,31 +1272,19 @@ function upgradeAttribute(attribute) {
         `Vida máxima aumentada! (${player.maxHp - 1} -> ${player.maxHp})`
       );
       break;
+    default:
+      break;
   }
-
   // Fechar o modal
   hideStrengthenModal();
   updateUI();
-
-  // Após fortalecer, marcar a sala como vazia para mostrar opções de direção
+  // Após fortalecer, retora à sala
   addMessage("Você se sente mais forte!");
   waitingForAction = true;
 }
 
-function playSound(sound) {
-  const audio = new Audio(sound);
-  audio.play();
-}
-
-function playMusicGame() {
-  menuMusic.pause();
-  gameMusic.play();
-}
-
-function playMusicMenu() {
-  gameMusic.pause();
-  menuMusic.play();
-}
-
-// --- Inicialização ---
-document.addEventListener("DOMContentLoaded", initializeGame);
+/* --- Inicialização --- */
+document.addEventListener("DOMContentLoaded", () => {
+  connectListeners();
+  initializeGame();
+});
