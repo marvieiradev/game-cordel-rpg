@@ -135,12 +135,6 @@ h2 {
   height: 100%;
   cursor: pointer;
 }
-
-.icon {
-  width: 100px;
-  margin-bottom: 1.2rem;
-}
-
 .text-pc,
 .text-mobile {
   animation: pulse 2s infinite;

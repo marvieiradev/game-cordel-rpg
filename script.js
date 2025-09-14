@@ -126,7 +126,6 @@ let turnsToSpecial = 0;
 let deaths = 0;
 let isPlayerDamage = false;
 let isSpecialAtk = false;
-let initialized = sessionStorage.getItem("init");
 
 /* --- Cache de elementos DOM (auxuliar) ---*/
 const getEl = (id) => document.getElementById(id);
@@ -404,8 +403,7 @@ function initializeGame() {
   }
 
   // Iniciar com a tela adequada
-  if (initialized) showScreen(menuScreen);
-  else showScreen(splashScreen);
+  showScreen(splashScreen);
 }
 
 /* --- Iniciar novo jogo / continuar jogo ---*/
