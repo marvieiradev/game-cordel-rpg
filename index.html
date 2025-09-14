@@ -9,6 +9,13 @@
   </head>
 
   <body>
+    <!-- Tela de Inicial -->
+    <div id="splash-screen" class="screen">
+      <img src="icon.svg" alt="" class="icon" />
+      <h2 class="text-pc">CLIQUE PARA INICIAR</h2>
+      <h2 class="text-mobile">TOQUE PARA INICIAR</h2>
+    </div>
+
     <!-- Tela de Menu -->
     <div id="menu-screen" class="screen">
       <img src="images/ui/logo.webp" alt="" class="logo" />
@@ -22,7 +29,6 @@
         <button id="btn-delete-data" class="btn btn-menu btn-small">
           APAGAR DADOS
         </button>
-        <!--<p class="versao">Versão 1.01</p>-->
       </div>
     </div>
 
@@ -33,12 +39,10 @@
           Na vila do pé de serra, reinava a festa e o riso, mas a fúria dos
           malditos lhe roubou todo o juízo.
         </p>
-
         <p>
           Você lutou com coragem, mas tombou sem salvação, e desperta agora
           sozinho, perdido no matagal do sertão.
         </p>
-
         <p>
           A lua clareia fraquinha, coruja canta de medo, e o vento sopra na mata
           um lamento sem segredo.
@@ -79,13 +83,11 @@
           <div id="room-element" class="room-element">
             <img id="image-monster" src="" alt="" height="150px" />
           </div>
-          <div id="room-number" class="room-number"></div>
         </div>
         <div id="log-area" class="log-area"></div>
       </div>
-
       <div class="action-area">
-        <p id="orientation"></p>
+        <p id="orientation" class="orientation"></p>
         <div class="action-container">
           <div id="action-buttons" class="action-buttons" style="display: none">
             <div id="btn-attack" class="btn btn-action">
@@ -165,59 +167,42 @@
       </div>
     </div>
 
-    <!-- Modal de Fortalecimento -->
-    <div id="strengthen-modal" class="modal" style="display: none">
-      <div class="modal-content">
-        <h2>FORTALECER HERÓI</h2>
-        <p>Escolha um atributo para fortalecer (Custo: 25 patacas)</p>
-        <div class="strengthen-options">
-          <button id="btn-upgrade-attack" class="btn btn-upgrade">
-            AUMENTAR ATAQUE (+1)
-          </button>
-          <button id="btn-upgrade-defense" class="btn btn-upgrade">
-            AUMENTAR DEFESA (+1)
-          </button>
-          <button id="btn-upgrade-hp" class="btn btn-upgrade">
-            AUMENTAR HP (+1)
-          </button>
-        </div>
-        <button id="btn-close-modal" class="btn btn-game">CANCELAR</button>
+    <!-- Tela Sobre o Jogo -->
+    <div id="about-screen" class="screen" style="display: none">
+      <h1>SOBRE O JOGO</h1>
+      <div class="about-content">
+        <p>
+          Sombras do Sertão é um jogo simples de aventura/RPG em estilo cordel.
+        </p>
+        <p>
+          Caminhe na mata fechada, encare bichos e visagens, junte tudo o que
+          encontrar e veja se aguenta a viagem.
+        </p>
+        <p>Desenvolvido como um projeto para a 4° edição do Concurso FSC.</p>
       </div>
+      <button id="btn-about-menu" class="btn btn-game">VOLTAR AO MENU</button>
     </div>
 
-    <!-- Modal Apagar Dados-->
-    <div id="erase-modal" class="modal" style="display: none">
-      <div class="modal-content">
-        <div id="confirm-options">
-          <h2>DESEJA APAGAR DADOS SALVOS?</h2>
-          <p id="message">Todo o progresso será perdido</p>
-          <div class="confirm-buttons">
-            <div class="yes-no-buttons">
-              <button id="btn-yes" class="btn">SIM</button>
-              <button id="btn-no" class="btn">NÃO</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="erase-options" style="display: none">
-          <h2>DESEJA APAGAR DADOS SALVOS?</h2>
-          <p id="message">
-            Tem certeza que deseja apagar todos os dados salvos? Esta ação não
-            pode ser desfeita.
-          </p>
-          <div class="confirm-buttons">
-            <div class="yes-no-buttons">
-              <button id="btn-erase-yes" class="btn">SIM</button>
-              <button id="btn-erase-no" class="btn">NÃO</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="ok-buttons" style="display: none">
-          <p>Dados apagados com sucesso!</p>
-          <button id="btn-ok" class="btn">OK</button>
-        </div>
+    <!-- Tela de Instruções -->
+    <div id="instructions-screen" class="screen" style="display: none">
+      <h1>INSTRUÇÕES</h1>
+      <div class="instructions-content">
+        <p>ATACAR: Rola um d20 + bônus de ataque contra a CA do inimigo</p>
+        <p>
+          RISCA-FACA: Um ataque mais forte, com bonus de dano, só pode ser usado
+          a cada 3 turnos.
+        </p>
+        <p>DESVIAR: Aumenta sua CA temporariamente contra o próximo ataque</p>
+        <p>ALUÁ: Recupera 10 pontos de vida (máximo: vida máxima)</p>
+        <p>ESQUERDA/DIREITA: Avança para a próxima área</p>
+        <p>
+          Existem locais seguros que permitem salvar o jogo e fortalecer seu
+          herói. Derrote o todos os inimigos e tente sair vivo!
+        </p>
       </div>
+      <button id="btn-instructions-menu" class="btn btn-game">
+        VOLTAR AO MENU
+      </button>
     </div>
 
     <!-- Tela de Game Over -->
@@ -268,42 +253,59 @@
       <button id="btn-credits-menu" class="btn btn-game">VOLTAR AO MENU</button>
     </div>
 
-    <!-- Tela Sobre o Jogo -->
-    <div id="about-screen" class="screen" style="display: none">
-      <h1>SOBRE O JOGO</h1>
-      <div class="about-content">
-        <p>
-          Sombras do Sertão é um jogo simples de aventura/RPG em estilo cordel.
-        </p>
-        <p>
-          Caminhe na mata fechada, encare bichos e visagens, junte tudo o que
-          encontrar e veja se aguenta a viagem.
-        </p>
-        <p>Desenvolvido como um projeto para a 4° edição do Concurso FSC.</p>
+    <!-- Modal Apagar Dados-->
+    <div id="erase-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div id="confirm-options">
+          <h1>DESEJA APAGAR DADOS SALVOS?</h1>
+          <p id="message">Todo o progresso será perdido</p>
+          <div class="confirm-buttons">
+            <div class="yes-no-buttons">
+              <button id="btn-yes" class="btn btn-yes">SIM</button>
+              <button id="btn-no" class="btn btn-no">NÃO</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="erase-options" style="display: none">
+          <h1>DESEJA APAGAR DADOS SALVOS?</h1>
+          <p id="message">
+            Tem certeza que deseja apagar todos os dados salvos? Esta ação não
+            pode ser desfeita.
+          </p>
+          <div class="confirm-buttons">
+            <div class="yes-no-buttons">
+              <button id="btn-erase-yes" class="btn btn-yes">SIM</button>
+              <button id="btn-erase-no" class="btn btn-yes">NÃO</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="ok-buttons" style="display: none">
+          <p>Dados apagados com sucesso!</p>
+          <button id="btn-ok" class="btn btn-ok">OK</button>
+        </div>
       </div>
-      <button id="btn-about-menu" class="btn btn-game">VOLTAR AO MENU</button>
     </div>
 
-    <!-- Tela de Instruções -->
-    <div id="instructions-screen" class="screen" style="display: none">
-      <h1>INSTRUÇÕES</h1>
-      <div class="instructions-content">
-        <p>ATACAR: Rola um d20 + bônus de ataque contra a CA do inimigo</p>
-        <p>
-          RISCA-FACA: Um ataque mais forte, com bonus de dano, só pode ser usado
-          a cada 3 turnos.
-        </p>
-        <p>DESVIAR: Aumenta sua CA temporariamente contra o próximo ataque</p>
-        <p>ALUÁ: Recupera 10 pontos de vida (máximo: vida máxima)</p>
-        <p>ESQUERDA/DIREITA: Avança para a próxima área</p>
-        <p>
-          Existem locais seguros que permitem salvar o jogo e fortalecer seu
-          herói. Derrote o todos os inimigos e tente sair vivo!
-        </p>
+    <!-- Modal de Fortalecimento -->
+    <div id="strengthen-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <h1>FORTALECER HERÓI</h1>
+        <p>Escolha um atributo para fortalecer (Custo: 25 patacas)</p>
+        <div class="strengthen-options">
+          <button id="btn-upgrade-attack" class="btn btn-upgrade">
+            AUMENTAR ATAQUE (+1)
+          </button>
+          <button id="btn-upgrade-defense" class="btn btn-upgrade">
+            AUMENTAR DEFESA (+1)
+          </button>
+          <button id="btn-upgrade-hp" class="btn btn-upgrade">
+            AUMENTAR HP (+1)
+          </button>
+        </div>
+        <button id="btn-close-modal" class="btn btn-game">CANCELAR</button>
       </div>
-      <button id="btn-instructions-menu" class="btn btn-game">
-        VOLTAR AO MENU
-      </button>
     </div>
 
     <script src="script.js"></script>

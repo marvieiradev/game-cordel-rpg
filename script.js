@@ -24,7 +24,7 @@ const UPGRADE_COST = 25; // Custo em dinheiro para melhorar um atributo
 const TRAP_DAMAGE = 5; // Dano a cair na armadilha
 
 // Sons do jogo
-const SOUNDS = Object.freeze({
+const SOUNDS = {
   playerAtk: "sounds/player_atk.mp3",
   playerDamage: "sounds/player_damage.mp3",
   playerDeath: "sounds/player_death.mp3",
@@ -37,7 +37,7 @@ const SOUNDS = Object.freeze({
   potion: "sounds/potion.mp3",
   gameMusic: "sounds/game_music.mp3",
   menuMusic: "sounds/menu_music.mp3",
-});
+};
 
 // Função auxiliar para carregar os áudios
 const createAudio = (src, loop = false) => {
@@ -131,6 +131,7 @@ let isSpecialAtk = false;
 const getEl = (id) => document.getElementById(id);
 
 // Telas
+const splashScreen = getEl("splash-screen");
 const menuScreen = getEl("menu-screen");
 const storyScreen = getEl("story-screen");
 const gameScreen = getEl("game-screen");
@@ -197,6 +198,11 @@ const eraseOptions = getEl("erase-options");
 
 /* --- Listeners: conectar botões do jogo com suas funções correspondentes ---*/
 const connectListeners = () => {
+  if (splashScreen)
+    splashScreen.addEventListener("click", () => {
+      showScreen(menuScreen);
+      playMusicMenu();
+    });
   // Menu
   if (startButton) startButton.addEventListener("click", startNewGame);
   if (continueButton) continueButton.addEventListener("click", continueGame);
@@ -329,6 +335,7 @@ const enableSpecialButton = () => {
 /* --- Gerenciamento de Telas ---*/
 const showScreen = (screen) => {
   [
+    splashScreen,
     menuScreen,
     storyScreen,
     gameScreen,
@@ -395,8 +402,7 @@ function initializeGame() {
   }
 
   // Iniciar com a tela de menu
-  showScreen(menuScreen);
-  playMusicMenu();
+  showScreen(splashScreen);
 }
 
 /* --- Iniciar novo jogo / continuar jogo ---*/
@@ -788,13 +794,12 @@ function playerDodge() {
 /* --- Turno do monstro --- */
 function monsterTurn() {
   if (!currentMonster || currentMonster.hp <= 0) return;
+  //Animação de ataque do monstro
+  showAnimation("monster");
 
   // Ataque do monstro
   // Calcular CA efetiva do jogador (considerando esquiva)
   const effectivePlayerAC = player.ac + (playerDodging ? 5 : 0);
-
-  //Animação de ataque do monstro
-  showAnimation("monster");
 
   const attackRoll = rollDice(20);
   const attackTotal = attackRoll + currentMonster.attackBonus;
@@ -846,9 +851,8 @@ function monsterTurn() {
     else addMessage(`${currentMonster.name} errou!`);
   }
 
-  // Resetar os estado so jogador
+  // Resetar os estado do jogador
   playerDodging = false;
-  isPlayerDamage = false;
 
   setTimeout(updateUI, MESSAGE_DELAY * 2);
   // Retornar o controle ao jogador

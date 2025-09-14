@@ -1,15 +1,16 @@
-@import url("https://fonts.googleapis.com/css2?family=Barriecito&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Underdog&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Tagesschrift&display=swap");
 
+/*  Variáveis globais  */
 :root {
   --primary-color: #d9c4a3;
   --secondary-color: #f3e3c9;
   --text-color: #0a0a0a;
+  --font-main: "Tagesschrift", system-ui;
 }
 
+/*  Estilos Base */
 body {
-  font-family: "Tagesschrift", system-ui;
+  font-family: var(--font-main);
   background-color: var(--primary-color);
   color: var(--text-color);
   margin: 0;
@@ -21,6 +22,7 @@ body {
   text-align: center;
 }
 
+/*  Layout de telas */
 .screen {
   max-width: 500px;
   width: 100vh;
@@ -31,24 +33,22 @@ body {
 }
 
 h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 0px var(--secondary-color);
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
 }
 
 h2 {
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
 }
 
 .logo {
   width: 80%;
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
 }
 
 /* Botões */
 .btn {
-  font-family: "Tagesschrift", system-ui;
+  font-family: var(--font-main);
   padding: 10px 20px;
   border: none;
   cursor: pointer;
@@ -69,7 +69,7 @@ h2 {
   padding: 10px;
   margin: 10px auto;
   display: block;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
 }
 
 .btn-game {
@@ -86,11 +86,11 @@ h2 {
   width: 40%;
   height: 80px;
   padding: 5px 10px;
+  gap: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
   white-space: nowrap;
   overflow: hidden;
 }
@@ -117,7 +117,7 @@ h2 {
 
 .btn-small {
   margin-top: 30px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   padding: 8px;
   background-color: var(--text-color);
   color: var(--secondary-color);
@@ -130,6 +130,26 @@ h2 {
   vertical-align: middle;
 }
 
+/* Splash */
+#splash-screen {
+  height: 100%;
+  cursor: pointer;
+}
+
+.icon {
+  width: 100px;
+  margin-bottom: 1.2rem;
+}
+
+.text-pc,
+.text-mobile {
+  animation: pulse 2s infinite;
+}
+
+.text-mobile {
+  display: none;
+}
+
 /* Menu */
 .menu-buttons {
   display: flex;
@@ -138,32 +158,32 @@ h2 {
   margin-top: 2rem;
 }
 
-.versao {
-  font-size: 1rem;
-  margin-top: 30px;
-}
-
-/* História */
-.story-content {
+/* História  / Créditos / Sobre / Instruções */
+.story-content,
+.story-content,
+.credits-content,
+.about-content,
+.instructions-content,
+.game-over-content {
   background-color: var(--primary-color);
   padding: 20px;
   border: 3px solid var(--text-color);
   margin-bottom: 20px;
   line-height: 1.6;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
 }
 
 /* Jogo */
 #game-screen {
-  flex-direction: column;
   border: 3px solid var(--text-color);
   padding: 10px;
+  gap: 10px;
   margin: 5px;
 }
 
 .status-container {
-  margin-bottom: 5px;
   border: 3px solid var(--text-color);
+  margin-bottom: 5px;
 }
 
 .status-bar {
@@ -172,8 +192,8 @@ h2 {
   justify-items: center;
   justify-content: space-around;
   background-color: var(--text-color);
-  padding: 5px;
   border: 3px solid var(--primary-color);
+  padding: 5px;
 }
 
 .status-item {
@@ -188,7 +208,7 @@ h2 {
 }
 
 .status-item span {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
 }
 
 .game-area {
@@ -221,19 +241,19 @@ h2 {
   border: 3px solid var(--primary-color);
 }
 
+.room-element {
+  position: absolute;
+  width: 175px;
+  height: 175px;
+  bottom: 10px;
+}
+
 .room-element img {
   display: flex;
   height: 175px;
   position: absolute;
   bottom: 0;
   object-fit: contain;
-}
-
-.room-element {
-  position: absolute;
-  width: 175px;
-  height: 175px;
-  bottom: 10px;
 }
 
 .room-element.boss {
@@ -248,27 +268,18 @@ h2 {
   top: 10px;
 }
 
-.room-number {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 0.5rem;
-  color: var(--primary-color);
-  z-index: 10;
-}
-
 .log-area {
   background-color: var(--text-color);
   color: var(--secondary-color);
   padding: 5px;
   border: 3px solid var(--primary-color);
-  min-height: 60px;
+  min-height: 62px;
   font-size: 1.25rem;
   text-align: center;
   line-height: 1.2;
 }
-
-#orientation {
+/*  Ações */
+.orientation {
   font-size: 1.25rem;
   margin-bottom: 20px;
   margin-top: 10px;
@@ -293,16 +304,6 @@ h2 {
   gap: 5px;
 }
 
-.item-container {
-  border: 2px solid var(--text-color);
-  padding: 5px 0px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: 5px;
-  height: 70px;
-}
-
 .action-area {
   display: flex;
   flex-direction: column;
@@ -313,20 +314,6 @@ h2 {
 .action-container {
   margin-top: 10px;
   height: 120px;
-}
-
-/* Game Over e Créditos */
-.credits-content,
-.about-content,
-.instructions-content,
-.game-over-content {
-  background-color: var(--primary-color);
-  padding: 20px;
-  border: 3px solid var(--text-color);
-  margin-bottom: 20px;
-  line-height: 1.6;
-  font-size: 1.2rem;
-  text-align: center;
 }
 
 /* Modal de Fortalecimento */
@@ -342,7 +329,6 @@ h2 {
   align-items: center;
   z-index: 1000;
 }
-
 .modal-content {
   background-color: var(--primary-color);
   border: 5px solid var(--text-color);
@@ -351,6 +337,7 @@ h2 {
   width: 90%;
 }
 
+/* Modal apagar dados */
 #erase-modal .modal-content {
   background-color: var(--primary-color);
   border: 5px solid var(--text-color);
@@ -359,49 +346,37 @@ h2 {
   width: 80%;
   line-height: 1.5;
 }
-
 #erase-modal h2 {
   font-size: 1.2rem;
   margin-bottom: 20px;
 }
-
 #erase-modal p {
   font-size: 1rem;
   margin-bottom: 20px;
 }
-
+#ok-buttons {
+  display: flex;
+  flex-direction: column;
+}
 .yes-no-buttons {
   display: flex;
   justify-content: space-around;
   margin-top: 20px;
 }
-
-#ok-buttons {
-  display: flex;
-  flex-direction: column;
-}
-
-#btn-yes,
-#btn-erase-yes {
+.btn-yes {
   background-color: var(--text-color);
   border: 3px solid var(--text-color);
   color: var(--secondary-color);
   padding: 5px 10px;
 }
-#btn-no,
-#btn-erase-no,
-#btn-ok {
+.btn-no,
+.btn-ok {
   background-color: var(--primary-color);
   border: 3px solid var(--text-color);
   padding: 5px 10px;
 }
 
-.strengthen-options {
-  display: flex;
-  flex-direction: column;
-  margin: 20px 0;
-}
-
+/*  Animações */
 .zoomIn {
   animation: zoomIn 0.5s ease;
 }
@@ -412,6 +387,18 @@ h2 {
 
 .gone {
   animation: gone 2.5s ease;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0.9;
+  }
 }
 
 @keyframes zoomIn {
@@ -450,25 +437,6 @@ h2 {
   }
 }
 
-@keyframes damage {
-  0% {
-    opacity: 1;
-  }
-  25% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  75% {
-    opacity: 0;
-  }
-  100% {
-    transform: scale(0);
-    opacity: 1;
-  }
-}
-
 @keyframes gone {
   0% {
     transform: scale(1);
@@ -483,48 +451,44 @@ h2 {
 /* Responsividade */
 @media (max-width: 500px) {
   h1 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
-
   .btn {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     padding: 5px;
   }
-
   .btn-menu {
     font-size: 1.3rem;
   }
-
   .btn-game {
     font-size: 1.2rem;
   }
-
   .btn-small {
     font-size: 0.8rem;
   }
-
+  .text-mobile {
+    display: block;
+  }
+  .text-pc {
+    display: none;
+  }
   .action-buttons .btn-action {
     font-size: 0.7rem;
   }
-
   .room-container {
     height: 225px;
   }
-
   .room-element img {
     height: 135px;
   }
-
   .room-element {
     width: 135px;
     height: 135px;
   }
-
   .room-element.boss {
     width: 185px;
     height: 135px;
   }
-
   .story-content,
   .credits-content,
   .about-content,
@@ -533,23 +497,12 @@ h2 {
     padding: 10px;
     font-size: 1.1rem;
   }
-
   .status-item,
   .log-area {
     padding: 7px;
     font-size: 1rem;
   }
-
   .instructions-content {
     font-size: 1rem;
-  }
-
-  .inventory-title {
-    font-size: 1.1rem;
-  }
-
-  .inventory img {
-    width: 40px;
-    height: 40px;
   }
 }
