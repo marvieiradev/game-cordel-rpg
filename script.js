@@ -126,6 +126,7 @@ let turnsToSpecial = 0;
 let deaths = 0;
 let isPlayerDamage = false;
 let isSpecialAtk = false;
+let initialized = sessionStorage.getItem("init");
 
 /* --- Cache de elementos DOM (auxuliar) ---*/
 const getEl = (id) => document.getElementById(id);
@@ -200,6 +201,7 @@ const eraseOptions = getEl("erase-options");
 const connectListeners = () => {
   if (splashScreen)
     splashScreen.addEventListener("click", () => {
+      sessionStorage.setItem("init", true);
       showScreen(menuScreen);
       playMusicMenu();
     });
@@ -401,8 +403,9 @@ function initializeGame() {
     continueButton.style.display = "none";
   }
 
-  // Iniciar com a tela de menu
-  showScreen(splashScreen);
+  // Iniciar com a tela adequada
+  if (initialized) showScreen(menuScreen);
+  else showScreen(splashScreen);
 }
 
 /* --- Iniciar novo jogo / continuar jogo ---*/
