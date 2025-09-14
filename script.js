@@ -200,7 +200,6 @@ const eraseOptions = getEl("erase-options");
 const connectListeners = () => {
   if (splashScreen)
     splashScreen.addEventListener("click", () => {
-      sessionStorage.setItem("init", true);
       showScreen(menuScreen);
       playMusicMenu();
     });
@@ -260,7 +259,7 @@ const connectListeners = () => {
 
   // Fim de Jogo e Créditos
   if (restartButton)
-    restartButton.addEventListener("click", () => window.location.reload());
+    restartButton.addEventListener("click", () => initializeGame());
   if (creditsMenuButton)
     creditsMenuButton.addEventListener("click", () => showScreen(menuScreen));
   if (aboutMenuButton)
@@ -371,8 +370,13 @@ const loadSafeGame = () => {
 };
 // Remover todos os dados salvos
 const removeSaveGame = () => {
-  localStorage.removeItem("saveGameRooms");
+  removeDataGame();
   localStorage.removeItem("gameSafeSave");
+};
+
+// Remover apenas os dados salvos da sala, sem remover os save do jogador
+const removeDataGame = () => {
+  localStorage.removeItem("saveGameRooms");
 };
 
 /* --- Inicialização do jogo ---*/
@@ -481,7 +485,10 @@ function deleteAllData() {
     if (eraseOptions) eraseOptions.style.display = "none";
     if (okOptions) okOptions.style.display = "flex";
   };
-  const onOk = () => window.location.reload();
+  const onOk = () => {
+    initializeGame();
+    resetEraseModal();
+  };
   const onNo = () => resetEraseModal();
 
   if (btnYes) {
@@ -965,7 +972,7 @@ function gameOver() {
   addMessage("Você sente um frio na espinha, vê seu sangue escorrer...");
   // salvar mortes para "meta-progresso" (rogue-like)
   saveSafeGame({ ...PLAYER_INITIAL, deaths: deaths + 1 });
-  removeSaveGame(); // Remover salas geradas
+  removeDataGame(); // Remover salas geradas
 
   // Mostrar tela de game over
   setTimeout(() => {
