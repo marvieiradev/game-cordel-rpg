@@ -1,12 +1,12 @@
 /*--- Constantes e estados do jogo ---*/
-const ROOM_TYPES = Object.freeze({
+const ROOM_TYPES = {
   EMPTY: "empty",
   MONSTER: "monster",
   BOSS: "boss",
   CHEST: "chest",
   TRAP: "trap",
   SAFE: "safe",
-});
+};
 
 // Probabilidade de qual sala pode aparecer para o jogador
 const ROOM_PROBABILITIES = [
@@ -111,6 +111,47 @@ const BOSS = [
   { name: "Cuca", image: "images/monster/cuca.webp" },
   { name: "Mula sem Cabeça", image: "images/monster/mula-sem-cabeca.webp" },
 ];
+
+/* --- Frases diversas quando o jogador encontra ou derrota o inimigo */
+const PHRASES = {
+  appear: [
+    {
+      part1: "O silêncio da noite quebrou,",
+      part2: "logo se mostrou!",
+    },
+    {
+      part1: "O mato guarda assombro e dor,",
+      part2: "traz o terror!",
+    },
+    {
+      part1: "O mato sussurra segredo,",
+      part2: "vem sem medo!",
+    },
+  ],
+  defeated: [
+    {
+      text: "foi derrotado!",
+    },
+    {
+      text: "sucumbiu!",
+    },
+    {
+      text: "está acabado!",
+    },
+  ],
+
+  death: [
+    {
+      text: "O homem caiu na noite, e só a fera tomou açoite.",
+    },
+    {
+      text: "O chão abraçou seu corpo, a maldição cumpriu o acordo.",
+    },
+    {
+      text: "Nem a força, nem a reza, só a morte o atravessa.",
+    },
+  ],
+};
 
 // Estado global do jogo
 let player = { ...PLAYER_INITIAL };
@@ -322,14 +363,16 @@ const disableSpecialButton = () => {
   if (!specialAtkButton) return;
   specialAtkButton.style.pointerEvents = "none";
   specialAtkButton.style.opacity = 0.5;
-  specialAtkButton.innerHTML = `<img class="btn-image" src="images/ui/timer.webp" alt=""/> ESPERE ( ${turnsToSpecial} )`;
+  specialAtkButton.innerHTML = `<img class="btn-image" src="images/ui/timer.webp" alt=""/> ESPERE ( ${
+    turnsToSpecial + 1
+  } )`;
 };
 // Habilita o botão "Ataque Especial" quando os turnos de espara acabarem
 const enableSpecialButton = () => {
   if (!specialAtkButton) return;
   specialAtkButton.style.pointerEvents = "auto";
   specialAtkButton.style.opacity = 1;
-  specialAtkButton.innerHTML = `<img class="btn-image" src="images/ui/special-attack.webp" alt=""/> RISCA-FACA`;
+  specialAtkButton.innerHTML = `<img class="btn-image" src="images/ui/special-attack.webp" alt=""/> DILACERAR`;
 };
 
 /* --- Gerenciamento de Telas ---*/
@@ -407,7 +450,8 @@ function initializeGame() {
   }
 
   // Iniciar com a tela adequada
-  showScreen(splashScreen);
+  playMusicMenu();
+  showScreen(menuScreen);
 }
 
 /* --- Iniciar novo jogo / continuar jogo ---*/
@@ -448,7 +492,9 @@ function continueGame() {
 
   // Definir o tipo da sala atual como vazia para garantir que apenas as opções de direção apareçam
   currentRoomData = { number: player.currentRoom, type: ROOM_TYPES.EMPTY };
-  addMessage("Você acorda em um local seguro.");
+  addMessage(
+    "O herói desperta no recanto seguro, na mata calma, sem nenhum apuro."
+  );
   waitingForAction = true;
 }
 // Iniciar o jogo apartir da tela inicial da história
@@ -649,6 +695,8 @@ function enterRoom(roomNumber) {
 
   player.currentRoom = roomNumber;
   const roomType = generateRoomType(roomNumber);
+  const appear =
+    PHRASES.appear[Math.floor(Math.random() * PHRASES.appear.length)];
 
   // Registrar o tipo da sala para as regras de sequência
   player.lastRoomTypes.push(roomType);
@@ -664,25 +712,25 @@ function enterRoom(roomNumber) {
     case ROOM_TYPES.EMPTY: // Sala vazia
       addMessage(
         roomNumber === 0
-          ? "Você abre os olhos. Na sua frente enxerga dois caminhos."
-          : "Não tem nada neste lugar."
+          ? "Você abre os olhos e vê a estrada, dois caminhos seguem pela encruzilhada."
+          : "Olhos atentos sem encontrar, nenhum assombro veio se mostrar."
       );
       break;
-    case ROOM_TYPES.MONSTER: // Sala monsro
+    case ROOM_TYPES.MONSTER: // Sala monstro
       currentMonster = generateMonster(roomNumber);
-      addMessage(`${currentMonster.name} apareceu!`);
+      addMessage(`${appear.part1} ${currentMonster.name} ${appear.part2}`);
       break;
     case ROOM_TYPES.BOSS: // Sala boos
       currentMonster = generateBoss();
-      addMessage(`${currentMonster.name} apareceu!`);
+      addMessage(`${appear.part1} ${currentMonster.name} ${appear.part2}`);
       break;
     case ROOM_TYPES.CHEST: // Sala butija
       imageMonster.src = "images/objects/butija.webp";
-      addMessage("Você encontrou uma butija!");
+      addMessage("Na mata algo brilhou, uma butija você encontrou!");
       break;
     case ROOM_TYPES.TRAP: // Sala armadilha
       imageMonster.src = "images/objects/arapuca.webp";
-      addMessage("Você caiu em uma arapuca!");
+      addMessage("Você caiu em uma apauca!");
       setTimeout(() => playSound(SOUNDS.playerDamage), 2000);
       // Aplicar dano da armadilha
       player.hp -= TRAP_DAMAGE;
@@ -697,7 +745,9 @@ function enterRoom(roomNumber) {
       break;
     case ROOM_TYPES.SAFE: // Sala segura
       imageMonster.src = "images/objects/fogueira.webp";
-      addMessage("Você sente que está em um lugar seguro.");
+      addMessage(
+        "Neste recanto, seu peito sossegou, você sente a paz que te cercou."
+      );
       break;
   }
 
@@ -779,7 +829,9 @@ function playerAttack(useSpecial = false) {
     // Verifica se o mostro morreu
     if (currentMonster.hp <= 0) {
       currentMonster.hp = 0;
-      addMessage(`${currentMonster.name} foi derrotado!`);
+      const defeat =
+        PHRASES.defeated[Math.floor(Math.random() * PHRASES.defeated.length)];
+      addMessage(`${currentMonster.name} ${defeat.text}`);
       monsterDefeated();
       return;
     }
@@ -969,7 +1021,8 @@ function usePotion() {
 
 /* --- Funções Game Over / Vitória ---*/
 function gameOver() {
-  addMessage("Você sente um frio na espinha, vê seu sangue escorrer...");
+  const death = PHRASES.death[Math.floor(Math.random() * PHRASES.death.length)];
+  addMessage(`${death.text}`);
   // salvar mortes para "meta-progresso" (rogue-like)
   saveSafeGame({ ...PLAYER_INITIAL, deaths: deaths + 1 });
   removeDataGame(); // Remover salas geradas
@@ -983,7 +1036,7 @@ function gameOver() {
 }
 
 function victory() {
-  addMessage("Você respira fundo e segue em frente!");
+  addMessage("Com o coração batendo forte, você avança na jornada!");
   // Mostrar tela de créditos
   setTimeout(() => {
     showScreen(creditsScreen);
@@ -1108,13 +1161,13 @@ function liftAction() {
   }, MESSAGE_DELAY * 1.5);
   roomElementEl.className = "room-element";
   currentRoomData.type = ROOM_TYPES.EMPTY;
-  addMessage("Você está pronto para seguir em frente.");
+  addMessage("Firmou o passo, seguiu adiante, na mata escura e constante.");
   addMessage(tempMessage);
 }
 
 // Apenas olha ao redor (não gera nenhuma ação)
 function observeAction() {
-  addMessage("Você não vê nada de incomum neste lugar.");
+  addMessage("Por aqui nemhum assombro se mostrou, só o vento que soprou.");
   addMessage(tempMessage);
 }
 
@@ -1221,7 +1274,7 @@ function applyLoot(loot) {
 // Função salvar
 function saveGameInSafeRoom() {
   saveSafeGame(player);
-  addMessage("Você cochila ao lado da fogueira. Jogo salvo!");
+  addMessage("O fogo aquece, o sono vem, o fica jogo salvo também.");
 }
 
 // Função que continua o jogo após salvar
@@ -1232,7 +1285,9 @@ function saveAndContinue() {
   }, MESSAGE_DELAY);
   // Após salvar, marcar a sala como vazia para mostrar opções de direção
   currentRoomData.type = ROOM_TYPES.EMPTY;
-  addMessage("Você se sente revigorado e pronto para continuar sua jornada.");
+  addMessage(
+    "O corpo renovado, o peito a brilhar, você segue pronto pra caminhar."
+  );
   waitingForAction = true;
 }
 
@@ -1291,12 +1346,17 @@ function upgradeAttribute(attribute) {
   hideStrengthenModal();
   updateUI();
   // Após fortalecer, retora à sala
-  addMessage("Você se sente mais forte!");
+  addMessage("Com energia nova a lhe guiar, você não vai fraquejar.");
   waitingForAction = true;
 }
 
 /* --- Inicialização --- */
 document.addEventListener("DOMContentLoaded", () => {
   connectListeners();
-  initializeGame();
+  showScreen(splashScreen);
+  // Foi necerssário utilizar esse código para garantir que a musica do menu seja executada.
+  // Os navegadores não permitem que uma mídia seja executada automaticamente ao carregar uma página
+  getEl("splash-screen").addEventListener("click", () => {
+    initializeGame();
+  });
 });
