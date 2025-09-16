@@ -1036,7 +1036,14 @@ function gameOver() {
 }
 
 function victory() {
-  addMessage("Com o coração batendo forte, você avança na jornada!");
+  addMessage(
+    "Raiou o dia, dissipou a noite escura, o você segue vivo, com força e bravura."
+  );
+  setTimeout(() => {
+    getEl("room").style.backgroundImage = "url('images/ui/forest-color.webp')";
+    gameMusic.pause();
+  }, MESSAGE_DELAY);
+
   // Mostrar tela de créditos
   setTimeout(() => {
     showScreen(creditsScreen);

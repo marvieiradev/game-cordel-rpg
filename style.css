@@ -165,6 +165,7 @@ h2 {
   margin-bottom: 20px;
   line-height: 1.6;
   font-size: 1.2rem;
+  text-align: justify;
 }
 
 /* Jogo */
@@ -385,7 +386,7 @@ h2 {
     opacity: 1;
   }
   50% {
-    opacity: 0.75;
+    opacity: 0.5;
   }
   100% {
     opacity: 0.9;
@@ -456,6 +457,7 @@ h2 {
   }
   .btn-game {
     font-size: 1.2rem;
+    padding: 10px 20px;
   }
   .btn-small {
     font-size: 0.8rem;
@@ -494,7 +496,7 @@ h2 {
   .status-item,
   .log-area {
     padding: 7px;
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
   .instructions-content {
     font-size: 1rem;
@@ -503,5 +505,19 @@ h2 {
   .btn-no,
   .btn-ok {
     padding: 5px 20px;
+  }
+}
+
+/* Responsividade */
+@media (max-width: 380px) {
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1rem;
+  }
+  .instructions-content {
+    padding: 10px;
+    font-size: 0.9rem;
   }
 }
