@@ -6,6 +6,7 @@ const ROOM_TYPES = {
   CHEST: "chest",
   TRAP: "trap",
   SAFE: "safe",
+  PROTECTED: "protected",
 };
 
 // Probabilidade de qual sala pode aparecer para o jogador
@@ -72,8 +73,8 @@ const playMusicMenu = () => {
 const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 5,
-  attackBonus: 5,
+  ac: 50,
+  attackBonus: 50,
   deaths: 0,
   potions: 3,
   gold: 0,
@@ -206,6 +207,7 @@ const aboutMenuButton = getEl("btn-about-menu");
 const instructionsMenuButton = getEl("btn-instructions-menu");
 const strengthenButton = getEl("btn-strengthen");
 const saveContinueButton = getEl("btn-save-continue");
+const continueSavedButton = getEl("btn-continue-saved");
 const upgradeAttackButton = getEl("btn-upgrade-attack");
 const upgradeDefenseButton = getEl("btn-upgrade-defense");
 const upgradeHpButton = getEl("btn-upgrade-hp");
@@ -230,6 +232,7 @@ const exploreButtons = getEl("explore-buttons");
 const trapButtons = getEl("trap-buttons");
 const chestButtons = getEl("chest-buttons");
 const safeRoomButtons = getEl("safe-room-buttons");
+const continueButtons = getEl("continue-buttons");
 const bonusDamageEl = getEl("damage-bonus");
 
 // Botões do modal "Apagar dados"
@@ -283,6 +286,8 @@ const connectListeners = () => {
     strengthenButton.addEventListener("click", showStrengthenModal);
   if (saveContinueButton)
     saveContinueButton.addEventListener("click", saveAndContinue);
+  if (continueSavedButton)
+    continueSavedButton.addEventListener("click", continueAfterSaving);
 
   // Modal de fortalecimento
   if (upgradeAttackButton)
@@ -329,7 +334,7 @@ function processMessageQueue() {
 
   processingMessages = true;
   const message = messageQueue.shift();
-  if (logAreaEl) logAreaEl.textContent = message;
+  if (logAreaEl) logAreaEl.innerText = message;
   hideAllActions(); //Esconde todos os boões quando as mensdagnes estão sendo geradas/exibidas
   setTimeout(processMessageQueue, MESSAGE_DELAY); //Delay entre mensagens para dar tempo do jogador ler
 }
@@ -343,10 +348,11 @@ const hideAllActions = () => {
     trapButtons,
     chestButtons,
     safeRoomButtons,
+    continueButtons,
   ].forEach((el) => {
     if (el) el.style.display = "none";
   });
-  if (btnPotion) btnPotion.disabled = true;
+  //if (btnPotion) btnPotion.disabled = true;
   if (orientationText) orientationText.textContent = "";
 };
 
@@ -611,6 +617,8 @@ const showAppropriateActions = () => {
       return showActions(trapButtons, "O que fazer?");
     case ROOM_TYPES.SAFE: // Sala segura
       return showActions(safeRoomButtons, "O que fazer?");
+    case ROOM_TYPES.PROTECTED: // Após salvar se torna uma sala do tipo "PROTEGIDA"
+      return showActions(continueButtons, "O que fazer?");
     default:
       return showActions(exploreButtons, "Pra onde ir?");
   }
@@ -672,6 +680,8 @@ function determineRoomType(roomNumber) {
   return ROOM_TYPES.MONSTER;
 }
 
+// Essa função gera e  salva todas as salas geradas no jogo, garantindo que cada tipo de sala apareça apropriadamente ao jogador
+// Evitando que o jogo seja facilitado ou dificultado demais garantindo uma experinecia equlibrada e justa
 function generateRoomType(roomNumber) {
   // Garantir que as salas 15, 30 e 45 sejam sempre salas seguras
   if (SAFE_ROOMS.includes(roomNumber)) {
@@ -679,7 +689,7 @@ function generateRoomType(roomNumber) {
     saveRoomsToStorage();
     return ROOM_TYPES.SAFE;
   }
-  // Se a sala já foi pré-definida, usar esse valor
+  // Se a sala já foi pré-definida (as salas seguras e do boss), usar esse valor
   if (gameRooms[roomNumber] != null) return gameRooms[roomNumber];
   // Caso contrário, determinar o tipo e salvar
   const type = determineRoomType(roomNumber);
@@ -746,7 +756,7 @@ function enterRoom(roomNumber) {
     case ROOM_TYPES.SAFE: // Sala segura
       imageMonster.src = "images/objects/fogueira.webp";
       addMessage(
-        "Neste recanto, seu peito sossegou, você sente a paz que te cercou."
+        "Neste recanto, seu peito sossegou, um lugar seguro você encontrou."
       );
       break;
   }
@@ -954,13 +964,15 @@ function monsterDefeated() {
 
   // Adicionar dinheiro ao jogador
   player.gold += goldAmount;
-  addMessage(`Você achou ${goldAmount} patacas!`);
+  let tempMessage = `Você achou ${goldAmount} patacas!`;
 
   //Chance de achar um aluá
   if (Math.random() < potionChance) {
     player.potions += 1;
-    addMessage("Você achou 1 aluá!");
+    tempMessage += `\n E uma garrafa cheia de aluá!`;
   }
+
+  addMessage(tempMessage);
 
   currentMonster = null;
   waitingForAction = true;
@@ -1130,7 +1142,7 @@ function openChest() {
   const roll = Math.random() * 100;
   let chestType = "normal";
   if (roll >= 95) chestType = "lendario";
-  else if (roll >= 80) chestType = "raro";
+  else if (roll >= 85) chestType = "raro";
 
   // Gerar o loot do baú com base no tipo
   const loot = generateChestLoot(chestType);
@@ -1229,44 +1241,44 @@ function applyLoot(loot) {
     //Aumenta a defesa baseado no tipo de loot (comum, raro e lendário)
     case "common_armor":
       player.ac += 1;
-      addMessage("Achou um tônico! Sua defesa aumenta +1!");
+      addMessage("Você achou um tônico! \nSua defesa aumenta +1!");
       break;
     case "rare_armor":
       player.ac += 2;
-      addMessage("Achou um tônico amargo! Sua defesa aumenta +2!");
+      addMessage("Você achou um tônico amargo! \nSua defesa aumenta +2!");
       break;
     case "legendary_armor":
       player.ac += 3;
-      addMessage("Achou um tônico forte! Sua defesa aumenta +3!");
+      addMessage("Você achou um tônico forte! \nSua defesa aumenta +3!");
       break;
     //Aumenta o HP baseado no tipo de loot (comum, raro e lendário)
     case "common_hp":
-      player.maxHp += 5;
-      player.hp += 5;
-      addMessage("Achou um elixir! Sua vida máxima aumenta +5!");
+      player.maxHp += 3;
+      player.hp += 3;
+      addMessage("Você achou um elixir! \nSua vida máxima aumenta +3!");
       break;
     case "rare_hp":
-      player.maxHp += 10;
-      player.hp += 10;
-      addMessage("Achou um exlixir forte! Sua vida máxima aumenta +10!");
+      player.maxHp += 5;
+      player.hp += 5;
+      addMessage("Você achou um exlixir forte! \nSua vida máxima aumenta +5!");
       break;
     case "legendary_hp":
-      player.maxHp += 15;
-      player.hp += 15;
-      addMessage("Achou um exlixir santo! Sua vida máxima aumenta +15!");
+      player.maxHp += 10;
+      player.hp += 10;
+      addMessage("Você achou um exlixir santo! \nSua vida máxima aumenta +10!");
       break;
     //Aumenta o ataque baseado no tipo de loot (comum, raro e lendário)
     case "common_attack":
       player.attackBonus += 1;
-      addMessage("Achou um chá amargo! Seu ataque aumenta +1");
+      addMessage("Você achou um chá amargo! \nSeu ataque aumenta +1");
       break;
     case "rare_attack":
       player.attackBonus += 2;
-      addMessage("Achou um chá forte de raiz! Seu ataque aumenta +2");
+      addMessage("Você achou um chá forte de raiz! \nSeu ataque aumenta +2");
       break;
     case "legendary_attack":
       player.attackBonus += 3;
-      addMessage("Achou um chá encantado! Seu ataque aumenta +3");
+      addMessage("Você achou um chá encantado! \nSeu ataque aumenta +3");
       break;
     default:
       // Nada
@@ -1284,17 +1296,26 @@ function saveGameInSafeRoom() {
   addMessage("O fogo aquece, o sono vem, o fica jogo salvo também.");
 }
 
-// Função que continua o jogo após salvar
+// Função que salva o jogo e recupera a vida do jogador
 function saveAndContinue() {
   saveGameInSafeRoom();
+  // Recupera a vida do jogador
+  player.hp = player.maxHp;
+  // Após salvar, marcar a sala como protegida
+  currentRoomData.type = ROOM_TYPES.PROTECTED;
+  waitingForAction = true;
+}
+
+// Função que é executada logo após salavar o jogo, mostrando as ações apropriadas para o jogador
+function continueAfterSaving() {
   setTimeout(() => {
     imageMonster.src = "";
   }, MESSAGE_DELAY);
-  // Após salvar, marcar a sala como vazia para mostrar opções de direção
-  currentRoomData.type = ROOM_TYPES.EMPTY;
   addMessage(
     "O corpo renovado, o peito a brilhar, você segue pronto pra caminhar."
   );
+  // Após salvar, marcar a sala como vazia para mostrar opções de direção
+  currentRoomData.type = ROOM_TYPES.EMPTY;
   waitingForAction = true;
 }
 
@@ -1332,18 +1353,20 @@ function upgradeAttribute(attribute) {
     case "attack":
       player.attackBonus += 1;
       addMessage(
-        `Ataque aumentado! (${player.attackBonus - 1} -> ${player.attackBonus})`
+        `Seu ataque aumentou! (${player.attackBonus - 1} -> ${
+          player.attackBonus
+        })`
       );
       break;
     case "defense":
       player.ac += 1;
-      addMessage(`Defesa aumentada! (${player.ac - 1} -> ${player.ac})`);
+      addMessage(`Sua defesa aumentou! (${player.ac - 1} -> ${player.ac})`);
       break;
     case "hp":
       player.maxHp += 1;
       player.hp += 1;
       addMessage(
-        `Vida máxima aumentada! (${player.maxHp - 1} -> ${player.maxHp})`
+        `Sua vida máxima aumentou! (${player.maxHp - 1} -> ${player.maxHp})`
       );
       break;
     default:

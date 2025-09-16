@@ -286,7 +286,8 @@ h2 {
 .explore-buttons,
 .trap-buttons,
 .chest-buttons,
-.safe-room-buttons {
+.safe-room-buttons,
+.continue-buttons {
   display: flex;
   justify-content: space-around;
   margin-bottom: 15px;
@@ -297,6 +298,10 @@ h2 {
   align-items: center;
   justify-content: space-around;
   gap: 5px;
+}
+
+.continue-buttons {
+  justify-content: center;
 }
 
 .action-area {
@@ -497,6 +502,7 @@ h2 {
   .log-area {
     padding: 7px;
     font-size: 1.1rem;
+    line-height: 1.5rem;
   }
   .instructions-content {
     font-size: 1rem;
