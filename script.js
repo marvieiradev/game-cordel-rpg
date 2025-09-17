@@ -73,8 +73,8 @@ const playMusicMenu = () => {
 const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 50,
-  attackBonus: 50,
+  ac: 5,
+  attackBonus: 5,
   deaths: 0,
   potions: 3,
   gold: 0,
@@ -436,14 +436,19 @@ const removeDataGame = () => {
   localStorage.removeItem("saveGameRooms");
 };
 
+// Resetar as salas salas caso o jogador tenha algum dado de sala salva
+const resetGameRooms = () => {
+  generateAllRooms();
+  saveRoomsToStorage();
+};
+
 /* --- Inicialização do jogo ---*/
 function initializeGame() {
   // Carregar ou gerar salas
   const rooms = loadRoomsFromStorage();
   if (rooms) gameRooms = rooms;
   else {
-    generateAllRooms();
-    saveRoomsToStorage();
+    resetGameRooms();
   }
 
   // Verificar save em sala segura, se hover, o botão continuar será exibido
@@ -485,6 +490,9 @@ function startNewGame() {
   messageQueue = [];
   processingMessages = false;
   waitingForAction = false;
+
+  // Recria e salva as salas, caso o jogador tenha dados salvos para iniciar um novo jogo diferente do anterior
+  resetGameRooms();
 
   // Mostrar a tela de história
   showScreen(storyScreen);
@@ -1043,8 +1051,8 @@ function usePotion() {
 function gameOver() {
   const death = PHRASES.death[Math.floor(Math.random() * PHRASES.death.length)];
   addMessage(`${death.text}`);
-  // salvar mortes para "meta-progresso" (rogue-like)
-  saveSafeGame({ ...PLAYER_INITIAL, deaths: deaths + 1 });
+  // Salvar mortes para "meta-progresso" (rogue-like)
+  saveSafeGame({ ...PLAYER_INITIAL, deaths: deaths + 1, currentRoom: 0 });
   removeDataGame(); // Remover salas geradas
 
   // Mostrar tela de game over
@@ -1313,9 +1321,10 @@ function saveGameInSafeRoom() {
 
 // Função que salva o jogo e recupera a vida do jogador
 function saveAndContinue() {
-  saveGameInSafeRoom();
   // Recupera a vida do jogador
   player.hp = player.maxHp;
+  saveGameInSafeRoom();
+  updateUI();
   // Após salvar, marcar a sala como protegida
   currentRoomData.type = ROOM_TYPES.PROTECTED;
   waitingForAction = true;

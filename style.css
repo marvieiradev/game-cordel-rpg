@@ -268,8 +268,7 @@ h2 {
   object-fit: contain;
 }
 
-.room-element.boss,
-.room-element.boss img {
+.room-element.boss {
   position: absolute;
   width: 185px;
   height: 185px;
@@ -504,8 +503,7 @@ h2 {
     width: 135px;
     height: 135px;
   }
-  .room-element.boss,
-  .room-element.boss img {
+  .room-element.boss {
     width: 145px;
     height: 145px;
   }
