@@ -801,7 +801,7 @@ function moveToNextRoom(direction) {
 const rollDice = (sides) => Math.floor(Math.random() * sides) + 1;
 
 // --- Combate: jogador ataca ---
-function playerAttack(useSpecial = false) {
+function playerAttack(useSpecial) {
   if (processingMessages || !currentMonster) return;
   const specialVal = useSpecial ? 5 : 0;
 
@@ -817,7 +817,8 @@ function playerAttack(useSpecial = false) {
   // Rolar um d20 + player.attackBonus
   const attackRoll = rollDice(20);
   const attackTotal = attackRoll + player.attackBonus + specialVal;
-  const damageBonus = Math.floor(player.attackBonus / 2) + specialVal;
+  const damageBonus =
+    Math.floor(player.attackBonus / 2) + Math.floor(specialVal / 2);
 
   //Animação de ataque
   showAnimation("player");
@@ -1103,30 +1104,29 @@ function generateMonster(roomNumber) {
   let monsterStats;
   if (monsterType === "fraco") {
     monsterStats = {
-      hp: Math.floor(Math.random() * 3) + 12, // 12-14 HP
-      maxHp: 14,
+      hp: Math.floor(Math.random() * 5) + 15, // 15-20 HP
+      maxHp: 20,
       ac: Math.floor(Math.random() * 3) + 12, // 12-14 CA (defesa)
       attackBonus: Math.floor(Math.random() * 3) + 2, // 2-4 Bonus de Ataque
       damageBonus: Math.floor(Math.random() * 2) + 1, // 1-2 Bonus de Dano
     };
   } else if (monsterType === "normal") {
     monsterStats = {
-      hp: Math.floor(Math.random() * 10) + 15, // 15-24 HP
-      maxHp: 24,
+      hp: Math.floor(Math.random() * 5) + 25, // 25-30 HP
+      maxHp: 30,
       ac: Math.floor(Math.random() * 3) + 14, // 14-16 CA (defesa)
       attackBonus: Math.floor(Math.random() * 2) + 5, // 5-6 Bonus de Ataque
       damageBonus: Math.floor(Math.random() * 2) + 2, // 2-3 Bonus de Dano
     };
   } else {
     monsterStats = {
-      hp: Math.floor(Math.random() * 15) + 26, // 26-40 HP
+      hp: Math.floor(Math.random() * 5) + 35, // 35-40 HP
       maxHp: 40,
       ac: Math.floor(Math.random() * 3) + 16, // 16-18 CA (defesa)
       attackBonus: Math.floor(Math.random() * 2) + 7, // 7-8 Bonus de Ataque
       damageBonus: Math.floor(Math.random() * 2) + 3, // 3-4 Bonus de Dano
     };
   }
-
   // Escolher monstro aleatório e definir seu nome e imagem
   const pick = randFrom(MONSTER[monsterType]);
   if (imageMonster) imageMonster.src = pick.image;
