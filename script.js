@@ -415,7 +415,15 @@ const saveSafeGame = (data) =>
   localStorage.setItem("gameSafeSave", JSON.stringify(data));
 const loadSafeGame = () => {
   const save = localStorage.getItem("gameSafeSave");
-  return save ? JSON.parse(save) : null; //Carrega os dados salvos se houver
+  let data;
+  // Verifica se os dados salvos são válidos
+  try {
+    data = save ? JSON.parse(save) : null;
+  } catch (error) {
+    // Se houver algum erro, define os dados salvos como nulos e impede o jogo de ser carregado
+    data = null;
+  }
+  return data; //Carrega os dados salvos se houver e se forem válidos
 };
 // Remover todos os dados salvos
 const removeSaveGame = () => {
@@ -940,7 +948,7 @@ function monsterDefeated() {
   }, MESSAGE_DELAY * 2);
 
   if (currentMonster.type === "boss") {
-    setTimeout(victory, MESSAGE_DELAY * 2);
+    setTimeout(victory, MESSAGE_DELAY * 3);
     return;
   }
 
@@ -1059,7 +1067,14 @@ function victory() {
   // Mostrar tela de créditos
   setTimeout(() => {
     showScreen(creditsScreen);
-    removeSaveGame(); // Remover os dados salvos do jogador
+    // Mostra a pontuação final do jogador baseado em suas mortes, quanto menos mortes, mais estrelas
+    const stars = Math.max(6 - Math.floor(deaths / 2), 1);
+    for (i = 0; i < stars; i++) {
+      getEl(
+        "stars"
+      ).innerHTML += ` <img src="images/ui/star.webp" class="star"/>`;
+    }
+    //removeSaveGame(); // Remover os dados salvos do jogador
     playMusicMenu(); // Tocar a musica do menu
   }, MESSAGE_DELAY * 4);
 }

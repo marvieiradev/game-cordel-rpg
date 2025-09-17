@@ -168,6 +168,23 @@ h2 {
   text-align: justify;
 }
 
+.score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.score span {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.star {
+  width: 25px;
+}
+
 /* Jogo */
 #game-screen {
   border: 3px solid var(--text-color);
@@ -251,10 +268,11 @@ h2 {
   object-fit: contain;
 }
 
-.room-element.boss {
+.room-element.boss,
+.room-element.boss img {
   position: absolute;
-  width: 225px;
-  height: 175px;
+  width: 185px;
+  height: 185px;
   bottom: 10px;
 }
 
@@ -486,9 +504,10 @@ h2 {
     width: 135px;
     height: 135px;
   }
-  .room-element.boss {
-    width: 185px;
-    height: 135px;
+  .room-element.boss,
+  .room-element.boss img {
+    width: 145px;
+    height: 145px;
   }
   .story-content,
   .credits-content,
