@@ -817,7 +817,7 @@ function playerAttack(useSpecial = false) {
   // Rolar um d20 + player.attackBonus
   const attackRoll = rollDice(20);
   const attackTotal = attackRoll + player.attackBonus + specialVal;
-  const damageBonus = Math.floor(player.attackBonus / 2);
+  const damageBonus = Math.floor(player.attackBonus / 2) + specialVal;
 
   //Animação de ataque
   showAnimation("player");
