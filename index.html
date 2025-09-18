@@ -82,7 +82,16 @@
         <div class="room-container" id="room">
           <div id="monster-name" class="monster-name"></div>
           <div id="room-element" class="room-element">
-            <img id="image-monster" src="" alt="" height="150px" />
+            <div class="monster-elements">
+              <img id="image-monster" src="" alt="" height="150px" />
+              <img
+                id="status-monster"
+                class="status-monster"
+                src="images/ui/fear.webp"
+                style="opacity: 0"
+                alt=""
+              />
+            </div>
           </div>
         </div>
         <div id="log-area" class="log-area"></div>
@@ -103,9 +112,9 @@
               />
               DILACERAR
             </div>
-            <div id="btn-dodge" class="btn btn-action">
-              <img class="btn-image" src="images/ui/run.webp" alt="" />
-              DESVIAR
+            <div id="btn-roar" class="btn btn-action">
+              <img class="btn-image" src="images/ui/roar.webp" alt="" />
+              RIGIR
             </div>
             <div id="btn-potion" class="btn btn-action">
               <img class="btn-image" src="images/ui/potion.webp" alt="" />
@@ -211,7 +220,9 @@
           DILACERAR: Mesmo sem estar totalmente transformado, suas garras fazem
           um estrago.
         </p>
-        <p>DESVIAR: Com cuidado no olhar, prepare-se para o golpe evitar</p>
+        <p>
+          RUGIR: Com o seu rugido estridente, apavora tudo que estiver à frente.
+        </p>
         <p>ALUÁ: Mesmo com lamentos, um aluá consegue curar seus ferimentos.</p>
         <p>ESQUERDA/DIREITA: Perambula pela mata escura.</p>
         <p>

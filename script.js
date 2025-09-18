@@ -36,6 +36,7 @@ const SOUNDS = {
   trap: "sounds/trap.mp3",
   walk: "sounds/walk.mp3",
   potion: "sounds/potion.mp3",
+  roar: "sounds/roar.mp3",
   gameMusic: "sounds/game_music.mp3",
   menuMusic: "sounds/menu_music.mp3",
 };
@@ -73,8 +74,8 @@ const playMusicMenu = () => {
 const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 5,
-  attackBonus: 5,
+  ac: 3,
+  attackBonus: 3,
   deaths: 0,
   potions: 3,
   gold: 0,
@@ -165,9 +166,11 @@ let waitingForAction = false;
 let currentRoomData = { number: 0, type: ROOM_TYPES.EMPTY };
 let tempMessage = "";
 let turnsToSpecial = 0;
+let turnsToRoar = 0;
 let deaths = 0;
 let isPlayerDamage = false;
 let isSpecialAtk = false;
+let isMonsterScared = false;
 
 /* --- Cache de elementos DOM (auxuliar) ---*/
 const getEl = (id) => document.getElementById(id);
@@ -193,7 +196,7 @@ const deleteDataButton = getEl("btn-delete-data");
 const startGameButton = getEl("btn-start-game");
 const attackButton = getEl("btn-attack");
 const specialAtkButton = getEl("btn-esp-atk");
-const dodgeButton = getEl("btn-dodge");
+const roarButton = getEl("btn-roar");
 const leftButton = getEl("btn-left");
 const rightButton = getEl("btn-right");
 const openChestButton = getEl("open-action-button");
@@ -234,6 +237,7 @@ const chestButtons = getEl("chest-buttons");
 const safeRoomButtons = getEl("safe-room-buttons");
 const continueButtons = getEl("continue-buttons");
 const bonusDamageEl = getEl("damage-bonus");
+const monsterStatus = getEl("status-monster");
 
 // Botões do modal "Apagar dados"
 const confirmOptions = getEl("confirm-options");
@@ -272,7 +276,7 @@ const connectListeners = () => {
     attackButton.addEventListener("click", () => playerAttack(false));
   if (specialAtkButton)
     specialAtkButton.addEventListener("click", () => playerAttack(true));
-  if (dodgeButton) dodgeButton.addEventListener("click", playerDodge);
+  if (roarButton) roarButton.addEventListener("click", playerRoar);
   if (potionButton) potionButton.addEventListener("click", usePotion);
   if (openChestButton) openChestButton.addEventListener("click", openChest);
   if (ignoreChestButton)
@@ -356,30 +360,57 @@ const hideAllActions = () => {
   if (orientationText) orientationText.textContent = "";
 };
 
+// Funcão para passar de turno, após o monstro atacar ou ser derrotado
+const turnSpend = () => {
+  if (turnsToSpecial > 0) turnsToSpecial--;
+  if (turnsToRoar > 0) turnsToRoar--;
+};
+
 // Mostra a ação correspondente após o processamento de mensagens
 const showActions = (buttonsEl, text) => {
   if (processingMessages) return;
   hideAllActions();
   if (orientationText) orientationText.textContent = text;
   if (buttonsEl) buttonsEl.style.display = "flex";
+
+  if (turnsToSpecial > 0) disableSpecialButton();
+  else enableSpecialButton();
+
+  if (turnsToRoar > 0) disableRoarButton();
+  else enableRoarButton();
 };
 
-// Desabilita o botão "Ataque Especial" quando estiver aguandado os turnos de espera
-const disableSpecialButton = () => {
-  if (!specialAtkButton) return;
-  specialAtkButton.style.pointerEvents = "none";
-  specialAtkButton.style.opacity = 0.5;
-  specialAtkButton.innerHTML = `<img class="btn-image" src="images/ui/timer.webp" alt=""/> ESPERE ( ${
-    turnsToSpecial + 1
-  } )`;
+/* --- Habilita e desabilita botões de acordo com o botão clicado --- */
+const toggleButton = (button, enable, { img, text }) => {
+  if (!button) return;
+  button.style.pointerEvents = enable ? "auto" : "none";
+  button.style.opacity = enable ? 1 : 0.5;
+  button.innerHTML = `<img class="btn-image" src="${img}" alt=""/> ${text}`;
 };
-// Habilita o botão "Ataque Especial" quando os turnos de espara acabarem
-const enableSpecialButton = () => {
-  if (!specialAtkButton) return;
-  specialAtkButton.style.pointerEvents = "auto";
-  specialAtkButton.style.opacity = 1;
-  specialAtkButton.innerHTML = `<img class="btn-image" src="images/ui/special-attack.webp" alt=""/> DILACERAR`;
-};
+
+const disableSpecialButton = () =>
+  toggleButton(specialAtkButton, false, {
+    img: "images/ui/timer.webp",
+    text: `ESPERE ( ${turnsToSpecial} )`,
+  });
+
+const enableSpecialButton = () =>
+  toggleButton(specialAtkButton, true, {
+    img: "images/ui/special-attack.webp",
+    text: "DILACERAR",
+  });
+
+const disableRoarButton = () =>
+  toggleButton(roarButton, false, {
+    img: "images/ui/timer.webp",
+    text: `ESPERE ( ${turnsToRoar} )`,
+  });
+
+const enableRoarButton = () =>
+  toggleButton(roarButton, true, {
+    img: "images/ui/roar.webp",
+    text: "ROSNAR",
+  });
 
 /* --- Gerenciamento de Telas ---*/
 const showScreen = (screen) => {
@@ -471,6 +502,9 @@ function initializeGame() {
   // Iniciar com a tela adequada
   playMusicMenu();
   showScreen(menuScreen);
+  turnsToSpecial = 0;
+  turnsToRoar = 0;
+  isMonsterScared = false;
 }
 
 /* --- Iniciar novo jogo / continuar jogo ---*/
@@ -595,6 +629,10 @@ function updateUI() {
   if (potionCountEl) potionCountEl.textContent = player.potions;
   if (roomNumberEl) roomNumberEl.textContent = player.currentRoom;
 
+  isMonsterScared
+    ? (monsterStatus.style.opacity = 1)
+    : (monsterStatus.style.opacity = 0);
+
   //Exibe a imagem e o nome correto do monstro
   if (currentMonster) {
     monsterNameEl.style.opacity = 1;
@@ -619,11 +657,7 @@ const showAppropriateActions = () => {
     case ROOM_TYPES.MONSTER: // Sala com monstro ou boss
     case ROOM_TYPES.BOSS:
       return currentMonster && currentMonster.hp > 0
-        ? turnsToSpecial > 0
-          ? (turnsToSpecial--,
-            disableSpecialButton(),
-            showActions(actionButtons, "O que fazer?"))
-          : (enableSpecialButton(), showActions(actionButtons, "O que fazer?"))
+        ? showActions(actionButtons, "O que fazer?")
         : showActions(exploreButtons, "Pra onde ir?");
     case ROOM_TYPES.CHEST: // Sala com butija
       waitingForAction = true;
@@ -804,9 +838,12 @@ const rollDice = (sides) => Math.floor(Math.random() * sides) + 1;
 function playerAttack(useSpecial) {
   if (processingMessages || !currentMonster) return;
   const specialVal = useSpecial ? 5 : 0;
+  // Calcular CA efetiva do monstro (considerando se está assustado)
+  const effectiveMonsterAC = currentMonster.ac - (isMonsterScared ? 3 : 0);
 
   if (specialVal > 0) {
-    turnsToSpecial += 3; // A cada uso do especial, adicionar 3 turnos para o próximo uso
+    disableSpecialButton();
+    turnsToSpecial += 4; // A cada uso do especial, adicionar 4 turnos para o próximo uso
     isSpecialAtk = true;
     addMessage("Você ataca furiosamente!");
   } else {
@@ -824,7 +861,7 @@ function playerAttack(useSpecial) {
   showAnimation("player");
 
   //Verifica se acertou
-  if (attackTotal >= currentMonster.ac) {
+  if (attackTotal >= effectiveMonsterAC) {
     // Rolar o dano
     let damageRoll = rollDice(6);
     let damageTotal = damageRoll + damageBonus;
@@ -833,13 +870,13 @@ function playerAttack(useSpecial) {
       // Ataque crítico - dobro do dano
       damageTotal *= 2;
       addMessage(`CRÍTICO! você causa ${damageTotal} de dano ao inimigo!`);
-    } else if (attackTotal === currentMonster.ac) {
+    } else if (attackTotal === effectiveMonsterAC) {
       // Ataque igual à CA do monstro - causa apenas metade do dano (de raspão)
       damageTotal = Math.floor(damageTotal / 2);
       addMessage(`De raspão! você causa ${damageTotal} de dano ao inimigo.`);
     } else if (
       attackTotal >=
-      currentMonster.ac + Math.ceil(currentMonster.ac * 0.5)
+      effectiveMonsterAC + Math.ceil(effectiveMonsterAC * 0.5)
     ) {
       // Se o ataque supera a CA do monstro + 50% - dano aumentado em 50%
       // Exemplo: Se a CA do monstro é 10 e o ataque total do jogado d20 + player.attackBonus for igual ou maior que 15
@@ -865,16 +902,18 @@ function playerAttack(useSpecial) {
   } else {
     addMessage("Você errou!");
   }
-
   // Turno do monstro após um delay
   setTimeout(() => monsterTurn(), MESSAGE_DELAY * 2);
 }
 
-/*--- Jogador esquiva/desvia do ataque ---*/
-function playerDodge() {
+/*--- Jogador usa um rugido para amedrontar o inimigo ---*/
+function playerRoar() {
   if (processingMessages) return;
-  addMessage("Você se prepara para desviar!");
-  playerDodging = true;
+  addMessage("Você ruge! O inimigo ficou com medo");
+  isMonsterScared = true;
+  turnsToRoar += 4;
+  disableRoarButton();
+  showAnimation("roar");
   setTimeout(() => monsterTurn(), 3000);
 }
 
@@ -885,33 +924,31 @@ function monsterTurn() {
   showAnimation("monster");
 
   // Ataque do monstro
-  // Calcular CA efetiva do jogador (considerando esquiva)
-  const effectivePlayerAC = player.ac + (playerDodging ? 5 : 0);
+  // Verifica se o monstro está assustado e aplica um debuff, caso positivo
+  const scaredDebuff = isMonsterScared ? 3 : 0;
 
-  const attackRoll = rollDice(20);
-  const attackTotal = attackRoll + currentMonster.attackBonus;
+  const attackRoll = rollDice(20 - scaredDebuff);
+  const attackTotal = attackRoll + currentMonster.attackBonus - scaredDebuff;
 
   addMessage(`${currentMonster.name} te ataca!`);
 
   // Verifica se o ataque acerta
-  if (attackTotal >= effectivePlayerAC) {
+  if (attackTotal >= player.ac) {
     // Define que o jogador levou um dano
     isPlayerDamage = true;
     // Calcula o dano
-    let damageRoll = rollDice(6);
-    let damageTotal = damageRoll + currentMonster.damageBonus;
+    let damageRoll = rollDice(6 - scaredDebuff);
+    let damageTotal = damageRoll + currentMonster.damageBonus - scaredDebuff;
+    if (damageTotal <= 0) damageTotal = 1;
 
     //A lógica de dano é exatamente igual ao do jogador
     if (attackRoll === 20) {
       damageTotal *= 2;
       addMessage(`CRÍTICO! você perde ${damageTotal} de vida!`);
-    } else if (attackTotal === effectivePlayerAC) {
+    } else if (attackTotal === player.ac) {
       damageTotal = Math.floor(damageTotal / 2);
       addMessage(`De raspão! você perde ${damageTotal} de vida.`);
-    } else if (
-      attackTotal >=
-      effectivePlayerAC + Math.ceil(effectivePlayerAC * 0.5)
-    ) {
+    } else if (attackTotal >= player.ac + Math.ceil(player.ac * 0.5)) {
       damageTotal = Math.floor(damageTotal * 1.5);
       addMessage(`Golpe forte! você perde ${damageTotal} de vida!`);
     } else {
@@ -933,21 +970,25 @@ function monsterTurn() {
     }
   } else {
     isPlayerDamage = false;
-    // Verifica se o jogador desvia
-    if (playerDodging) addMessage("Você desviou do ataque!");
-    else addMessage(`${currentMonster.name} errou!`);
+    // Quando o monstro errar
+    addMessage(`${currentMonster.name} errou!`);
   }
-
-  // Resetar os estado do jogador
-  playerDodging = false;
+  // Resetar os estados de assustado do monstro
+  if (turnsToRoar <= 3) isMonsterScared = false;
 
   setTimeout(updateUI, MESSAGE_DELAY * 2);
   // Retornar o controle ao jogador
   waitingForAction = true;
+  // Passa o turno
+  turnSpend();
 }
 
 /* --- Quando monstro morre: gerar loot e limpar sala --- */
 function monsterDefeated() {
+  // Passa o turno
+  turnSpend();
+  isMonsterScared = false;
+  monsterStatus.style.opacity = 0;
   setTimeout(() => {
     showAnimation("object");
     //Toca o som de morte do monstro
@@ -1019,6 +1060,10 @@ function showAnimation(kind) {
       case "damage":
         playSound(SOUNDS.playerDamage);
         break;
+      case "roar":
+        imageMonster.classList.add("zoomOut");
+        playSound(SOUNDS.roar);
+        break;
     }
   }, 500);
 
@@ -1083,7 +1128,7 @@ function victory() {
         "stars"
       ).innerHTML += ` <img src="images/ui/star.webp" class="star"/>`;
     }
-    //removeSaveGame(); // Remover os dados salvos do jogador
+    removeSaveGame(); // Remover os dados salvos do jogador
     playMusicMenu(); // Tocar a musica do menu
   }, MESSAGE_DELAY * 4);
 }

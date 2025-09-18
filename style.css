@@ -280,6 +280,11 @@ h2 {
   top: 10px;
 }
 
+.monster-elemets {
+  position: relative;
+  height: 100%;
+}
+
 .log-area {
   background-color: var(--text-color);
   color: var(--secondary-color);
