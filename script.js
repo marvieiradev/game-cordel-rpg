@@ -37,6 +37,7 @@ const SOUNDS = {
   walk: "sounds/walk.mp3",
   potion: "sounds/potion.mp3",
   roar: "sounds/roar.mp3",
+  fire: "sounds/fire.mp3",
   gameMusic: "sounds/game_music.mp3",
   menuMusic: "sounds/menu_music.mp3",
 };
@@ -96,7 +97,7 @@ const MONSTER = {
     { name: "Jaguatitica", image: "images/monster/jaguatirica.webp" },
     { name: "Gato Maracajá", image: "images/monster/gato-maracaja.webp" },
     { name: "Cabeça de Cuia", image: "images/monster/cabeca-de-cuia.webp" },
-    { name: "Visage", image: "images/monster/visage.webp" },
+    { name: "Visagem", image: "images/monster/visagem.webp" },
     { name: "Saci Pererê", image: "images/monster/saci-perere.webp" },
   ],
   elite: [
@@ -158,13 +159,13 @@ const PHRASES = {
 // Estado global do jogo
 let player = { ...PLAYER_INITIAL };
 let currentMonster = null;
-let playerDodging = false;
 let gameRooms = {};
 let messageQueue = [];
 let processingMessages = false;
 let waitingForAction = false;
 let currentRoomData = { number: 0, type: ROOM_TYPES.EMPTY };
 let tempMessage = "";
+let cpKey = 42;
 let turnsToSpecial = 0;
 let turnsToRoar = 0;
 let deaths = 0;
@@ -356,7 +357,6 @@ const hideAllActions = () => {
   ].forEach((el) => {
     if (el) el.style.display = "none";
   });
-  //if (btnPotion) btnPotion.disabled = true;
   if (orientationText) orientationText.textContent = "";
 };
 
@@ -432,24 +432,38 @@ const showScreen = (screen) => {
   screen.style.display = "block";
 };
 
+// Função simples de "criptografia" XOR para difcultar a manipulção dos dados salvos no armazenamento
+// Para evitar a fácil alteração dos dados salvos do jogador, impedindo que o mesmo manipule o jogo
+function encrypt(text, key) {
+  key = cpKey;
+  return text
+    .split("")
+    .map((char) => char.charCodeAt(0) ^ key) // aplica XOR
+    .map((code) => code.toString(16).padStart(2, "0")) // converte para HEX
+    .join("");
+}
+// Função para "descriptografar"
+function decrypt(hexString, key) {
+  key = cpKey;
+  const codes = hexString.match(/.{1,2}/g).map((hex) => parseInt(hex, 16)); // Quebra em pares de hex e converte para número
+  return codes.map((code) => String.fromCharCode(code ^ key)).join(""); // Aplica XOR novamente e monta string
+}
+
 /* --- Gerenciamento do armazenamento de dados salvos do jogo ---*/
-// Salvar os dados das salas no armazenamento
-const saveRoomsToStorage = () =>
-  localStorage.setItem("saveGameRooms", JSON.stringify(gameRooms));
-// Carregar os dados das salas no armazenamento
-const loadRoomsFromStorage = () => {
-  const save = localStorage.getItem("saveGameRooms");
-  return save ? JSON.parse(save) : null;
-};
 // Verificar se existe jogo salvo em sala segura
-const saveSafeGame = (data) =>
-  localStorage.setItem("gameSafeSave", JSON.stringify(data));
-const loadSafeGame = () => {
-  const save = localStorage.getItem("gameSafeSave");
+const saveGameData = (data) => {
+  // Criptografa e salva os dados
+  localStorage.setItem("saveGameData", encrypt(JSON.stringify(data)));
+};
+const loadGameData = () => {
+  // Carrega e descriptografa
+  const save = localStorage.getItem("saveGameData");
+  let decrypted = save ? decrypt(save) : null;
   let data;
+
   // Verifica se os dados salvos são válidos
   try {
-    data = save ? JSON.parse(save) : null;
+    data = save ? JSON.parse(decrypted) : null;
   } catch (error) {
     // Se houver algum erro, define os dados salvos como nulos e impede o jogo de ser carregado
     data = null;
@@ -457,33 +471,23 @@ const loadSafeGame = () => {
   return data; //Carrega os dados salvos se houver e se forem válidos
 };
 // Remover todos os dados salvos
-const removeSaveGame = () => {
-  removeDataGame();
-  localStorage.removeItem("gameSafeSave");
-};
-
-// Remover apenas os dados salvos da sala, sem remover os save do jogador
-const removeDataGame = () => {
-  localStorage.removeItem("saveGameRooms");
-};
-
-// Resetar as salas salas caso o jogador tenha algum dado de sala salva
-const resetGameRooms = () => {
-  generateAllRooms();
-  saveRoomsToStorage();
+const removeGameData = () => {
+  localStorage.removeItem("saveGameData");
 };
 
 /* --- Inicialização do jogo ---*/
 function initializeGame() {
-  // Carregar ou gerar salas
-  const rooms = loadRoomsFromStorage();
-  if (rooms) gameRooms = rooms;
-  else {
-    resetGameRooms();
-  }
+  // Gerar salas
+  generateAllRooms();
+
+  // Reseta os estados do jogo
+  turnsToSpecial = 0;
+  turnsToRoar = 0;
+  deaths = 0;
+  isMonsterScared = false;
 
   // Verificar save em sala segura, se hover, o botão continuar será exibido
-  const saved = loadSafeGame();
+  const saved = loadGameData();
   if (saved) {
     // Verifica a quantidade de mortes
     deaths = saved.deaths || 0;
@@ -502,9 +506,6 @@ function initializeGame() {
   // Iniciar com a tela adequada
   playMusicMenu();
   showScreen(menuScreen);
-  turnsToSpecial = 0;
-  turnsToRoar = 0;
-  isMonsterScared = false;
 }
 
 /* --- Iniciar novo jogo / continuar jogo ---*/
@@ -520,13 +521,9 @@ function startNewGame() {
     lastRoomTypes: [],
   };
   currentMonster = null;
-  playerDodging = false;
   messageQueue = [];
   processingMessages = false;
   waitingForAction = false;
-
-  // Recria e salva as salas, caso o jogador tenha dados salvos para iniciar um novo jogo diferente do anterior
-  resetGameRooms();
 
   // Mostrar a tela de história
   showScreen(storyScreen);
@@ -534,13 +531,12 @@ function startNewGame() {
 }
 
 function continueGame() {
-  const saved = loadSafeGame();
+  const saved = loadGameData();
   if (!saved) return;
   player = { ...saved };
   // Converter sala segura em vazia para evitar salvar novamente
   if (SAFE_ROOMS.includes(player.currentRoom)) {
     gameRooms[player.currentRoom] = ROOM_TYPES.EMPTY;
-    saveRoomsToStorage();
   }
   showScreen(gameScreen);
   playMusicGame();
@@ -577,9 +573,8 @@ function deleteAllData() {
     if (eraseOptions) eraseOptions.style.display = "block";
   };
   const onEraseYes = () => {
-    removeSaveGame();
+    removeGameData();
     generateAllRooms();
-    saveRoomsToStorage();
     if (continueButton) {
       continueButton.disabled = true;
       continueButton.style.display = "none";
@@ -588,6 +583,7 @@ function deleteAllData() {
     if (okOptions) okOptions.style.display = "flex";
   };
   const onOk = () => {
+    removeGameData();
     initializeGame();
     resetEraseModal();
   };
@@ -736,7 +732,6 @@ function generateRoomType(roomNumber) {
   // Garantir que as salas 15, 30 e 45 sejam sempre salas seguras
   if (SAFE_ROOMS.includes(roomNumber)) {
     gameRooms[roomNumber] = ROOM_TYPES.SAFE;
-    saveRoomsToStorage();
     return ROOM_TYPES.SAFE;
   }
   // Se a sala já foi pré-definida (as salas seguras e do boss), usar esse valor
@@ -744,7 +739,6 @@ function generateRoomType(roomNumber) {
   // Caso contrário, determinar o tipo e salvar
   const type = determineRoomType(roomNumber);
   gameRooms[roomNumber] = type;
-  saveRoomsToStorage();
   return type;
 }
 
@@ -805,6 +799,7 @@ function enterRoom(roomNumber) {
       break;
     case ROOM_TYPES.SAFE: // Sala segura
       imageMonster.src = "images/objects/fogueira.webp";
+      showAnimation("fire");
       addMessage(
         "Neste recanto, seu peito sossegou, um lugar seguro você encontrou."
       );
@@ -906,17 +901,6 @@ function playerAttack(useSpecial) {
   setTimeout(() => monsterTurn(), MESSAGE_DELAY * 2);
 }
 
-/*--- Jogador usa um rugido para amedrontar o inimigo ---*/
-function playerRoar() {
-  if (processingMessages) return;
-  addMessage("Você ruge! O inimigo ficou com medo");
-  isMonsterScared = true;
-  turnsToRoar += 4;
-  disableRoarButton();
-  showAnimation("roar");
-  setTimeout(() => monsterTurn(), 3000);
-}
-
 /* --- Turno do monstro --- */
 function monsterTurn() {
   if (!currentMonster || currentMonster.hp <= 0) return;
@@ -981,6 +965,17 @@ function monsterTurn() {
   waitingForAction = true;
   // Passa o turno
   turnSpend();
+}
+
+/*--- Jogador usa um rugido para amedrontar o inimigo ---*/
+function playerRoar() {
+  if (processingMessages) return;
+  addMessage("Você ruge! O inimigo ficou com medo");
+  isMonsterScared = true;
+  turnsToRoar += 4;
+  disableRoarButton();
+  showAnimation("roar");
+  setTimeout(() => monsterTurn(), 3000);
 }
 
 /* --- Quando monstro morre: gerar loot e limpar sala --- */
@@ -1064,6 +1059,9 @@ function showAnimation(kind) {
         imageMonster.classList.add("zoomOut");
         playSound(SOUNDS.roar);
         break;
+      case "fire":
+        playSound(SOUNDS.fire);
+        break;
     }
   }, 500);
 
@@ -1098,8 +1096,7 @@ function gameOver() {
   const death = PHRASES.death[Math.floor(Math.random() * PHRASES.death.length)];
   addMessage(`${death.text}`);
   // Salvar mortes para "meta-progresso" (rogue-like)
-  saveSafeGame({ ...PLAYER_INITIAL, deaths: deaths + 1, currentRoom: 0 });
-  removeDataGame(); // Remover salas geradas
+  saveGameData({ ...PLAYER_INITIAL, deaths: deaths + 1, currentRoom: 0 });
 
   // Mostrar tela de game over
   setTimeout(() => {
@@ -1128,7 +1125,7 @@ function victory() {
         "stars"
       ).innerHTML += ` <img src="images/ui/star.webp" class="star"/>`;
     }
-    removeSaveGame(); // Remover os dados salvos do jogador
+    removeGameData(); // Remover os dados salvos do jogador
     playMusicMenu(); // Tocar a musica do menu
   }, MESSAGE_DELAY * 4);
 }
@@ -1150,7 +1147,6 @@ function generateMonster(roomNumber) {
   if (monsterType === "fraco") {
     monsterStats = {
       hp: Math.floor(Math.random() * 5) + 15, // 15-20 HP
-      maxHp: 20,
       ac: Math.floor(Math.random() * 3) + 12, // 12-14 CA (defesa)
       attackBonus: Math.floor(Math.random() * 3) + 2, // 2-4 Bonus de Ataque
       damageBonus: Math.floor(Math.random() * 2) + 1, // 1-2 Bonus de Dano
@@ -1158,7 +1154,6 @@ function generateMonster(roomNumber) {
   } else if (monsterType === "normal") {
     monsterStats = {
       hp: Math.floor(Math.random() * 5) + 25, // 25-30 HP
-      maxHp: 30,
       ac: Math.floor(Math.random() * 3) + 14, // 14-16 CA (defesa)
       attackBonus: Math.floor(Math.random() * 2) + 5, // 5-6 Bonus de Ataque
       damageBonus: Math.floor(Math.random() * 2) + 2, // 2-3 Bonus de Dano
@@ -1166,7 +1161,6 @@ function generateMonster(roomNumber) {
   } else {
     monsterStats = {
       hp: Math.floor(Math.random() * 5) + 35, // 35-40 HP
-      maxHp: 40,
       ac: Math.floor(Math.random() * 3) + 16, // 16-18 CA (defesa)
       attackBonus: Math.floor(Math.random() * 2) + 7, // 7-8 Bonus de Ataque
       damageBonus: Math.floor(Math.random() * 2) + 3, // 3-4 Bonus de Dano
@@ -1180,7 +1174,6 @@ function generateMonster(roomNumber) {
   return {
     name: pick.name,
     hp: monsterStats.hp,
-    maxHp: monsterStats.maxHp,
     ac: monsterStats.ac,
     attackBonus: monsterStats.attackBonus,
     damageBonus: monsterStats.damageBonus,
@@ -1195,7 +1188,6 @@ function generateBoss() {
   return {
     name: pick.name,
     hp: Math.floor(Math.random() * 2) + 78, // 78-80 HP
-    maxHp: 80,
     ac: 20, // 20 CA (defesa)
     attackBonus: Math.floor(Math.random() * 3) + 12, // 12-14 Bonus de Ataque
     damageBonus: Math.floor(Math.random() * 3) + 7, // 7-10 Bonus de Dano
@@ -1360,7 +1352,7 @@ function applyLoot(loot) {
 /* --- Logica da sala segura --- */
 // Função salvar
 function saveGameInSafeRoom() {
-  saveSafeGame(player);
+  saveGameData(player);
   addMessage("O fogo aquece, o sono vem, o fica jogo salvo também.");
 }
 
