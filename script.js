@@ -829,15 +829,53 @@ function moveToNextRoom(direction) {
 // Jogar o dado (aleatório)
 const rollDice = (sides) => Math.floor(Math.random() * sides) + 1;
 
-// --- Combate: jogador ataca ---
+// Função para o cálculo de ataque
+function resolveAttack(attacker, defender, { bonus = 0, scared = false } = {}) {
+  // Rolar um d20 + bonus de ataque + (buffs ou debuffs)
+  const roll = rollDice(20); // d20
+  const effectiveAC = defender.ac - (scared ? 3 : 0); // Se alvo estiver assustado (monstro)
+  const attackTotal = roll + attacker.attackBonus + bonus; // Se foi um ataque especial (jogador)
+  const isPlayer = attacker === player ? true : false;
+
+  let damage = 0;
+  let result = "miss"; // miss, graze, hit, strong, crit
+
+  if (attackTotal >= effectiveAC) {
+    // Rolar o dano
+    damage =
+      rollDice(6) + isPlayer
+        ? Math.floor(attacker.attackBonus / 2)
+        : attacker.damageBonus;
+    // Ataque crítico - dobro do dano
+    if (roll === 20) {
+      damage *= 2;
+      result = "crit";
+    }
+    // Ataque igual à CA do defensor - causa apenas metade do dano (de raspão)
+    else if (attackTotal === effectiveAC) {
+      damage = Math.ceil(damage / 2);
+      result = "graze";
+    }
+    // Se o ataque supera a CA do defensor + 50% - dano aumentado em 50%
+    // Exemplo: Se a CA do defensor é 10 e o ataque total do atacante (d20 + bonus de ataque) for igual ou maior que 15
+    // Então isso é o dano é 50% maior que a CA do defensor, logo o ataque causa 50% a mais de dano
+    else if (attackTotal >= effectiveAC + Math.ceil(effectiveAC * 0.5)) {
+      damage = Math.floor(damage * 1.5);
+      result = "strong";
+    } else {
+      result = "hit";
+    }
+  }
+  return { roll, attackTotal, damage, result };
+}
+
+// --- Combate: jogador ataca (turno do jogador) ---
 function playerAttack(useSpecial) {
   if (processingMessages || !currentMonster) return;
-  const specialVal = useSpecial ? 5 : 0;
-  // Calcular CA efetiva do monstro (considerando se está assustado)
-  const effectiveMonsterAC = currentMonster.ac - (isMonsterScared ? 3 : 0);
 
-  if (specialVal > 0) {
-    disableSpecialButton();
+  const specialBonus = useSpecial ? 5 : 0;
+  // Verifica se foi um ataque normal ou ataque especial
+  if (useSpecial) {
     turnsToSpecial += 4; // A cada uso do especial, adicionar 4 turnos para o próximo uso
     isSpecialAtk = true;
     addMessage("Você ataca furiosamente!");
@@ -846,124 +884,88 @@ function playerAttack(useSpecial) {
     addMessage("Você ataca!");
   }
 
-  // Rolar um d20 + player.attackBonus
-  const attackRoll = rollDice(20);
-  const attackTotal = attackRoll + player.attackBonus + specialVal;
-  const damageBonus =
-    Math.floor(player.attackBonus / 2) + Math.floor(specialVal / 2);
+  // Calculo e verificação do ataque
+  const attack = resolveAttack(player, currentMonster, {
+    bonus: specialBonus,
+    scared: isMonsterScared,
+  });
 
-  //Animação de ataque
+  // Animação de ataque
   showAnimation("player");
 
-  //Verifica se acertou
-  if (attackTotal >= effectiveMonsterAC) {
-    // Rolar o dano
-    let damageRoll = rollDice(6);
-    let damageTotal = damageRoll + damageBonus;
-
-    if (attackRoll === 20) {
-      // Ataque crítico - dobro do dano
-      damageTotal *= 2;
-      addMessage(`CRÍTICO! você causa ${damageTotal} de dano ao inimigo!`);
-    } else if (attackTotal === effectiveMonsterAC) {
-      // Ataque igual à CA do monstro - causa apenas metade do dano (de raspão)
-      damageTotal = Math.floor(damageTotal / 2);
-      addMessage(`De raspão! você causa ${damageTotal} de dano ao inimigo.`);
-    } else if (
-      attackTotal >=
-      effectiveMonsterAC + Math.ceil(effectiveMonsterAC * 0.5)
-    ) {
-      // Se o ataque supera a CA do monstro + 50% - dano aumentado em 50%
-      // Exemplo: Se a CA do monstro é 10 e o ataque total do jogado d20 + player.attackBonus for igual ou maior que 15
-      // Então isso é o dano é 50% maior que a CA do monstro, logo o aatque causa 50% a mais de dano
-      damageTotal = Math.floor(damageTotal * 1.5);
-      addMessage(`Golpe forte! você causa ${damageTotal} de dano ao inimigo!`);
-    } else {
-      // Dano normal
-      addMessage(`Você causa ${damageTotal} de dano ao inimigo.`);
-    }
-
-    currentMonster.hp -= damageTotal + specialVal;
-
-    // Verifica se o mostro morreu
-    if (currentMonster.hp <= 0) {
-      currentMonster.hp = 0;
-      const defeat =
-        PHRASES.defeated[Math.floor(Math.random() * PHRASES.defeated.length)];
-      addMessage(`${currentMonster.name} ${defeat.text}`);
-      monsterDefeated();
-      return;
-    }
-  } else {
+  // Mensagens informando o dano do jogador
+  if (attack.result === "miss") {
     addMessage("Você errou!");
+  } else {
+    currentMonster.hp -= attack.damage + specialBonus;
+    switch (attack.result) {
+      case "crit":
+        addMessage(`CRÍTICO! você causa ${attack.damage} de dano!`);
+        break;
+      case "graze":
+        addMessage(`De raspão! você causa ${attack.damage} de dano.`);
+        break;
+      case "strong":
+        addMessage(`Golpe forte! você causa ${attack.damage} de dano!`);
+        break;
+      default:
+        addMessage(`Você causa ${attack.damage} de dano.`);
+        break;
+    }
+  }
+
+  // Verifica se o inimigo morreu
+  if (currentMonster.hp <= 0) {
+    monsterDefeated();
+    return;
   }
   // Turno do monstro após um delay
   setTimeout(() => monsterTurn(), MESSAGE_DELAY * 2);
 }
 
-/* --- Turno do monstro --- */
 function monsterTurn() {
   if (!currentMonster || currentMonster.hp <= 0) return;
-  //Animação de ataque do monstro
+
+  // Animação de ataque do monstro
   showAnimation("monster");
-
-  // Ataque do monstro
-  // Verifica se o monstro está assustado e aplica um debuff, caso positivo
-  const scaredDebuff = isMonsterScared ? 3 : 0;
-
-  const attackRoll = rollDice(20 - scaredDebuff);
-  const attackTotal = attackRoll + currentMonster.attackBonus - scaredDebuff;
-
   addMessage(`${currentMonster.name} te ataca!`);
 
-  // Verifica se o ataque acerta
-  if (attackTotal >= player.ac) {
-    // Define que o jogador levou um dano
-    isPlayerDamage = true;
-    // Calcula o dano
-    let damageRoll = rollDice(6 - scaredDebuff);
-    let damageTotal = damageRoll + currentMonster.damageBonus - scaredDebuff;
-    if (damageTotal <= 0) damageTotal = 1;
+  // Calculo e verificação do ataque
+  const attack = resolveAttack(currentMonster, player, {
+    scared: isMonsterScared,
+  });
 
-    //A lógica de dano é exatamente igual ao do jogador
-    if (attackRoll === 20) {
-      damageTotal *= 2;
-      addMessage(`CRÍTICO! você perde ${damageTotal} de vida!`);
-    } else if (attackTotal === player.ac) {
-      damageTotal = Math.floor(damageTotal / 2);
-      addMessage(`De raspão! você perde ${damageTotal} de vida.`);
-    } else if (attackTotal >= player.ac + Math.ceil(player.ac * 0.5)) {
-      damageTotal = Math.floor(damageTotal * 1.5);
-      addMessage(`Golpe forte! você perde ${damageTotal} de vida!`);
-    } else {
-      addMessage(`Acerto! você perde ${damageTotal} de vida.`);
-    }
-
-    player.hp -= damageTotal;
-
-    // Verifica se o jogador morreu
-    if (player.hp <= 0) {
-      player.hp = 0;
-      setTimeout(() => {
-        updateUI();
-        // Tocar som de morte do jogador
-        playSound(SOUNDS.playerDeath);
-      }, MESSAGE_DELAY * 2);
-      setTimeout(gameOver, MESSAGE_DELAY * 2);
-      return;
-    }
-  } else {
-    isPlayerDamage = false;
-    // Quando o monstro errar
+  // Mensagens informando o dano do monstro
+  if (attack.result === "miss") {
     addMessage(`${currentMonster.name} errou!`);
+  } else {
+    player.hp -= attack.damage;
+    switch (attack.result) {
+      case "crit":
+        addMessage(`CRÍTICO! você perde ${attack.damage} de vida!`);
+        break;
+      case "graze":
+        addMessage(`De raspão! você perde ${attack.damage} de vida.`);
+        break;
+      case "strong":
+        addMessage(`Golpe forte! você perde ${attack.damage} de vida!`);
+        break;
+      default:
+        addMessage(`Acerto! você perde ${attack.damage} de vida.`);
+        break;
+    }
   }
-  // Resetar os estados de assustado do monstro
-  if (turnsToRoar <= 3) isMonsterScared = false;
 
+  // Verifica se o jogador morreu
+  if (player.hp <= 0) {
+    setTimeout(() => gameOver(), MESSAGE_DELAY * 2);
+    return;
+  }
+
+  // Verifia se o monstro  está assustado
+  if (turnsToRoar <= 3) isMonsterScared = false;
   setTimeout(updateUI, MESSAGE_DELAY * 2);
-  // Retornar o controle ao jogador
   waitingForAction = true;
-  // Passa o turno
   turnSpend();
 }
 
