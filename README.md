@@ -9,7 +9,7 @@ Feito em **HTML, CSS e JavaScript puro**, sem bibliotecas externas.
 
 ## 🎮 Como Jogar
 
-1. Abra o `index.html` no navegador.
+1. Abra o `index.html` no navegador. Ou <a href="https://marvieiradev.github.io/game-cordel-rpg/" target="_blank">clique aqui </a>para jogar.
 2. Clique ou toque para iniciar.
 3. Use os botões da interface para interagir:
    - **ATACAR**: golpe básico com a peixeira.
