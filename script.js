@@ -160,9 +160,6 @@ const PHRASES = {
 let player = { ...PLAYER_INITIAL };
 let currentMonster = null;
 let gameRooms = {};
-let messageQueue = [];
-let processingMessages = false;
-let waitingForAction = false;
 let currentRoomData = { number: 0, type: ROOM_TYPES.EMPTY };
 let tempMessage = "";
 let cpKey = 42;
@@ -239,6 +236,7 @@ const safeRoomButtons = getEl("safe-room-buttons");
 const continueButtons = getEl("continue-buttons");
 const bonusDamageEl = getEl("damage-bonus");
 const monsterStatus = getEl("status-monster");
+const actions = getEl("action");
 
 // Botões do modal "Apagar dados"
 const confirmOptions = getEl("confirm-options");
@@ -321,27 +319,37 @@ const connectListeners = () => {
     );
 };
 
-/* --- Sistema de fila e proecessamento de mensagens ---*/
+//* --- Sistema de fila e proecessamento de mensagens ---*/
+let messageQueue = [];
+let processingMessages = false;
+let waitingForAction = false;
+
+// Função para aplicar o delay
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Enfileira mensagem(s)
 const addMessage = (message) => {
   messageQueue.push(message);
   tempMessage = message;
   if (!processingMessages) processMessageQueue();
 };
 
-function processMessageQueue() {
-  if (messageQueue.length === 0) {
-    processingMessages = false;
-    if (waitingForAction) {
-      showAppropriateActions();
-    }
-    return;
+// Processa fila sequencialmente
+async function processMessageQueue() {
+  processingMessages = true;
+  while (messageQueue.length > 0) {
+    const message = messageQueue.shift();
+    if (logAreaEl) logAreaEl.innerText = message;
+    hideAllActions(); //Esconde todos os boões quando as mensdagnes estão sendo geradas/exibidas
+    await delay(MESSAGE_DELAY);
   }
 
-  processingMessages = true;
-  const message = messageQueue.shift();
-  if (logAreaEl) logAreaEl.innerText = message;
-  hideAllActions(); //Esconde todos os boões quando as mensdagnes estão sendo geradas/exibidas
-  setTimeout(processMessageQueue, MESSAGE_DELAY); //Delay entre mensagens para dar tempo do jogador ler
+  processingMessages = false;
+  if (waitingForAction) {
+    showAppropriateActions();
+  }
 }
 
 /* --- Funções axiliares para a exibição e atualização da UI ---*/
@@ -937,8 +945,10 @@ function monsterTurn() {
 
   // Mensagens informando o dano do monstro
   if (attack.result === "miss") {
+    isPlayerDamage = false;
     addMessage(`${currentMonster.name} errou!`);
   } else {
+    isPlayerDamage = true;
     player.hp -= attack.damage;
     switch (attack.result) {
       case "crit":
@@ -987,7 +997,7 @@ function monsterDefeated() {
   isMonsterScared = false;
   monsterStatus.style.opacity = 0;
   setTimeout(() => {
-    showAnimation("object");
+    showAnimation("ignore");
     //Toca o som de morte do monstro
     playSound(SOUNDS.monsterDeath);
     monsterNameEl.textContent = "";
@@ -1040,8 +1050,13 @@ function showAnimation(kind) {
     switch (kind) {
       case "player":
         imageMonster.classList.add("zoomOut");
-        if (isSpecialAtk) playSound(SOUNDS.playerSpecialAtk);
-        else playSound(SOUNDS.playerAtk);
+        if (isSpecialAtk) {
+          playSound(SOUNDS.playerSpecialAtk);
+          showActionAnim("special");
+        } else {
+          playSound(SOUNDS.playerAtk);
+          showActionAnim("attack");
+        }
         break;
       case "monster":
         imageMonster.classList.add("zoomIn");
@@ -1049,6 +1064,7 @@ function showAnimation(kind) {
         else playSound(SOUNDS.monsterAtk);
         break;
       case "object":
+        showActionAnim("interact");
         imageMonster.classList.add("gone");
         setTimeout(() => {
           imageMonster.src = "";
@@ -1064,11 +1080,44 @@ function showAnimation(kind) {
       case "fire":
         playSound(SOUNDS.fire);
         break;
+      case "potion":
+        playSound(SOUNDS.potion);
+        showActionAnim("potion");
+        break;
+      case "ignore":
+        imageMonster.classList.add("gone");
+        setTimeout(() => {
+          imageMonster.src = "";
+        }, 1000);
+        break;
     }
   }, 500);
 
   // Remove classes (garantia)
   imageMonster.classList.remove("zoomIn", "zoomOut", "gone");
+}
+
+function showActionAnim(anim) {
+  hideActionAnim();
+  actions.style.opacity = 1;
+  switch (anim) {
+    case "attack":
+      actions.src = "images/actions/knife.webp";
+      break;
+    case "special":
+      actions.src = "images/actions/claw.webp";
+      break;
+    case "potion":
+      actions.src = "images/actions/potion.webp";
+      break;
+    case "interact":
+      actions.src = "images/actions/hands.webp";
+      break;
+  }
+}
+function hideActionAnim() {
+  actions.src = "";
+  actions.style.opacity = 0;
 }
 
 /* --- Usar poção (aluá) --- */
@@ -1088,7 +1137,7 @@ function usePotion() {
   const healedLife = Math.min(healAmount, player.maxHp - player.hp);
   player.hp = Math.min(player.hp + healAmount, player.maxHp);
   addMessage(`Você bebeu um aluá! curou ${healedLife} de vida.`);
-  playSound(SOUNDS.potion);
+  showAnimation("potion");
   updateUI();
   waitingForAction = true;
 }
@@ -1223,7 +1272,7 @@ function ignoreChest() {
   addMessage("Você decide não mexer na butija.");
   addMessage(tempMessage);
   //Animação de ignorar butija
-  showAnimation("object");
+  showAnimation("ignore");
   playSound(SOUNDS.walk);
   // Marcar o tipo da sala como vazia após ignorar o baú
   currentRoomData.type = ROOM_TYPES.EMPTY;
