@@ -1081,7 +1081,9 @@ function showAnimation(kind) {
         showActionPlayer("death");
         break;
       case "player-wakeup":
-        bgRoom.style.backgroundImage = "url('images/ui/forest.webp')";
+        setTimeout(() => {
+          bgRoom.style.backgroundImage = "url('images/ui/forest.webp')";
+        }, 100);
         showActionPlayer("wakeup");
         break;
       case "monster-attack":
