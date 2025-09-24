@@ -21,6 +21,7 @@ const ROOM_PROBABILITIES = [
 const BOSS_ROOM = 50; // Sala do chefe sempre será a ultima (50)
 const SAFE_ROOMS = [15, 30, 45]; // Salas seguras serão as 15,30 e 45
 const MESSAGE_DELAY = 2000; // 2 segundos entre mensagens
+const ANIM_DELAY = 4000; // Delay para animações
 const UPGRADE_COST = 25; // Custo em dinheiro para melhorar um atributo
 const TRAP_DAMAGE = 5; // Dano a cair na armadilha
 
@@ -75,8 +76,8 @@ const playMusicMenu = () => {
 const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 3,
-  attackBonus: 3,
+  ac: 30,
+  attackBonus: 30,
   deaths: 0,
   potions: 3,
   gold: 0,
@@ -926,11 +927,14 @@ function playerAttack(useSpecial) {
 
   // Verifica se o inimigo morreu
   if (currentMonster.hp <= 0) {
+    const defeated =
+      PHRASES.defeated[Math.floor(Math.random() * PHRASES.defeated.length)];
+    addMessage(`${currentMonster.name} ${defeated.text}`);
     monsterDefeated();
     return;
   }
   // Turno do monstro após um delay
-  setTimeout(() => monsterTurn(), MESSAGE_DELAY * 2);
+  setTimeout(() => monsterTurn(), ANIM_DELAY);
 }
 
 function monsterTurn() {
@@ -970,14 +974,14 @@ function monsterTurn() {
 
   // Verifica se o jogador morreu
   if (player.hp <= 0) {
-    setTimeout(() => gameOver(), MESSAGE_DELAY * 2);
+    setTimeout(() => gameOver(), ANIM_DELAY);
     return;
   }
 
   // Verifia se o monstro  está assustado
   monsterScared();
   if (turnsToRoar <= 3) isMonsterScared = false;
-  setTimeout(updateUI, MESSAGE_DELAY * 2);
+  setTimeout(updateUI, ANIM_DELAY);
   waitingForAction = true;
   turnSpend();
 }
@@ -1010,15 +1014,14 @@ function monsterDefeated() {
   isMonsterScared = false;
   monsterStatus.style.opacity = 0;
   setTimeout(() => {
-    showAnimation("monster-death");
-    //Toca o som de morte do monstro
+    // Animação para a morte do monstro
     playSound(SOUNDS.monsterDeath);
-    monsterNameEl.textContent = "";
-    monsterNameEl.style.opacity = 0;
-  }, MESSAGE_DELAY * 2);
+    showAnimation("monster-death");
+    clearMonsterName();
+  }, ANIM_DELAY * 1.5);
 
   if (currentMonster.type === "boss") {
-    setTimeout(victory, MESSAGE_DELAY * 3);
+    setTimeout(victory, ANIM_DELAY * 2);
     return;
   }
 
@@ -1054,84 +1057,88 @@ function monsterDefeated() {
 
   currentMonster = null;
   waitingForAction = true;
-  setTimeout(updateUI, MESSAGE_DELAY * 4);
+  setTimeout(updateUI, ANIM_DELAY * 2);
+}
+
+function clearMonsterName() {
+  monsterNameEl.textContent = "";
+  monsterNameEl.style.opacity = 0;
 }
 
 /* --- Mostrar animações --- */
 function showAnimation(kind) {
   // Remove classes (garantia)
   imageElementEl.classList.remove("zoomIn", "zoomOut", "gone", "disappear");
-  setTimeout(() => {
-    switch (kind) {
-      case "player-attack":
-        imageElementEl.classList.add("zoomOut");
-        if (isSpecialAtk) {
-          playSound(SOUNDS.playerSpecialAtk);
-          showActionPlayer("special");
-        } else {
-          playSound(SOUNDS.playerAtk);
-          showActionPlayer("attack");
-        }
-        break;
-      case "player-damage":
-        playSound(SOUNDS.playerDamage);
-        break;
-      case "player-roar":
-        showActionPlayer("roar");
-        imageElementEl.classList.add("zoomOut");
-        playSound(SOUNDS.roar);
-        break;
-      case "player-blink":
-        showActionPlayer("blink");
-        setTimeout(() => {
-          bgRoom.style.backgroundImage = "url('images/ui/forest-color.webp')";
-        }, 1000);
-        break;
-      case "player-death":
-        showActionPlayer("death");
-        break;
-      case "player-wakeup":
-        setTimeout(() => {
-          bgRoom.style.backgroundImage = "url('images/ui/forest.webp')";
-        }, 100);
-        showActionPlayer("wakeup");
-        break;
-      case "monster-attack":
-        imageElementEl.classList.add("zoomIn");
-        if (isPlayerDamage) playSound(SOUNDS.playerDamage);
-        else playSound(SOUNDS.monsterAtk);
-        break;
-      case "monster-death":
-        imageElementEl.src = "images/objects/cadaver.webp";
-        break;
-      case "chest":
-        showActionPlayer("interact");
-        imageElementEl.src = "images/objects/butija-alt.webp";
-        break;
-      case "trap":
-        playSound(SOUNDS.trap);
-        showActionPlayer("interact");
-        imageElementEl.classList.add("gone");
-        setTimeout(() => {
-          imageElementEl.src = "";
-        }, 2000);
-        break;
-        break;
-      case "fire":
-        playSound(SOUNDS.fire);
-        break;
-      case "potion":
-        playSound(SOUNDS.potion);
-        showActionPlayer("potion");
-        break;
-      case "ignore":
-        imageElementEl.classList.add("gone");
-        setTimeout(() => {
-          imageElementEl.src = "";
-        }, 2000);
-        break;
-    }
-  }, 500);
+  switch (kind) {
+    case "player-attack":
+      imageElementEl.classList.add("zoomOut");
+      if (isSpecialAtk) {
+        playSound(SOUNDS.playerSpecialAtk);
+        showActionPlayer("special");
+      } else {
+        playSound(SOUNDS.playerAtk);
+        showActionPlayer("attack");
+      }
+      break;
+    case "player-damage":
+      playSound(SOUNDS.playerDamage);
+      break;
+    case "player-roar":
+      showActionPlayer("roar");
+      imageElementEl.classList.add("zoomOut");
+      playSound(SOUNDS.roar);
+      break;
+    case "player-blink":
+      showActionPlayer("blink");
+      setTimeout(() => {
+        bgRoom.style.backgroundImage = "url('images/ui/forest-color.webp')";
+      }, ANIM_DELAY / 2);
+      break;
+    case "player-death":
+      playSound(SOUNDS.playerDeath);
+      showActionPlayer("death");
+      break;
+    case "player-wakeup":
+      setTimeout(() => {
+        bgRoom.style.backgroundImage = "url('images/ui/forest.webp')";
+      }, 100);
+      showActionPlayer("wakeup");
+      break;
+    case "monster-attack":
+      imageElementEl.classList.add("zoomIn");
+      if (isPlayerDamage) playSound(SOUNDS.playerDamage);
+      else playSound(SOUNDS.monsterAtk);
+      break;
+    case "monster-death":
+      imageElementEl.src = "images/objects/cadaver.webp";
+      break;
+    case "chest":
+      showActionPlayer("interact");
+      imageElementEl.src = "images/objects/butija-alt.webp";
+      break;
+    case "trap":
+      playSound(SOUNDS.trap);
+      showActionPlayer("interact");
+      imageElementEl.classList.add("gone");
+      setTimeout(() => {
+        imageElementEl.src = "";
+      }, ANIM_DELAY / 2);
+      break;
+      break;
+    case "fire":
+      playSound(SOUNDS.fire);
+      break;
+    case "potion":
+      playSound(SOUNDS.potion);
+      showActionPlayer("potion");
+      break;
+    case "ignore":
+      imageElementEl.classList.add("gone");
+      setTimeout(() => {
+        imageElementEl.src = "";
+      }, ANIM_DELAY / 2);
+      break;
+  }
 }
 
 function showActionPlayer(anim) {
@@ -1203,7 +1210,7 @@ function gameOver() {
     imageElementEl.src = "";
     showScreen(gameOverScreen);
     playMusicMenu();
-  }, MESSAGE_DELAY * 3);
+  }, ANIM_DELAY);
 }
 
 function victory() {
@@ -1215,7 +1222,7 @@ function victory() {
     showAnimation("player-blink");
     imageElementEl.src = "";
     gameMusic.pause();
-  }, MESSAGE_DELAY);
+  }, ANIM_DELAY / 2);
 
   // Mostrar tela de créditos
   setTimeout(() => {
@@ -1229,7 +1236,7 @@ function victory() {
     }
     removeGameData(); // Remover os dados salvos do jogador
     playMusicMenu(); // Tocar a musica do menu
-  }, MESSAGE_DELAY * 4);
+  }, ANIM_DELAY);
 }
 
 /* --- Lógica para gerar monstros / boss ---*/
@@ -1465,7 +1472,7 @@ function saveAndContinue() {
 function continueAfterSaving() {
   setTimeout(() => {
     imageElementEl.src = "";
-  }, MESSAGE_DELAY);
+  }, ANIM_DELAY / 2);
   addMessage(
     "O corpo renovado, o peito a brilhar, você segue pronto pra caminhar."
   );
