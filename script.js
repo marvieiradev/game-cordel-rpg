@@ -75,8 +75,8 @@ const playMusicMenu = () => {
 const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 3,
-  attackBonus: 3,
+  ac: 300,
+  attackBonus: 300,
   deaths: 0,
   potions: 3,
   gold: 0,
@@ -638,10 +638,6 @@ function updateUI() {
   if (potionCountEl) potionCountEl.textContent = player.potions;
   if (roomNumberEl) roomNumberEl.textContent = player.currentRoom;
 
-  isMonsterScared
-    ? (monsterStatus.style.opacity = 1)
-    : (monsterStatus.style.opacity = 0);
-
   //Exibe a imagem e o nome correto do monstro
   if (currentMonster) {
     monsterNameEl.style.opacity = 1;
@@ -829,6 +825,7 @@ function enterRoom(roomNumber) {
 function moveToNextRoom(direction) {
   //Toca o efeito sonoro
   playSound(SOUNDS.walk);
+  imageElementEl.src = "";
   // Determinar o próximo número de sala
   let nextRoom = player.currentRoom;
   if (direction === "left")
@@ -978,6 +975,7 @@ function monsterTurn() {
   }
 
   // Verifia se o monstro  está assustado
+  monsterScared();
   if (turnsToRoar <= 3) isMonsterScared = false;
   setTimeout(updateUI, MESSAGE_DELAY * 2);
   waitingForAction = true;
@@ -987,12 +985,22 @@ function monsterTurn() {
 /*--- Jogador usa um rugido para amedrontar o inimigo ---*/
 function playerRoar() {
   if (processingMessages) return;
-  addMessage("Você ruge! O inimigo ficou com medo");
-  isMonsterScared = true;
+  // Chance de 66% de amedrontar o monstro
+  const chance = Math.floor(Math.random() * (3 - 1 + 1)) + 1;
+  chance <= 2 ? (isMonsterScared = true) : (isMonsterScared = false);
+  addMessage(
+    `Você ruge! ${isMonsterScared ? " O inimigo ficou com aterrorizado!" : ""}`
+  );
   turnsToRoar += 4;
   disableRoarButton();
   showAnimation("player-roar");
   setTimeout(() => monsterTurn(), 3000);
+}
+
+function monsterScared() {
+  isMonsterScared
+    ? (monsterStatus.style.opacity = 1)
+    : (monsterStatus.style.opacity = 0);
 }
 
 /* --- Quando monstro morre: gerar loot e limpar sala --- */
@@ -1002,7 +1010,7 @@ function monsterDefeated() {
   isMonsterScared = false;
   monsterStatus.style.opacity = 0;
   setTimeout(() => {
-    showAnimation("ignore");
+    showAnimation("monster-death");
     //Toca o som de morte do monstro
     playSound(SOUNDS.monsterDeath);
     monsterNameEl.textContent = "";
@@ -1051,6 +1059,8 @@ function monsterDefeated() {
 
 /* --- Mostrar animações --- */
 function showAnimation(kind) {
+  // Remove classes (garantia)
+  imageElementEl.classList.remove("zoomIn", "zoomOut", "gone", "disappear");
   setTimeout(() => {
     switch (kind) {
       case "player-attack":
@@ -1091,12 +1101,21 @@ function showAnimation(kind) {
         if (isPlayerDamage) playSound(SOUNDS.playerDamage);
         else playSound(SOUNDS.monsterAtk);
         break;
-      case "object":
+      case "monster-death":
+        imageElementEl.src = "images/objects/cadaver.webp";
+        break;
+      case "chest":
+        showActionPlayer("interact");
+        imageElementEl.src = "images/objects/butija-alt.webp";
+        break;
+      case "trap":
+        playSound(SOUNDS.trap);
         showActionPlayer("interact");
         imageElementEl.classList.add("gone");
         setTimeout(() => {
           imageElementEl.src = "";
-        }, 1000);
+        }, 2000);
+        break;
         break;
       case "fire":
         playSound(SOUNDS.fire);
@@ -1109,13 +1128,10 @@ function showAnimation(kind) {
         imageElementEl.classList.add("gone");
         setTimeout(() => {
           imageElementEl.src = "";
-        }, 1000);
+        }, 2000);
         break;
     }
   }, 500);
-
-  // Remove classes (garantia)
-  imageElementEl.classList.remove("zoomIn", "zoomOut", "gone");
 }
 
 function showActionPlayer(anim) {
@@ -1291,13 +1307,13 @@ function openChest() {
 
   // Gerar o loot do baú com base no tipo
   const loot = generateChestLoot(chestType);
-  showAnimation("object");
+  showAnimation("chest");
   // Tocar o som do baú
   playSound(SOUNDS.chest);
   // Aplicar o loot ao jogador
   applyLoot(loot);
-  // Marcar o tipo da sala como vazia após abrir o baú
-  currentRoomData.type = ROOM_TYPES.EMPTY;
+  // Marcar o tipo da sala como visitada após abrir o baú
+  currentRoomData.type = ROOM_TYPES.SEEN;
   addMessage(tempMessage);
 }
 
@@ -1308,22 +1324,18 @@ function ignoreChest() {
   //Animação de ignorar butija
   showAnimation("ignore");
   playSound(SOUNDS.walk);
-  // Marcar o tipo da sala como vazia após ignorar o baú
-  currentRoomData.type = ROOM_TYPES.EMPTY;
+  // Marcar o tipo da sala como visitada após ignorar o baú
+  currentRoomData.type = ROOM_TYPES.SEEN;
 }
 
 /* Logica das armadilhas (arapucas) */
 // Levantar
 function liftAction() {
   addMessage("Você se levanta com cuidado.");
-  // Após levantar, a armadilha desaparece e a sala é marcada como vazia
+  // Após levantar, a armadilha desaparece e a sala é marcada como visitada
   // Animação de sair da armadilha
-  showAnimation("object");
-  playSound(SOUNDS.trap);
-  setTimeout(() => {
-    imageElementEl.src = "";
-  }, MESSAGE_DELAY * 1.5);
-  roomElementEl.className = "room-element";
+  imageElementEl.src = "images/objects/arapuca-alt.webp";
+  showAnimation("trap");
   currentRoomData.type = ROOM_TYPES.EMPTY;
   addMessage("Firmou o passo, seguiu adiante, na mata escura e constante.");
   addMessage(tempMessage);
@@ -1331,7 +1343,7 @@ function liftAction() {
 
 // Apenas olha ao redor (não gera nenhuma ação)
 function observeAction() {
-  addMessage("Por aqui nemhum assombro se mostrou, só o vento que soprou.");
+  addMessage("Por aqui nenhum assombro se mostrou, só o vento que soprou.");
   addMessage(tempMessage);
 }
 
@@ -1364,10 +1376,6 @@ function generateChestLoot(type) {
 
 //Função para aplicar o loot ao jogador
 function applyLoot(loot) {
-  setTimeout(() => {
-    imageElementEl.src = "";
-  }, MESSAGE_DELAY);
-
   if (!loot || !loot.type) return;
 
   switch (loot.type) {
