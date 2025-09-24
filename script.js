@@ -75,8 +75,8 @@ const playMusicMenu = () => {
 const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 300,
-  attackBonus: 300,
+  ac: 3,
+  attackBonus: 3,
   deaths: 0,
   potions: 3,
   gold: 0,
@@ -985,9 +985,9 @@ function monsterTurn() {
 /*--- Jogador usa um rugido para amedrontar o inimigo ---*/
 function playerRoar() {
   if (processingMessages) return;
-  // Chance de 66% de amedrontar o monstro
-  const chance = Math.floor(Math.random() * (3 - 1 + 1)) + 1;
-  chance <= 2 ? (isMonsterScared = true) : (isMonsterScared = false);
+  // Chance de 75% de amedrontar o monstro
+  const chance = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+  chance <= 3 ? (isMonsterScared = true) : (isMonsterScared = false);
   addMessage(
     `Você ruge! ${isMonsterScared ? " O inimigo ficou com aterrorizado!" : ""}`
   );
@@ -1213,6 +1213,7 @@ function victory() {
 
   setTimeout(() => {
     showAnimation("player-blink");
+    imageElementEl.src = "";
     gameMusic.pause();
   }, MESSAGE_DELAY);
 
