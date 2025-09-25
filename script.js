@@ -162,7 +162,7 @@ let player = { ...PLAYER_INITIAL };
 let currentMonster = null;
 let gameRooms = {};
 let currentRoomData = { number: 0, type: ROOM_TYPES.EMPTY };
-let tempMessage = "";
+//let tempMessage = "";
 let cpKey = 42;
 let turnsToSpecial = 0;
 let turnsToRoar = 0;
@@ -334,7 +334,7 @@ function delay(ms) {
 // Enfileira mensagem(s)
 const addMessage = (message) => {
   messageQueue.push(message);
-  tempMessage = message;
+  //tempMessage = message;
   if (!processingMessages) processMessageQueue();
 };
 
@@ -993,7 +993,9 @@ function playerRoar() {
   const chance = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
   chance <= 3 ? (isMonsterScared = true) : (isMonsterScared = false);
   addMessage(
-    `Você ruge! ${isMonsterScared ? " O inimigo ficou com aterrorizado!" : ""}`
+    `Você ruge! ${
+      isMonsterScared ? `${currentMonster.name} ficou aterrorizado!` : ""
+    }`
   );
   turnsToRoar += 4;
   disableRoarButton();
@@ -1045,15 +1047,15 @@ function monsterDefeated() {
 
   // Adicionar dinheiro ao jogador
   player.gold += goldAmount;
-  let tempMessage = `Você achou ${goldAmount} patacas!`;
+  let lootMessage = `Você achou ${goldAmount} patacas!`;
 
   //Chance de achar um aluá
   if (Math.random() < potionChance) {
     player.potions += 1;
-    tempMessage += `\n E uma garrafa cheia de aluá!`;
+    lootMessage += `\n E uma garrafa cheia de aluá!`;
   }
 
-  addMessage(tempMessage);
+  addMessage(lootMessage);
 
   currentMonster = null;
   waitingForAction = true;
@@ -1322,13 +1324,13 @@ function openChest() {
   applyLoot(loot);
   // Marcar o tipo da sala como visitada após abrir o baú
   currentRoomData.type = ROOM_TYPES.SEEN;
-  addMessage(tempMessage);
+  //addMessage(tempMessage);
 }
 
 // Ignorar baú
 function ignoreChest() {
   addMessage("Você decide não mexer na butija.");
-  addMessage(tempMessage);
+  //addMessage(tempMessage);
   //Animação de ignorar butija
   showAnimation("ignore");
   playSound(SOUNDS.walk);
@@ -1346,13 +1348,13 @@ function liftAction() {
   showAnimation("trap");
   currentRoomData.type = ROOM_TYPES.EMPTY;
   addMessage("Firmou o passo, seguiu adiante, na mata escura e constante.");
-  addMessage(tempMessage);
+  //addMessage(tempMessage);
 }
 
 // Apenas olha ao redor (não gera nenhuma ação)
 function observeAction() {
   addMessage("Por aqui nenhum assombro se mostrou, só o vento que soprou.");
-  addMessage(tempMessage);
+  //addMessage(tempMessage);
 }
 
 /* --- Logica para aplicação dos loots ao jogador --- */
