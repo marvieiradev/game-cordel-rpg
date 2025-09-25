@@ -76,8 +76,8 @@ const playMusicMenu = () => {
 const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 30,
-  attackBonus: 30,
+  ac: 3,
+  attackBonus: 3,
   deaths: 0,
   potions: 3,
   gold: 0,
@@ -500,7 +500,8 @@ function initializeGame() {
   turnsToRoar = 0;
   deaths = 0;
   isMonsterScared = false;
-  monsterNameEl.textContent = "";
+  clearMonsterName();
+  imageElementEl.src = "";
 
   // Verificar save em sala segura, se hover, o botão continuar será exibido
   const saved = loadGameData();
@@ -555,7 +556,8 @@ function continueGame() {
   if (SAFE_ROOMS.includes(player.currentRoom)) {
     gameRooms[player.currentRoom] = ROOM_TYPES.EMPTY;
   }
-  monsterNameEl.textContent = "";
+  clearMonsterName();
+  imageElementEl.src = "";
   showScreen(gameScreen);
   playMusicGame();
   updateUI();
