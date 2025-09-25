@@ -185,6 +185,7 @@ const aboutScreen = getEl("about-screen");
 const instructionsScreen = getEl("instructions-screen");
 const strengthenModal = getEl("strengthen-modal");
 const eraseModal = getEl("erase-modal");
+const exitModal = getEl("exit-modal");
 
 // Botões
 const startButton = getEl("btn-start");
@@ -215,6 +216,7 @@ const upgradeDefenseButton = getEl("btn-upgrade-defense");
 const upgradeHpButton = getEl("btn-upgrade-hp");
 const closeModalButton = getEl("btn-close-modal");
 const btnPotion = getEl("btn-potion");
+const btnExitGame = getEl("exit-game");
 
 // UI do jogo
 const bgRoom = getEl("room");
@@ -307,6 +309,9 @@ const connectListeners = () => {
     upgradeHpButton.addEventListener("click", () => upgradeAttribute("hp"));
   if (closeModalButton)
     closeModalButton.addEventListener("click", hideStrengthenModal);
+
+  // Modal sair do jogo
+  if (btnExitGame) btnExitGame.addEventListener("click", () => showExitModal());
 
   // Fim de Jogo e Créditos
   if (restartButton)
@@ -1542,6 +1547,22 @@ function upgradeAttribute(attribute) {
   // Após fortalecer, retora à sala
   addMessage("Com energia nova a lhe guiar, você não vai fraquejar.");
   waitingForAction = true;
+}
+
+/* --- Modal Sair do Jogo ---*/
+// Exibir o modal
+function showExitModal() {
+  getEl("btn-exit-yes").addEventListener("click", () => {
+    initializeGame();
+    hideExitModal();
+  });
+  getEl("btn-exit-no").addEventListener("click", () => hideExitModal());
+  exitModal.style.display = "flex";
+}
+
+// Esconder o modal
+function hideExitModal() {
+  exitModal.style.display = "none";
 }
 
 /* --- Inicialização --- */

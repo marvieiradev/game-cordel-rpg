@@ -58,6 +58,9 @@
 
     <!-- Tela de Jogo -->
     <div id="game-screen" class="screen" style="display: none">
+      <div class="exit-bar">
+        <button id="exit-game" class="btn-exit">SAIR DO JOGO</button>
+      </div>
       <div class="status-container">
         <div class="status-bar">
           <div class="status-item">
@@ -323,6 +326,20 @@
         <div id="ok-buttons" style="display: none">
           <p>Dados apagados com sucesso!</p>
           <button id="btn-ok" class="btn btn-ok">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Sair do Jogo-->
+    <div id="exit-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <h2>DESEJA SAIR DO JOGO?</h2>
+        <p id="message">Os dados não salvos serão perdidos</p>
+        <div class="confirm-buttons">
+          <div class="yes-no-buttons">
+            <button id="btn-exit-yes" class="btn btn-yes">SIM</button>
+            <button id="btn-exit-no" class="btn btn-no">NÃO</button>
+          </div>
         </div>
       </div>
     </div>
