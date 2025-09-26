@@ -579,10 +579,18 @@ h2 {
 /* Responsividade */
 @media (max-width: 380px) {
   h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
   h2 {
     font-size: 1rem;
+  }
+  .story-content,
+  .credits-content,
+  .about-content,
+  .game-over-content,
+  .instructions-content {
+    padding: 10px;
+    font-size: 0.875rem;
   }
   .instructions-content {
     padding: 10px;

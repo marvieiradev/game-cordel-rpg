@@ -1102,7 +1102,7 @@ function showAnimation(kind) {
       showActionPlayer("blink");
       setTimeout(() => {
         bgRoom.style.backgroundImage = "url('images/ui/forest-color.webp')";
-      }, ANIM_DELAY / 2);
+      }, ANIM_DELAY);
       break;
     case "player-death":
       playSound(SOUNDS.playerDeath);
@@ -1241,7 +1241,7 @@ function victory() {
     }
     removeGameData(); // Remover os dados salvos do jogador
     playMusicMenu(); // Tocar a musica do menu
-  }, ANIM_DELAY);
+  }, ANIM_DELAY * 2);
 }
 
 /* --- Lógica para gerar monstros / boss ---*/
