@@ -542,6 +542,7 @@ function startNewGame() {
   messageQueue = [];
   processingMessages = false;
   waitingForAction = false;
+  clearMonsterName();
 
   // Mostrar a tela de história
   showScreen(storyScreen);
@@ -556,8 +557,6 @@ function continueGame() {
   if (SAFE_ROOMS.includes(player.currentRoom)) {
     gameRooms[player.currentRoom] = ROOM_TYPES.EMPTY;
   }
-  clearMonsterName();
-  imageElementEl.src = "";
   showScreen(gameScreen);
   playMusicGame();
   updateUI();
@@ -567,6 +566,8 @@ function continueGame() {
   addMessage(
     "O herói desperta no recanto seguro, na mata calma, sem nenhum apuro."
   );
+  clearMonsterName();
+  showAnimation("player-wakeup");
   waitingForAction = true;
 }
 // Iniciar o jogo apartir da tela inicial da história
@@ -1108,10 +1109,10 @@ function showAnimation(kind) {
       showActionPlayer("death");
       break;
     case "player-wakeup":
+      showActionPlayer("wakeup");
       setTimeout(() => {
         bgRoom.style.backgroundImage = "url('images/ui/forest.webp')";
       }, 100);
-      showActionPlayer("wakeup");
       break;
     case "monster-attack":
       imageElementEl.classList.add("zoomIn");
@@ -1151,8 +1152,7 @@ function showAnimation(kind) {
 }
 
 function showActionPlayer(anim) {
-  hideActionPlayer();
-  actionsLayer.style.opacity = 1;
+  actionsLayer.src = "";
   switch (anim) {
     case "attack":
       actionsLayer.src = "images/actions/knife.webp";
@@ -1179,10 +1179,6 @@ function showActionPlayer(anim) {
       actionsLayer.src = "images/actions/open-eyes.webp";
       break;
   }
-}
-function hideActionPlayer() {
-  actionsLayer.src = "";
-  actionsLayer.style.opacity = 0;
 }
 
 /* --- Usar poção (aluá) --- */
