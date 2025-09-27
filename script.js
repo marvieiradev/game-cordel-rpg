@@ -162,7 +162,6 @@ let player = { ...PLAYER_INITIAL };
 let currentMonster = null;
 let gameRooms = {};
 let currentRoomData = { number: 0, type: ROOM_TYPES.EMPTY };
-//let tempMessage = "";
 let cpKey = 42;
 let turnsToSpecial = 0;
 let turnsToRoar = 0;
@@ -339,7 +338,6 @@ function delay(ms) {
 // Enfileira mensagem(s)
 const addMessage = (message) => {
   messageQueue.push(message);
-  //tempMessage = message;
   if (!processingMessages) processMessageQueue();
 };
 
@@ -1031,7 +1029,7 @@ function monsterDefeated() {
   }, ANIM_DELAY * 1.5);
 
   if (currentMonster.type === "boss") {
-    setTimeout(victory, ANIM_DELAY * 2);
+    setTimeout(victory, ANIM_DELAY / 2);
     return;
   }
 
@@ -1101,8 +1099,8 @@ function showAnimation(kind) {
     case "player-blink":
       showActionPlayer("blink");
       setTimeout(() => {
-        bgRoom.style.backgroundImage = "url('images/ui/forest-color.webp')";
-      }, ANIM_DELAY);
+        imageElementEl.src = "";
+      }, ANIM_DELAY / 4);
       break;
     case "player-death":
       playSound(SOUNDS.playerDeath);
@@ -1225,9 +1223,12 @@ function victory() {
 
   setTimeout(() => {
     showAnimation("player-blink");
-    imageElementEl.src = "";
+    setTimeout(() => {
+      imageElementEl.src = "";
+      bgRoom.style.backgroundImage = "url('images/ui/forest-color.webp')";
+    }, 1000);
     gameMusic.pause();
-  }, ANIM_DELAY / 2);
+  }, ANIM_DELAY);
 
   // Mostrar tela de créditos
   setTimeout(() => {
@@ -1241,7 +1242,7 @@ function victory() {
     }
     removeGameData(); // Remover os dados salvos do jogador
     playMusicMenu(); // Tocar a musica do menu
-  }, ANIM_DELAY * 2);
+  }, ANIM_DELAY * 3.5);
 }
 
 /* --- Lógica para gerar monstros / boss ---*/
@@ -1327,13 +1328,11 @@ function openChest() {
   applyLoot(loot);
   // Marcar o tipo da sala como visitada após abrir o baú
   currentRoomData.type = ROOM_TYPES.SEEN;
-  //addMessage(tempMessage);
 }
 
 // Ignorar baú
 function ignoreChest() {
   addMessage("Você decide não mexer na butija.");
-  //addMessage(tempMessage);
   //Animação de ignorar butija
   showAnimation("ignore");
   playSound(SOUNDS.walk);
@@ -1351,13 +1350,11 @@ function liftAction() {
   showAnimation("trap");
   currentRoomData.type = ROOM_TYPES.EMPTY;
   addMessage("Firmou o passo, seguiu adiante, na mata escura e constante.");
-  //addMessage(tempMessage);
 }
 
 // Apenas olha ao redor (não gera nenhuma ação)
 function observeAction() {
   addMessage("Por aqui nenhum assombro se mostrou, só o vento que soprou.");
-  //addMessage(tempMessage);
 }
 
 /* --- Logica para aplicação dos loots ao jogador --- */
@@ -1475,9 +1472,7 @@ function saveAndContinue() {
 
 // Função que é executada logo após salavar o jogo, mostrando as ações apropriadas para o jogador
 function continueAfterSaving() {
-  setTimeout(() => {
-    imageElementEl.src = "";
-  }, ANIM_DELAY / 2);
+  showAnimation("player-blink");
   addMessage(
     "O corpo renovado, o peito a brilhar, você segue pronto pra caminhar."
   );
