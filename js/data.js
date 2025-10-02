@@ -4,6 +4,13 @@
 // =================================================================
 
 /*--- Constantes e estados do jogo ---*/
+// Constantes do jogo
+export const BOSS_ROOM = 50; // Sala do chefe sempre será a ultima (50)
+export const SAFE_ROOMS = [15, 30, 45]; // Salas seguras serão as 15,30 e 45
+export const ANIM_DELAY = 4000; // Delay para animações
+export const UPGRADE_COST = 25; // Custo em dinheiro para melhorar um atributo
+export const TRAP_DAMAGE = 5; // Dano a cair na armadilha
+
 // Tipos de sala
 export const ROOM_TYPES = {
   EMPTY: "empty",
@@ -46,8 +53,8 @@ export const SOUNDS = {
 export const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 30,
-  attackBonus: 30,
+  ac: 3,
+  attackBonus: 3,
   deaths: 0,
   potions: 3,
   gold: 0,

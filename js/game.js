@@ -10,7 +10,11 @@ import {
   MONSTER,
   BOSS,
   GAME_PHRASES,
-  PLAYER_ACTIONS,
+  BOSS_ROOM,
+  SAFE_ROOMS,
+  ANIM_DELAY,
+  UPGRADE_COST,
+  TRAP_DAMAGE,
 } from "./data.js";
 
 import {
@@ -22,14 +26,8 @@ import {
   playMusicGame,
   hideAllActions,
   addMessage,
+  showAnimation,
 } from "./ui.js";
-
-// Constantes do jogo
-const BOSS_ROOM = 50; // Sala do chefe sempre será a ultima (50)
-const SAFE_ROOMS = [15, 30, 45]; // Salas seguras serão as 15,30 e 45
-const ANIM_DELAY = 4000; // Delay para animações
-const UPGRADE_COST = 25; // Custo em dinheiro para melhorar um atributo
-const TRAP_DAMAGE = 5; // Dano a cair na armadilha
 
 // Estado global do jogo (centralizado)
 export let gameState = {
@@ -625,81 +623,6 @@ function monsterDefeated() {
   gameState.currentMonster = null;
   gameState.waitingForAction = true;
   setTimeout(updateUI, ANIM_DELAY * 2);
-}
-
-/* --- Mostrar animações --- */
-function showAnimation(kind) {
-  // Remove classes (garantia)
-  DOM.imageElementEl.classList.remove("zoomIn", "zoomOut", "gone", "disappear");
-
-  const actions = {
-    "player-attack": () => {
-      DOM.imageElementEl.classList.add("zoomOut");
-      if (gameState.isSpecialAtk) {
-        playSound(SOUNDS.playerSpecialAtk);
-        showActionPlayer("special");
-      } else {
-        playSound(SOUNDS.playerAtk);
-        showActionPlayer("attack");
-      }
-    },
-    "player-damage": () => playSound(SOUNDS.playerDamage),
-    "player-roar": () => {
-      showActionPlayer("roar");
-      DOM.imageElementEl.classList.add("zoomOut");
-      playSound(SOUNDS.roar);
-    },
-    "player-blink": () => {
-      showActionPlayer("blink");
-      setTimeout(() => (DOM.imageElementEl.src = ""), ANIM_DELAY / 4);
-    },
-    "player-death": () => {
-      playSound(SOUNDS.playerDeath);
-      showActionPlayer("death");
-    },
-    "player-wakeup": () => {
-      showActionPlayer("wakeup");
-      setTimeout(() => {
-        DOM.bgRoom.style.backgroundImage = "url('images/ui/forest.webp')";
-      }, 100);
-    },
-    "monster-attack": () => {
-      DOM.imageElementEl.classList.add("zoomIn");
-      playSound(
-        gameState.isPlayerDamage ? SOUNDS.playerDamage : SOUNDS.monsterAtk
-      );
-    },
-    "monster-death": () =>
-      (DOM.imageElementEl.src = "images/objects/cadaver.webp"),
-    chest: () => {
-      showActionPlayer("interact");
-      DOM.imageElementEl.src = "images/objects/butija-alt.webp";
-    },
-    trap: () => {
-      playSound(SOUNDS.trap);
-      showActionPlayer("interact");
-      DOM.imageElementEl.classList.add("gone");
-      setTimeout(() => (DOM.imageElementEl.src = ""), ANIM_DELAY / 2);
-    },
-    fire: () => playSound(SOUNDS.fire),
-    potion: () => {
-      playSound(SOUNDS.potion);
-      showActionPlayer("potion");
-    },
-    ignore: () => {
-      DOM.imageElementEl.classList.add("gone");
-      setTimeout(() => (DOM.imageElementEl.src = ""), ANIM_DELAY / 2);
-    },
-  };
-  // Executa a ação se existir
-  actions[kind]?.();
-}
-
-function showActionPlayer(anim) {
-  DOM.actionsLayer.src = "";
-  PLAYER_ACTIONS.forEach((action) => {
-    if (action.type === anim) DOM.actionsLayer.src = action.image;
-  });
 }
 
 /* --- Usar poção (aluá) --- */

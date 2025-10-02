@@ -26,7 +26,7 @@ import {
   initializeGame,
   gameState,
 } from "./game.js";
-import { ROOM_TYPES, SOUNDS } from "./data.js";
+import { ROOM_TYPES, SOUNDS, PLAYER_ACTIONS, ANIM_DELAY } from "./data.js";
 
 // Função auxiliar para carregar os áudios
 const createAudio = (src, loop = false) => {
@@ -434,3 +434,78 @@ export const showScreen = (screen) => {
   });
   if (screen) screen.style.display = "block";
 };
+
+/* --- Mostrar animações --- */
+export function showAnimation(kind) {
+  // Remove classes (garantia)
+  DOM.imageElementEl.classList.remove("zoomIn", "zoomOut", "gone", "disappear");
+
+  const actions = {
+    "player-attack": () => {
+      DOM.imageElementEl.classList.add("zoomOut");
+      if (gameState.isSpecialAtk) {
+        playSound(SOUNDS.playerSpecialAtk);
+        showActionPlayer("special");
+      } else {
+        playSound(SOUNDS.playerAtk);
+        showActionPlayer("attack");
+      }
+    },
+    "player-damage": () => playSound(SOUNDS.playerDamage),
+    "player-roar": () => {
+      showActionPlayer("roar");
+      DOM.imageElementEl.classList.add("zoomOut");
+      playSound(SOUNDS.roar);
+    },
+    "player-blink": () => {
+      showActionPlayer("blink");
+      setTimeout(() => (DOM.imageElementEl.src = ""), ANIM_DELAY / 4);
+    },
+    "player-death": () => {
+      playSound(SOUNDS.playerDeath);
+      showActionPlayer("death");
+    },
+    "player-wakeup": () => {
+      showActionPlayer("wakeup");
+      setTimeout(() => {
+        DOM.bgRoom.style.backgroundImage = "url('images/ui/forest.webp')";
+      }, 100);
+    },
+    "monster-attack": () => {
+      DOM.imageElementEl.classList.add("zoomIn");
+      playSound(
+        gameState.isPlayerDamage ? SOUNDS.playerDamage : SOUNDS.monsterAtk
+      );
+    },
+    "monster-death": () =>
+      (DOM.imageElementEl.src = "images/objects/cadaver.webp"),
+    chest: () => {
+      showActionPlayer("interact");
+      DOM.imageElementEl.src = "images/objects/butija-alt.webp";
+    },
+    trap: () => {
+      playSound(SOUNDS.trap);
+      showActionPlayer("interact");
+      DOM.imageElementEl.classList.add("gone");
+      setTimeout(() => (DOM.imageElementEl.src = ""), ANIM_DELAY / 2);
+    },
+    fire: () => playSound(SOUNDS.fire),
+    potion: () => {
+      playSound(SOUNDS.potion);
+      showActionPlayer("potion");
+    },
+    ignore: () => {
+      DOM.imageElementEl.classList.add("gone");
+      setTimeout(() => (DOM.imageElementEl.src = ""), ANIM_DELAY / 2);
+    },
+  };
+  // Executa a ação se existir
+  actions[kind]?.();
+}
+
+function showActionPlayer(anim) {
+  DOM.actionsLayer.src = "";
+  PLAYER_ACTIONS.forEach((action) => {
+    if (action.type === anim) DOM.actionsLayer.src = action.image;
+  });
+}
