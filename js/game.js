@@ -98,7 +98,7 @@ export function initializeGame() {
   gameState.turnsToRoar = 0;
   gameState.deaths = 0;
   gameState.isMonsterScared = false;
-  gameState.imageElementEl = ""; // Usar o DOM diretamente, sem variavel de estado.
+  DOM.imageElementEl.src = ""; // Usar o DOM diretamente, sem variavel de estado.
 
   // Verificar save em sala segura, se hover, o botão continuar será exibido
   const saved = loadGameData();
