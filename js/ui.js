@@ -56,6 +56,13 @@ export const playMusicMenu = () => {
     menuMusic.play();
   } catch (e) {}
 };
+// Pausar todas as musicas do jogo
+export const pauseAllMusics = () => {
+  try {
+    menuMusic.pause();
+    gameMusic.pause();
+  } catch (e) {}
+};
 
 /* --- Cache de elementos DOM (otimizado) ---*/
 export let DOM = {};
@@ -329,7 +336,12 @@ function render(type) {
       if (DOM[key]) DOM[key].style.display = "none";
     });
 
-    if (processingMessages || type === "hide_actions" || player.hp <= 0) {
+    if (
+      processingMessages ||
+      type === "hide_actions" ||
+      gameState.isPlayerDead ||
+      gameState.isPlayerVictory
+    ) {
       if (DOM.orientationText) DOM.orientationText.textContent = "";
       return;
     }

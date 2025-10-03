@@ -28,6 +28,7 @@ import {
   hideAllActions,
   addMessage,
   showAnimation,
+  pauseAllMusics,
 } from "./ui.js";
 
 // Estado global do jogo (centralizado)
@@ -46,6 +47,9 @@ export let gameState = {
   messageQueue: [],
   processingMessages: false,
   waitingForAction: false,
+  movement: Math.floor(Math.random() * (2 - 1 + 1)) + 1,
+  isPlayerDead: false,
+  isPlayerVictory: false,
 };
 
 // Função simples de "criptografia" XOR para difcultar a manipulção dos dados salvos no armazenamento
@@ -99,6 +103,8 @@ export function initializeGame() {
   gameState.turnsToRoar = 0;
   gameState.deaths = 0;
   gameState.isMonsterScared = false;
+  gameState.isPlayerDead = false;
+  gameState.isPlayerVictory = false;
   DOM.imageElementEl.src = ""; // Usar o DOM diretamente, sem variavel de estado.
 
   // Verificar save em sala segura, se hover, o botão continuar será exibido
@@ -163,7 +169,7 @@ export function continueGame() {
     type: ROOM_TYPES.EMPTY,
   };
   addMessage(
-    "O herói desperta no recanto seguro, na mata calma, sem nenhum apuro."
+    "Você desperta no recanto seguro, na mata calma, sem nenhum apuro."
   );
   DOM.imageElementEl.src = "";
   showAnimation("player-wakeup");
@@ -376,17 +382,30 @@ function enterRoom(roomNumber) {
 }
 
 /* --- Movimento do jogador --- */
+
 export function moveToNextRoom(direction) {
   //Toca o efeito sonoro
   playSound(SOUNDS.walk);
   DOM.imageElementEl.src = "";
   // Determinar o próximo número de sala
   let nextRoom = gameState.player.currentRoom;
-  if (direction === "left")
-    nextRoom = Math.min(gameState.player.currentRoom + 1, BOSS_ROOM);
-  else nextRoom = Math.min(gameState.player.currentRoom + 2, BOSS_ROOM);
+  //if (direction === "left")
+  //  nextRoom = Math.min(gameState.player.currentRoom + 1, BOSS_ROOM);
+  //else nextRoom = Math.min(gameState.player.currentRoom + move(), BOSS_ROOM);
+
+  nextRoom = Math.min(gameState.player.currentRoom + move(), BOSS_ROOM);
   // Entrar na próxima sala
   enterRoom(nextRoom);
+}
+// Função auxiliar para evitar que o jagador pule salas de 2 em 2, escolhendo apenas uma direção (direita)
+function move() {
+  if (gameState.movement === 1) {
+    gameState.movement = 2;
+    return 1;
+  } else {
+    gameState.movement = 1;
+    return 2;
+  }
 }
 
 /* --- Lógica de Combate --- */
@@ -506,7 +525,7 @@ function monsterTurn() {
   // Mensagens informando o dano do monstro
   if (attack.result === "miss") {
     gameState.isPlayerDamage = false;
-    addMessage(`${gameState.currentMonster.name} errou!`);
+    addMessage("Mas você desviou!");
   } else {
     gameState.isPlayerDamage = true;
     gameState.player.hp -= attack.damage;
@@ -587,7 +606,7 @@ function monsterDefeated() {
   }, ANIM_DELAY * 1.5);
 
   if (gameState.currentMonster.type === "boss") {
-    setTimeout(victory, ANIM_DELAY / 2);
+    setTimeout(victory, ANIM_DELAY);
     return;
   }
 
@@ -666,8 +685,7 @@ function gameOver() {
     currentRoom: 0,
   });
   showAnimation("player-death");
-
-  updateUI();
+  gameState.isPlayerDead = true;
   // Mostrar tela de game over
   setTimeout(() => {
     DOM.imageElementEl.src = "";
@@ -677,17 +695,19 @@ function gameOver() {
 }
 
 function victory() {
-  addMessage(
-    "Raiou o dia, dissipou a noite escura, o você segue vivo, com força e bravura."
-  );
-
+  gameState.isPlayerVictory = true;
   setTimeout(() => {
     showAnimation("player-blink");
     setTimeout(() => {
+      addMessage(
+        "Raiou o dia, dissipou a noite escura, o você segue vivo, com força e bravura."
+      );
+      gameState.currentMonster = null;
       DOM.imageElementEl.src = "";
       DOM.bgRoom.style.backgroundImage = "url('images/ui/forest-color.webp')";
+      updateUI();
     }, 1000);
-    gameMusic.pause();
+    pauseAllMusics();
   }, ANIM_DELAY);
 
   // Mostrar tela de créditos
@@ -695,7 +715,7 @@ function victory() {
     showScreen(DOM.creditsScreen);
     const stars = Math.max(6 - Math.floor(gameState.deaths / 2), 1);
     DOM.starsEl.innerHTML = "";
-    for (i = 0; i < stars; i++) {
+    for (let i = 0; i < stars; i++) {
       DOM.starsEl.innerHTML += ` <img src="images/ui/star.webp" class="star"/>`;
     }
     removeGameData(); // Remover os dados salvos do jogador
