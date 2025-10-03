@@ -175,3 +175,26 @@ export const PLAYER_ACTIONS = [
     image: "images/actions/open-eyes.webp",
   },
 ];
+
+// Tabelas de loot
+export const LOOT_TABLES = {
+  normal: [
+    { chance: 30, loot: { type: "potion", amount: 1 } },
+    { chance: 60, loot: { type: "gold", amount: 20, gold: 20 } },
+    { chance: 80, loot: { type: "common_armor" } },
+    { chance: 90, loot: { type: "common_attack" } },
+    { chance: 100, loot: { type: "common_hp" } },
+  ],
+  raro: [
+    { chance: 30, loot: { type: "potion", amount: 2, gold: 30 } },
+    { chance: 60, loot: { type: "rare_armor", gold: 10 } },
+    { chance: 90, loot: { type: "rare_attack", gold: 10 } },
+    { chance: 100, loot: { type: "rare_hp", gold: 10 } },
+  ],
+  lendario: [
+    { chance: 30, loot: { type: "potion", amount: 3, gold: 50 } },
+    { chance: 60, loot: { type: "legendary_armor", gold: 30 } },
+    { chance: 90, loot: { type: "legendary_attack", gold: 30 } },
+    { chance: 100, loot: { type: "legendary_hp", gold: 30 } },
+  ],
+};

@@ -15,6 +15,7 @@ import {
   ANIM_DELAY,
   UPGRADE_COST,
   TRAP_DAMAGE,
+  LOOT_TABLES,
 } from "./data.js";
 
 import {
@@ -346,7 +347,7 @@ function enterRoom(roomNumber) {
     case ROOM_TYPES.TRAP: // Sala armadilha
       DOM.imageElementEl.src = "images/objects/arapuca.webp";
       addMessage("Você caiu em uma apauca!");
-      setTimeout(() => playSound(SOUNDS.playerDamage), 2000);
+      setTimeout(() => playSound(SOUNDS.playerDamage), ANIM_DELAY / 2);
       // Aplicar dano da armadilha
       gameState.player.hp -= TRAP_DAMAGE;
       addMessage(`Você perdeu ${TRAP_DAMAGE} de vida!`);
@@ -355,7 +356,7 @@ function enterRoom(roomNumber) {
       if (gameState.player.hp <= 0) {
         gameState.player.hp = 0;
         updateUI();
-        setTimeout(gameOver, 4000);
+        setTimeout(gameOver, ANIM_DELAY);
         return;
       }
       break;
@@ -826,30 +827,7 @@ export function observeAction() {
 // Função para gerar loot baseado no tipo do baú
 function generateChestLoot(type) {
   const roll = Math.random() * 100;
-
-  const lootTables = {
-    normal: [
-      { chance: 30, loot: { type: "potion", amount: 1 } },
-      { chance: 60, loot: { type: "gold", amount: 20, gold: 20 } },
-      { chance: 80, loot: { type: "common_armor" } },
-      { chance: 90, loot: { type: "common_attack" } },
-      { chance: 100, loot: { type: "common_hp" } },
-    ],
-    raro: [
-      { chance: 30, loot: { type: "potion", amount: 2, gold: 30 } },
-      { chance: 60, loot: { type: "rare_armor", gold: 10 } },
-      { chance: 90, loot: { type: "rare_attack", gold: 10 } },
-      { chance: 100, loot: { type: "rare_hp", gold: 10 } },
-    ],
-    lendario: [
-      { chance: 30, loot: { type: "potion", amount: 3, gold: 50 } },
-      { chance: 60, loot: { type: "legendary_armor", gold: 30 } },
-      { chance: 90, loot: { type: "legendary_attack", gold: 30 } },
-      { chance: 100, loot: { type: "legendary_hp", gold: 30 } },
-    ],
-  };
-
-  const table = lootTables[type] || [];
+  const table = LOOT_TABLES[type] || [];
   return table.find((entry) => roll < entry.chance)?.loot || {};
 }
 
