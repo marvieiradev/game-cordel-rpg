@@ -29,6 +29,7 @@ import {
   addMessage,
   showAnimation,
   pauseAllMusics,
+  hideStrengthenModal,
 } from "./ui.js";
 
 // Estado global do jogo (centralizado)
@@ -382,22 +383,17 @@ function enterRoom(roomNumber) {
 }
 
 /* --- Movimento do jogador --- */
-
 export function moveToNextRoom(direction) {
   //Toca o efeito sonoro
   playSound(SOUNDS.walk);
   DOM.imageElementEl.src = "";
   // Determinar o próximo número de sala
   let nextRoom = gameState.player.currentRoom;
-  //if (direction === "left")
-  //  nextRoom = Math.min(gameState.player.currentRoom + 1, BOSS_ROOM);
-  //else nextRoom = Math.min(gameState.player.currentRoom + move(), BOSS_ROOM);
-
   nextRoom = Math.min(gameState.player.currentRoom + move(), BOSS_ROOM);
   // Entrar na próxima sala
   enterRoom(nextRoom);
 }
-// Função auxiliar para evitar que o jagador pule salas de 2 em 2, escolhendo apenas uma direção (direita)
+// Função auxiliar para garantir que o jogador visite o numero minimo de salas
 function move() {
   if (gameState.movement === 1) {
     gameState.movement = 2;
@@ -525,7 +521,9 @@ function monsterTurn() {
   // Mensagens informando o dano do monstro
   if (attack.result === "miss") {
     gameState.isPlayerDamage = false;
-    addMessage("Mas você desviou!");
+    const playerDodge =
+      GAME_PHRASES.dodge[Math.floor(Math.random() * GAME_PHRASES.dodge.length)];
+    addMessage(playerDodge.text);
   } else {
     gameState.isPlayerDamage = true;
     gameState.player.hp -= attack.damage;
@@ -739,24 +737,24 @@ function generateMonster(roomNumber) {
   let monsterStats;
   if (monsterType === "fraco") {
     monsterStats = {
-      hp: Math.floor(Math.random() * 5) + 15, // 15-20 HP
-      ac: Math.floor(Math.random() * 3) + 12, // 12-14 CA (defesa)
-      attackBonus: Math.floor(Math.random() * 3) + 2, // 2-4 Bonus de Ataque
-      damageBonus: Math.floor(Math.random() * 2) + 1, // 1-2 Bonus de Dano
+      hp: generateMonsterStates(16, 20), // 16-20 HP
+      ac: generateMonsterStates(12, 14), // 12-14 CA (defesa)
+      attackBonus: generateMonsterStates(2, 4), // 2-4 Bonus de Ataque
+      damageBonus: generateMonsterStates(1, 2), // 1-2 Bonus de Dano
     };
   } else if (monsterType === "normal") {
     monsterStats = {
-      hp: Math.floor(Math.random() * 5) + 25, // 25-30 HP
-      ac: Math.floor(Math.random() * 3) + 14, // 14-16 CA (defesa)
-      attackBonus: Math.floor(Math.random() * 2) + 5, // 5-6 Bonus de Ataque
-      damageBonus: Math.floor(Math.random() * 2) + 2, // 2-3 Bonus de Dano
+      hp: generateMonsterStates(26, 30), // 26-30 HP
+      ac: generateMonsterStates(14, 16), // 14-16 CA (defesa)
+      attackBonus: generateMonsterStates(5, 6), // 5-6 Bonus de Ataque
+      damageBonus: generateMonsterStates(2, 3), // 2-3 Bonus de Dano
     };
   } else {
     monsterStats = {
-      hp: Math.floor(Math.random() * 5) + 35, // 35-40 HP
-      ac: Math.floor(Math.random() * 3) + 16, // 16-18 CA (defesa)
-      attackBonus: Math.floor(Math.random() * 2) + 7, // 7-8 Bonus de Ataque
-      damageBonus: Math.floor(Math.random() * 2) + 3, // 3-4 Bonus de Dano
+      hp: generateMonsterStates(36, 40), // 36-40 HP
+      ac: generateMonsterStates(16, 18), // 16-18 CA (defesa)
+      attackBonus: generateMonsterStates(7, 8), // 7-8 Bonus de Ataque
+      damageBonus: generateMonsterStates(3, 4), // 3-4 Bonus de Dano
     };
   }
 
@@ -781,12 +779,17 @@ function generateBoss() {
   return {
     name: pick.name,
     image: pick.image,
-    hp: Math.floor(Math.random() * 2) + 78, // 78-80 HP
+    hp: generateMonsterStates(78, 80), // 78-80 HP
     ac: 20, // 20 CA (defesa)
-    attackBonus: Math.floor(Math.random() * 3) + 12, // 12-14 Bonus de Ataque
-    damageBonus: Math.floor(Math.random() * 3) + 7, // 7-10 Bonus de Dano
+    attackBonus: generateMonsterStates(12, 14), // 12-14 Bonus de Ataque
+    damageBonus: generateMonsterStates(7, 10), // 7-10 Bonus de Dano
     type: "boss",
   };
+}
+
+// Funcão auxiliar para gerar estados de monstros
+function generateMonsterStates(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /* --- Lógica de baús (butija) --- */
@@ -949,27 +952,7 @@ export function continueAfterSaving() {
   gameState.waitingForAction = true;
 }
 
-/* --- Lógica de fortalecimento (modal) ---*/
-// Mostrar modal de fortalecimento
-export function showStrengthenModal() {
-  // Verificar se o jogador tem dinheiro suficiente
-  const hasEnoughGold = gameState.player.gold >= UPGRADE_COST;
-  // Atualizar estado dos botões de upgrade
-  if (DOM.upgradeAttackButton)
-    DOM.upgradeAttackButton.disabled = !hasEnoughGold;
-  if (DOM.upgradeDefenseButton)
-    DOM.upgradeDefenseButton.disabled = !hasEnoughGold;
-  if (DOM.upgradeHpButton) DOM.upgradeHpButton.disabled = !hasEnoughGold;
-  // Exibir o modal
-  DOM.strengthenModal.style.display = "flex";
-}
-
-// Esconder o modal
-export function hideStrengthenModal() {
-  DOM.strengthenModal.style.display = "none";
-}
-
-// Fortalecer atributo
+// Fortalecer atributos do jogador
 export function upgradeAttribute(attribute) {
   // Verificar se o jogador tem dinheiro suficiente
   if (gameState.player.gold < UPGRADE_COST) {
@@ -1016,24 +999,4 @@ export function upgradeAttribute(attribute) {
   // Após fortalecer, retora à sala
   addMessage("Com energia nova a lhe guiar, você não vai fraquejar.");
   gameState.waitingForAction = true;
-}
-
-/* --- Modal Sair do Jogo ---*/
-export function showExitModal() {
-  // Exibir o modal
-  DOM.btnExitYes.addEventListener(
-    "click",
-    () => {
-      initializeGame();
-      hideExitModal();
-    },
-    { once: true }
-  );
-  DOM.btnExitNo.addEventListener("click", hideExitModal, { once: true });
-  DOM.exitModal.style.display = "flex";
-}
-
-// Esconder o modal
-function hideExitModal() {
-  DOM.exitModal.style.display = "none";
 }

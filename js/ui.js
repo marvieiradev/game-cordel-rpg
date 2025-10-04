@@ -17,16 +17,19 @@ import {
   ignoreChest,
   liftAction,
   observeAction,
-  showStrengthenModal,
   saveAndContinue,
   continueAfterSaving,
   upgradeAttribute,
-  hideStrengthenModal,
-  showExitModal,
   initializeGame,
   gameState,
 } from "./game.js";
-import { ROOM_TYPES, SOUNDS, PLAYER_ACTIONS, ANIM_DELAY } from "./data.js";
+import {
+  ROOM_TYPES,
+  SOUNDS,
+  PLAYER_ACTIONS,
+  ANIM_DELAY,
+  UPGRADE_COST,
+} from "./data.js";
 
 // Função auxiliar para carregar os áudios
 const createAudio = (src, loop = false) => {
@@ -520,4 +523,44 @@ function showActionPlayer(anim) {
   PLAYER_ACTIONS.forEach((action) => {
     if (action.type === anim) DOM.actionsLayer.src = action.image;
   });
+}
+
+/* --- Modais do Jogo --- */
+// Mostrar modal de fortalecimento
+export function showStrengthenModal() {
+  // Verificar se o jogador tem dinheiro suficiente
+  const hasEnoughGold = gameState.player.gold >= UPGRADE_COST;
+  // Atualizar estado dos botões de upgrade
+  if (DOM.upgradeAttackButton)
+    DOM.upgradeAttackButton.disabled = !hasEnoughGold;
+  if (DOM.upgradeDefenseButton)
+    DOM.upgradeDefenseButton.disabled = !hasEnoughGold;
+  if (DOM.upgradeHpButton) DOM.upgradeHpButton.disabled = !hasEnoughGold;
+  // Exibir o modal
+  DOM.strengthenModal.style.display = "flex";
+}
+
+// Esconder o modal
+export function hideStrengthenModal() {
+  DOM.strengthenModal.style.display = "none";
+}
+
+/* --- Modal Sair do Jogo ---*/
+export function showExitModal() {
+  // Exibir o modal
+  DOM.btnExitYes.addEventListener(
+    "click",
+    () => {
+      initializeGame();
+      hideExitModal();
+    },
+    { once: true }
+  );
+  DOM.btnExitNo.addEventListener("click", hideExitModal, { once: true });
+  DOM.exitModal.style.display = "flex";
+}
+
+// Esconder o modal
+function hideExitModal() {
+  DOM.exitModal.style.display = "none";
 }

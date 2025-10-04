@@ -25,9 +25,9 @@ export const ROOM_TYPES = {
 
 // Probabilidade de qual sala pode aparecer para o jogador
 export const ROOM_PROBABILITIES = [
-  { type: ROOM_TYPES.MONSTER, weight: 60 }, //Chance 60% Monstro
-  { type: ROOM_TYPES.CHEST, weight: 20 }, //Chance 20% Butija
-  { type: ROOM_TYPES.TRAP, weight: 15 }, //Chance 15% Arapuca
+  { type: ROOM_TYPES.MONSTER, weight: 70 }, //Chance 70% Monstro
+  { type: ROOM_TYPES.CHEST, weight: 15 }, //Chance 15% Butija
+  { type: ROOM_TYPES.TRAP, weight: 10 }, //Chance 10% Arapuca
   { type: ROOM_TYPES.EMPTY, weight: 5 }, //Chance 5% Sala vazia
 ];
 
@@ -53,7 +53,7 @@ export const SOUNDS = {
 export const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 3,
+  ac: 30,
   attackBonus: 3,
   deaths: 0,
   potions: 3,
@@ -130,6 +130,18 @@ export const GAME_PHRASES = {
     },
     {
       text: "Nem a força, nem a reza, só a morte o atravessa.",
+    },
+  ],
+
+  dodge: [
+    {
+      text: "Mas você esquivou!",
+    },
+    {
+      text: "Você desvia com destreza!",
+    },
+    {
+      text: "Mas não te acertou!",
     },
   ],
 };
