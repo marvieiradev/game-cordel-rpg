@@ -16,6 +16,7 @@ import {
   UPGRADE_COST,
   TRAP_DAMAGE,
   LOOT_TABLES,
+  drawPhrases,
 } from "./data.js";
 
 import {
@@ -311,8 +312,7 @@ function enterRoom(roomNumber) {
 
   gameState.player.currentRoom = roomNumber;
   const roomType = generateRoomType(roomNumber);
-  const appear =
-    GAME_PHRASES.appear[Math.floor(Math.random() * GAME_PHRASES.appear.length)];
+  const appear = drawPhrases(GAME_PHRASES.appear);
 
   // Registrar o tipo da sala para as regras de sequência
   gameState.player.lastRoomTypes.push(roomType);
@@ -495,10 +495,7 @@ export function playerAttack(useSpecial) {
 
   // Verifica se o inimigo morreu
   if (gameState.currentMonster.hp <= 0) {
-    const defeated =
-      GAME_PHRASES.defeated[
-        Math.floor(Math.random() * GAME_PHRASES.defeated.length)
-      ];
+    const defeated = drawPhrases(GAME_PHRASES.defeated);
     addMessage(`${gameState.currentMonster.name} ${defeated.text}`);
     monsterDefeated();
     return;
@@ -521,8 +518,7 @@ function monsterTurn() {
   // Mensagens informando o dano do monstro
   if (attack.result === "miss") {
     gameState.isPlayerDamage = false;
-    const playerDodge =
-      GAME_PHRASES.dodge[Math.floor(Math.random() * GAME_PHRASES.dodge.length)];
+    const playerDodge = drawPhrases(GAME_PHRASES.dodge);
     addMessage(playerDodge.text);
   } else {
     gameState.isPlayerDamage = true;
@@ -673,8 +669,7 @@ export function usePotion() {
 
 /* --- Funções Game Over / Vitória ---*/
 function gameOver() {
-  const death =
-    GAME_PHRASES.death[Math.floor(Math.random() * GAME_PHRASES.death.length)];
+  const death = drawPhrases(GAME_PHRASES.death);
   addMessage(`${death.text}`);
   // Salvar mortes para "meta-progresso" (rogue-like)
   saveGameData({

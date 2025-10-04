@@ -53,7 +53,7 @@ export const SOUNDS = {
 export const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 30,
+  ac: 3,
   attackBonus: 3,
   deaths: 0,
   potions: 3,
@@ -146,6 +146,13 @@ export const GAME_PHRASES = {
   ],
 };
 
+// Função auxiliar para sortear uma frase do jogo
+export const drawPhrases = (arr) => {
+  const index = Math.floor(Math.random() * arr.length);
+  return arr[index];
+};
+
+/* --- Ações do jogador ---*/
 export const PLAYER_ACTIONS = [
   {
     type: "attack",
