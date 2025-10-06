@@ -69,6 +69,7 @@ export const MONSTER = {
     { name: "Cachorro Doido", image: "images/monster/cachorro-doido.webp" },
     { name: "Guabiru", image: "images/monster/guabiru.webp" },
     { name: "Cobra Cascavel", image: "images/monster/cobra-cascavel.webp" },
+    { name: "Cassaco Raivoso", image: "images/monster/cassaco-raivoso.webp" },
     { name: "Escorpião", image: "images/monster/escorpiao.webp" },
   ],
   normal: [
@@ -77,6 +78,7 @@ export const MONSTER = {
     { name: "Cabeça de Cuia", image: "images/monster/cabeca-de-cuia.webp" },
     { name: "Visagem", image: "images/monster/visagem.webp" },
     { name: "Saci Pererê", image: "images/monster/saci-perere.webp" },
+    { name: "Perna Cabeluda", image: "images/monster/perna-cabeluda.webp" },
   ],
   elite: [
     { name: "Caipora", image: "images/monster/caipora.webp" },
@@ -84,6 +86,7 @@ export const MONSTER = {
     { name: "Cabra Cabriola", image: "images/monster/cabra-cabriola.webp" },
     { name: "Lobisomem", image: "images/monster/lobisomen.webp" },
     { name: "Boitatá", image: "images/monster/boitata.webp" },
+    { name: "Quibungo", image: "images/monster/quibungo.webp" },
   ],
 };
 
@@ -91,6 +94,7 @@ export const BOSS = [
   { name: "Curupira", image: "images/monster/curupira.webp" },
   { name: "Cuca", image: "images/monster/cuca.webp" },
   { name: "Mula sem Cabeça", image: "images/monster/mula-sem-cabeca.webp" },
+  { name: "Labatut", image: "images/monster/labatut.webp" },
 ];
 
 /* --- Frases diversas quando o jogador encontra ou derrota o inimigo */
