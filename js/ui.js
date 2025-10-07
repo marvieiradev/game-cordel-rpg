@@ -80,7 +80,7 @@ export const selectors = {
   "credits-screen": "creditsScreen",
   "about-screen": "aboutScreen",
   "instructions-screen": "instructionsScreen",
-  "strengthen-modal": "strengthenModal",
+  "blessing-modal": "blessingModal",
   "erase-modal": "eraseModal",
   "exit-modal": "exitModal",
   // Botões (apenas os que precisam de acesso direto)
@@ -104,7 +104,7 @@ export const selectors = {
   "btn-credits-menu": "creditsMenuButton",
   "btn-about-menu": "aboutMenuButton",
   "btn-instructions-menu": "instructionsMenuButton",
-  "btn-strengthen": "strengthenButton",
+  "btn-blessing": "blessingButton",
   "btn-save-continue": "saveContinueButton",
   "btn-continue-saved": "continueSavedButton",
   "btn-upgrade-attack": "upgradeAttackButton",
@@ -202,14 +202,14 @@ export const connectListeners = () => {
     DOM.observeActionButton.addEventListener("click", observeAction);
 
   // Sala segura
-  if (DOM.strengthenButton)
-    DOM.strengthenButton.addEventListener("click", showStrengthenModal);
+  if (DOM.blessingButton)
+    DOM.blessingButton.addEventListener("click", showBlessingModal);
   if (DOM.saveContinueButton)
     DOM.saveContinueButton.addEventListener("click", saveAndContinue);
   if (DOM.continueSavedButton)
     DOM.continueSavedButton.addEventListener("click", continueAfterSaving);
 
-  // Modal de fortalecimento
+  // Modal de benção/fortalecimento
   if (DOM.upgradeAttackButton)
     DOM.upgradeAttackButton.addEventListener("click", () =>
       upgradeAttribute("attack")
@@ -221,7 +221,7 @@ export const connectListeners = () => {
   if (DOM.upgradeHpButton)
     DOM.upgradeHpButton.addEventListener("click", () => upgradeAttribute("hp"));
   if (DOM.closeModalButton)
-    DOM.closeModalButton.addEventListener("click", hideStrengthenModal);
+    DOM.closeModalButton.addEventListener("click", hideBlessingModal);
 
   // Modal sair do jogo
   if (DOM.btnExitGame) DOM.btnExitGame.addEventListener("click", showExitModal);
@@ -526,8 +526,8 @@ function showActionPlayer(anim) {
 }
 
 /* --- Modais do Jogo --- */
-// Mostrar modal de fortalecimento
-export function showStrengthenModal() {
+// Mostrar modal de benção/fortalecimento
+export function showBlessingModal() {
   // Verificar se o jogador tem dinheiro suficiente
   const hasEnoughGold = gameState.player.gold >= UPGRADE_COST;
   // Atualizar estado dos botões de upgrade
@@ -537,12 +537,12 @@ export function showStrengthenModal() {
     DOM.upgradeDefenseButton.disabled = !hasEnoughGold;
   if (DOM.upgradeHpButton) DOM.upgradeHpButton.disabled = !hasEnoughGold;
   // Exibir o modal
-  DOM.strengthenModal.style.display = "flex";
+  DOM.blessingModal.style.display = "flex";
 }
 
 // Esconder o modal
-export function hideStrengthenModal() {
-  DOM.strengthenModal.style.display = "none";
+export function hideBlessingModal() {
+  DOM.blessingModal.style.display = "none";
 }
 
 /* --- Modal Sair do Jogo ---*/

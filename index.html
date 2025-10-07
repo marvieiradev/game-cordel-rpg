@@ -168,9 +168,9 @@
             class="safe-room-buttons"
             style="display: none"
           >
-            <div id="btn-strengthen" class="btn btn-action">
-              <img class="btn-image" src="images/ui/strength.webp" alt="" />
-              FORTALECER
+            <div id="btn-blessing" class="btn btn-action">
+              <img class="btn-image" src="images/ui/blessing.webp" alt="" />
+              PEDIR BENÇÃO
             </div>
             <div id="btn-save-continue" class="btn btn-action">
               <img class="btn-image" src="images/ui/save.webp" alt="" />
@@ -340,20 +340,25 @@
       </div>
     </div>
 
-    <!-- Modal de Fortalecimento -->
-    <div id="strengthen-modal" class="modal" style="display: none">
+    <!-- Modal de Benção/Fortalecimento -->
+    <div id="blessing-modal" class="modal blessing-modal" style="display: none">
       <div class="modal-content">
-        <h1>FORTALECER</h1>
-        <p>Escolha um atributo para fortalecer (Custo: 25 patacas)</p>
-        <div class="strengthen-options">
+        <img src="images/ui/padroeiro.webp" alt="" style="width: 90%" />
+        <h1>BENÇÃO DO PADROEIRO</h1>
+        <h2>
+          Doe suas moedas e faça uma oração para seu padroeiro e obtenha uma
+          benção!
+        </h2>
+        <h2 style="margin-top: -10px">(Custo: 25 patacas)</h2>
+        <div class="blessing-options">
           <button id="btn-upgrade-attack" class="btn btn-upgrade">
-            AUMENTAR ATAQUE (+1)
+            BENÇÃO DE ATAQUE (ATQ +1)
           </button>
           <button id="btn-upgrade-defense" class="btn btn-upgrade">
-            AUMENTAR DEFESA (+1)
+            BENÇÃO DE DEFESA (DEF +1)
           </button>
           <button id="btn-upgrade-hp" class="btn btn-upgrade">
-            AUMENTAR HP (+1)
+            BENÇÃO DE VIDA (HP +1)
           </button>
         </div>
         <button id="btn-close-modal" class="btn btn-game">CANCELAR</button>

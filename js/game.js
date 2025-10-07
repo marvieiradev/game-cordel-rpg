@@ -30,7 +30,7 @@ import {
   addMessage,
   showAnimation,
   pauseAllMusics,
-  hideStrengthenModal,
+  hideBlessingModal,
 } from "./ui.js";
 
 // Estado global do jogo (centralizado)
