@@ -6,7 +6,7 @@
 /*--- Constantes e estados do jogo ---*/
 // Constantes do jogo
 export const BOSS_ROOM = 50; // Sala do chefe sempre será a ultima (50)
-export const SAFE_ROOMS = [1, 2, 3]; // Salas seguras serão as 15,30 e 45
+export const SAFE_ROOMS = [15, 30, 45]; // Salas seguras serão as 15,30 e 45
 export const ANIM_DELAY = 4000; // Delay para animações
 export const UPGRADE_COST = 25; // Custo em dinheiro para melhorar um atributo
 export const TRAP_DAMAGE = 5; // Dano a cair na armadilha
@@ -101,52 +101,46 @@ export const BOSS = [
 export const GAME_PHRASES = {
   appear: [
     {
-      part1: "O silêncio da noite quebrou,",
-      part2: "logo se mostrou!",
+      text_p1: "O silêncio da noite quebrou,",
+      text_p2: "logo se mostrou!",
     },
     {
-      part1: "O mato guarda assombro e dor,",
-      part2: "traz o terror!",
+      text_p1: "O mato guarda assombro e dor,",
+      text_p2: "traz o terror!",
     },
     {
-      part1: "O mato sussurra segredo,",
-      part2: "vem sem medo!",
+      text_p1: "O mato sussurra segredo,",
+      text_p2: "vem sem medo!",
     },
   ],
   defeated: [
-    {
-      text: "foi derrotado!",
-    },
-    {
-      text: "sucumbiu!",
-    },
-    {
-      text: "está acabado!",
-    },
+    { text: "foi derrotado!" },
+    { text: "sucumbiu!" },
+    { text: "está acabado!" },
   ],
 
   death: [
-    {
-      text: "O homem caiu na noite, e só a fera tomou açoite.",
-    },
-    {
-      text: "O chão abraçou seu corpo, a maldição cumpriu o acordo.",
-    },
-    {
-      text: "Nem a força, nem a reza, só a morte o atravessa.",
-    },
+    { text: "O homem caiu na noite, e só a fera tomou açoite." },
+    { text: "O chão abraçou seu corpo, a maldição cumpriu o acordo." },
+    { text: "Nem a força, nem a reza, só a morte o atravessa." },
   ],
 
   dodge: [
-    {
-      text: "Mas você esquivou!",
-    },
-    {
-      text: "Você desvia com destreza!",
-    },
-    {
-      text: "Mas não te acertou!",
-    },
+    { text: "Mas você esquivou!" },
+    { text: "Você desvia com destreza!" },
+    { text: "Mas não te acertou!" },
+  ],
+
+  miss: [
+    { text: "O inimigo desviou!" },
+    { text: "Você errou!" },
+    { text: "Errou por pouco!" },
+  ],
+
+  blessing: [
+    { text: "Luz sagrada te guiou, tua coragem aumentou." },
+    { text: "Com energia nova a lhe guiar, você não vai fraquejar." },
+    { text: "O luar te envolveu, teu corpo fortaleceu." },
   ],
 };
 

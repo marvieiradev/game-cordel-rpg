@@ -30,7 +30,6 @@ import {
   addMessage,
   showAnimation,
   pauseAllMusics,
-  hideBlessingModal,
 } from "./ui.js";
 
 // Estado global do jogo (centralizado)
@@ -336,7 +335,7 @@ function enterRoom(roomNumber) {
     case ROOM_TYPES.MONSTER: // Sala monstro
       gameState.currentMonster = generateMonster(roomNumber);
       addMessage(
-        `${appear.part1} ${gameState.currentMonster.name} ${appear.part2}`
+        `${appear.text_p1} ${gameState.currentMonster.name} ${appear.text_p2}`
       );
       DOM.imageElementEl.src = gameState.currentMonster.image; // Garante que a imagem está na UI
       break;
@@ -473,7 +472,8 @@ export function playerAttack(useSpecial) {
 
   // Mensagens informando o dano do jogador
   if (attack.result === "miss") {
-    addMessage("Você errou!");
+    const miss = drawPhrases(GAME_PHRASES.death);
+    addMessage(miss.text);
   } else {
     gameState.currentMonster.hp -= attack.damage + specialBonus;
     switch (attack.result) {
@@ -992,6 +992,8 @@ export function upgradeAttribute(attribute) {
   hideStrengthenModal();
   updateUI();
   // Após fortalecer, retora à sala
-  addMessage("Com energia nova a lhe guiar, você não vai fraquejar.");
+  const blessing = drawPhrases(GAME_PHRASES.blessing);
+  addMessage(`${blessing.text}`);
+  addMessage("");
   gameState.waitingForAction = true;
 }
