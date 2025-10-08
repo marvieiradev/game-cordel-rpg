@@ -472,7 +472,7 @@ export function playerAttack(useSpecial) {
 
   // Mensagens informando o dano do jogador
   if (attack.result === "miss") {
-    const miss = drawPhrases(GAME_PHRASES.death);
+    const miss = drawPhrases(GAME_PHRASES.miss);
     addMessage(miss.text);
   } else {
     gameState.currentMonster.hp -= attack.damage + specialBonus;
