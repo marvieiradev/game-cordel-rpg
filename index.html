@@ -52,8 +52,10 @@
           Agora perdido à noite, na vereda da aflição, precisa achar sua cura,
           ou cair na escuridão.
         </p>
+        <button id="btn-start-game" class="btn btn-game">
+          COMEÇAR AVENTURA
+        </button>
       </div>
-      <button id="btn-start-game" class="btn btn-game">COMEÇAR AVENTURA</button>
     </div>
 
     <!-- Tela de Jogo -->
@@ -198,8 +200,8 @@
 
     <!-- Tela Sobre o Jogo -->
     <div id="about-screen" class="screen" style="display: none">
-      <h1>SOBRE O JOGO</h1>
       <div class="about-content">
+        <h1>SOBRE O JOGO</h1>
         <p>
           Sombras do Sertão é um jogo simples de aventura/RPG em estilo cordel.
         </p>
@@ -208,14 +210,14 @@
           encontrar e veja se aguenta a viagem.
         </p>
         <p>Desenvolvido como um projeto para a 4° edição do Concurso FSC.</p>
+        <button id="btn-about-menu" class="btn btn-game">VOLTAR AO MENU</button>
       </div>
-      <button id="btn-about-menu" class="btn btn-game">VOLTAR AO MENU</button>
     </div>
 
     <!-- Tela de Instruções -->
     <div id="instructions-screen" class="screen" style="display: none">
-      <h1>INSTRUÇÕES</h1>
       <div class="instructions-content">
+        <h1>INSTRUÇÕES</h1>
         <p>
           ATACAR: Com sua peixeira sempra a mão, está pronto para ferir qualquer
           assombração.
@@ -234,16 +236,16 @@
           força a aumentar. O perigo está no ar, vença todo inimigo e tente a
           maldição curar.
         </p>
+        <button id="btn-instructions-menu" class="btn btn-game">
+          VOLTAR AO MENU
+        </button>
       </div>
-      <button id="btn-instructions-menu" class="btn btn-game">
-        VOLTAR AO MENU
-      </button>
     </div>
 
     <!-- Tela de Game Over -->
     <div id="game-over-screen" class="screen" style="display: none">
-      <h1>FIM DE JOGO!</h1>
       <div class="game-over-content">
+        <h1>FIM DE JOGO!</h1>
         <img src="images/ui/gameover.webp" alt="" style="width: 100%" />
         <p>
           A mata fechou-lhe as portas, o silêncio se fez lei, entre sombras e
@@ -261,14 +263,14 @@
           Amaldiçoado pra sempre, sem descanso nem perdão, virou fera entre as
           trevas, perdeu corpo e coração.
         </p>
+        <button id="btn-restart" class="btn btn-game">SAIR</button>
       </div>
-      <button id="btn-restart" class="btn btn-game">SAIR</button>
     </div>
 
     <!-- Tela de Créditos (Vitória) -->
     <div id="credits-screen" class="screen" style="display: none">
-      <h1>VITÓRIA!</h1>
       <div class="credits-content">
+        <h1>VITÓRIA!</h1>
         <img src="images/ui/victory.webp" alt="" style="width: 100%" />
         <p>
           A mata abriu seu caminho, clareou com o arrebol, venceu bicho e
@@ -286,9 +288,9 @@
           Não é mais fera da noite, é só homem a viver, ganhou vida e esperança,
           um novo tempo a florescer.
         </p>
+        <div id="stars" class="score"><span>PONTUAÇÃO: </span></div>
+        <button id="btn-credits-menu" class="btn btn-game">SAIR</button>
       </div>
-      <div id="stars" class="score"><span>PONTUAÇÃO: </span></div>
-      <button id="btn-credits-menu" class="btn btn-game">SAIR</button>
     </div>
 
     <!-- Modal Apagar Dados-->
