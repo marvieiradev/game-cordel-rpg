@@ -173,11 +173,14 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-around;
   background-color: var(--primary-color);
   border: 3px solid var(--text-color);
   border-radius: 7px;
   font-size: 1.1rem;
   text-align: justify;
+  height: 90vh;
+  padding: 15px;
 }
 
 .score {
@@ -205,12 +208,12 @@ h2 {
   margin: 5px;
 }
 
-.exit-bar {
+.top-bar {
   display: flex;
   justify-content: end;
   background-color: var(--text-color);
   margin-bottom: 4px;
-  margin-top: -5px;
+  margin-top: -1px;
   width: 100%;
 }
 .status-container {
@@ -616,7 +619,7 @@ h2 {
   .game-over-content,
   .instructions-content {
     padding: 10px;
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
   .instructions-content {
     padding: 10px;
