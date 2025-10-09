@@ -417,6 +417,9 @@ function resolveAttack(
   // Rolar um d20 + bonus de ataque + (buffs ou debuffs)
   const rollAttack = rollDice(20);
   const rollDamage = rollDice(6); // Rolar o D6 do dano
+  // Logica de buff ou debuff de medo (scared)
+  // -> quando é a vez do jogador, ele ganha +3 de ataque e +3 de dano e o inimigo perde -3 de CA
+  // -> quando é a vez do inimigo, ele perde -3 de ataque e -3 de dano.
   const scaredDebuff = isPlayer && scared ? 3 : !isPlayer && scared ? -3 : 0;
   const effectiveAC = defender.ac - (!isPlayer ? 0 : scaredDebuff);
   const attackTotal = rollAttack + attacker.attackBonus + bonus + scaredDebuff;
@@ -745,23 +748,23 @@ function generateMonster(roomNumber) {
   let monsterStats;
   if (monsterType === "fraco") {
     monsterStats = {
-      hp: generateMonsterStates(16, 20), // 16-20 HP
-      ac: generateMonsterStates(12, 14), // 12-14 CA (defesa)
-      attackBonus: generateMonsterStates(2, 4), // 2-4 Bonus de Ataque
+      hp: generateMonsterStates(18, 22), // 18-22 HP
+      ac: generateMonsterStates(10, 13), // 10-13 CA (defesa)
+      attackBonus: generateMonsterStates(1, 3), // 1-3 Bonus de Ataque
       damageBonus: generateMonsterStates(1, 2), // 1-2 Bonus de Dano
     };
   } else if (monsterType === "normal") {
     monsterStats = {
       hp: generateMonsterStates(26, 30), // 26-30 HP
-      ac: generateMonsterStates(14, 16), // 14-16 CA (defesa)
-      attackBonus: generateMonsterStates(5, 6), // 5-6 Bonus de Ataque
+      ac: generateMonsterStates(13, 15), // 13-15 CA (defesa)
+      attackBonus: generateMonsterStates(4, 5), // 4-5 Bonus de Ataque
       damageBonus: generateMonsterStates(2, 3), // 2-3 Bonus de Dano
     };
   } else {
     monsterStats = {
       hp: generateMonsterStates(36, 40), // 36-40 HP
-      ac: generateMonsterStates(16, 18), // 16-18 CA (defesa)
-      attackBonus: generateMonsterStates(7, 8), // 7-8 Bonus de Ataque
+      ac: generateMonsterStates(15, 18), // 15-18 CA (defesa)
+      attackBonus: generateMonsterStates(6, 8), // 6-8 Bonus de Ataque
       damageBonus: generateMonsterStates(3, 4), // 3-4 Bonus de Dano
     };
   }
