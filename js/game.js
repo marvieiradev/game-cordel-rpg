@@ -611,8 +611,8 @@ function monsterDefeated() {
 
   setTimeout(() => {
     // Animação para a morte do monstro
-    playSound(SOUNDS.monsterDeath);
     showAnimation("monster-death");
+    playSound(SOUNDS.monsterDeath);
   }, ANIM_DELAY * 1.5);
 
   if (gameState.currentMonster.type === "boss") {

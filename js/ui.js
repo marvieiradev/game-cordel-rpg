@@ -469,16 +469,16 @@ export function showAnimation(kind) {
     "player-damage": () => playSound(SOUNDS.playerDamage),
     "player-roar": () => {
       showActionPlayer("roar");
-      DOM.imageElementEl.classList.add("zoomOut");
       playSound(SOUNDS.roar);
+      DOM.imageElementEl.classList.add("zoomOut");
     },
     "player-blink": () => {
       showActionPlayer("blink");
       setTimeout(() => (DOM.imageElementEl.src = ""), ANIM_DELAY / 4);
     },
     "player-death": () => {
-      playSound(SOUNDS.playerDeath);
       showActionPlayer("death");
+      playSound(SOUNDS.playerDeath);
     },
     "player-wakeup": () => {
       showActionPlayer("wakeup");
@@ -499,15 +499,15 @@ export function showAnimation(kind) {
       DOM.imageElementEl.src = "images/objects/butija-alt.webp";
     },
     trap: () => {
-      playSound(SOUNDS.trap);
       showActionPlayer("interact");
       DOM.imageElementEl.classList.add("gone");
+      playSound(SOUNDS.trap);
       setTimeout(() => (DOM.imageElementEl.src = ""), ANIM_DELAY / 2);
     },
     fire: () => playSound(SOUNDS.fire),
     potion: () => {
-      playSound(SOUNDS.potion);
       showActionPlayer("potion");
+      playSound(SOUNDS.potion);
     },
     ignore: () => {
       DOM.imageElementEl.classList.add("gone");
