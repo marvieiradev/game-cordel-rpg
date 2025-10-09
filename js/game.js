@@ -30,6 +30,7 @@ import {
   addMessage,
   showAnimation,
   pauseAllMusics,
+  hideBlessingModal,
 } from "./ui.js";
 
 // Estado global do jogo (centralizado)
@@ -342,7 +343,7 @@ function enterRoom(roomNumber) {
     case ROOM_TYPES.BOSS: // Sala boss
       gameState.currentMonster = generateBoss();
       addMessage(
-        `${appear.part1} ${gameState.currentMonster.name} ${appear.part2}`
+        `${appear.text_p1} ${gameState.currentMonster.name} ${appear.text_p2}`
       );
       DOM.imageElementEl.src = gameState.currentMonster.image; // Garante que a imagem está na UI
       break;
@@ -408,12 +409,17 @@ function move() {
 const rollDice = (sides) => Math.floor(Math.random() * sides) + 1;
 
 // Função para o cálculo de ataque
-function resolveAttack(attacker, defender, { bonus = 0, scared = false } = {}) {
+function resolveAttack(
+  attacker,
+  defender,
+  { bonus = 0, scared = false, isPlayer = false } = {}
+) {
   // Rolar um d20 + bonus de ataque + (buffs ou debuffs)
-  const roll = rollDice(20);
-  const effectiveAC = defender.ac - (scared ? 3 : 0);
-  const attackTotal = roll + attacker.attackBonus + bonus;
-  const isPlayer = attacker === gameState.player;
+  const rollAttack = rollDice(20);
+  const rollDamage = rollDice(6); // Rolar o D6 do dano
+  const scaredDebuff = isPlayer && scared ? 3 : !isPlayer && scared ? -3 : 0;
+  const effectiveAC = defender.ac - (!isPlayer ? 0 : scaredDebuff);
+  const attackTotal = rollAttack + attacker.attackBonus + bonus + scaredDebuff;
 
   let damage = 0;
   let result = "miss";
@@ -421,13 +427,19 @@ function resolveAttack(attacker, defender, { bonus = 0, scared = false } = {}) {
   if (attackTotal >= effectiveAC) {
     // Rolar o dano
     damage =
-      rollDice(6) +
-      (isPlayer ? Math.floor(attacker.attackBonus / 2) : attacker.damageBonus);
+      rollDamage +
+      (isPlayer ? Math.floor(attacker.attackBonus / 2) : attacker.damageBonus) +
+      scaredDebuff;
+    damage = Math.max(damage, 1);
 
     // Ataque crítico - dobro do dano
-    if (roll === 20) {
+    if (rollAttack === 20) {
       damage *= 2;
       result = "crit";
+    }
+    // Erro crítico - ataque falha automaticamente
+    else if (rollAttack === 1) {
+      result = "miss";
     }
     // Ataque igual à CA do defensor - causa apenas metade do dano (de raspão)
     else if (attackTotal === effectiveAC) {
@@ -444,7 +456,7 @@ function resolveAttack(attacker, defender, { bonus = 0, scared = false } = {}) {
       result = "hit";
     }
   }
-  return { roll, attackTotal, damage, result };
+  return { rollAttack, attackTotal, damage, result };
 }
 
 // --- Combate: jogador ataca (turno do jogador) ---
@@ -466,6 +478,7 @@ export function playerAttack(useSpecial) {
   const attack = resolveAttack(gameState.player, gameState.currentMonster, {
     bonus: specialBonus,
     scared: gameState.isMonsterScared,
+    isPlayer: true,
   });
   // Animação de ataque
   showAnimation("player-attack");
@@ -952,7 +965,7 @@ export function upgradeAttribute(attribute) {
   // Verificar se o jogador tem dinheiro suficiente
   if (gameState.player.gold < UPGRADE_COST) {
     addMessage("Patacas insuficientes!");
-    hideStrengthenModal();
+    hideBlessingModal();
     return;
   }
 
@@ -989,11 +1002,10 @@ export function upgradeAttribute(attribute) {
       break;
   }
   // Fechar o modal
-  hideStrengthenModal();
+  hideBlessingModal();
   updateUI();
   // Após fortalecer, retora à sala
   const blessing = drawPhrases(GAME_PHRASES.blessing);
   addMessage(`${blessing.text}`);
-  addMessage("");
   gameState.waitingForAction = true;
 }
