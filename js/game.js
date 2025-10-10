@@ -52,6 +52,7 @@ export let gameState = {
   movement: Math.floor(Math.random() * (2 - 1 + 1)) + 1,
   isPlayerDead: false,
   isPlayerVictory: false,
+  isMuted: false,
 };
 
 // Função simples de "criptografia" XOR para difcultar a manipulção dos dados salvos no armazenamento

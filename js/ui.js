@@ -41,12 +41,14 @@ const gameMusic = createAudio(SOUNDS.gameMusic, true);
 const menuMusic = createAudio(SOUNDS.menuMusic, true);
 // Reproduzir efeitos sonoros
 export const playSound = (src) => {
+  if (gameState.isMuted) return;
   try {
     new Audio(src).play();
   } catch (e) {}
 };
 // Reproduzir musica do jogo
 export const playMusicGame = () => {
+  if (gameState.isMuted) return;
   try {
     menuMusic.pause();
     gameMusic.play();
@@ -54,6 +56,7 @@ export const playMusicGame = () => {
 };
 // Reproduzir musica do menu
 export const playMusicMenu = () => {
+  if (gameState.isMuted) return;
   try {
     gameMusic.pause();
     menuMusic.play();
@@ -67,6 +70,22 @@ export const pauseAllMusics = () => {
   } catch (e) {}
 };
 
+// Mutar o som do jogo
+export const toggleMute = (btn) => {
+  gameState.isMuted = !gameState.isMuted;
+  if (gameState.isMuted) {
+    btn.innerText = "SOM: OFF";
+    pauseAllMusics();
+  } else {
+    btn.innerText = "SOM: ON";
+    // Reproduzir a música apropriada com base na tela atual
+    if (DOM.gameScreen && DOM.gameScreen.style.display === "block") {
+      playMusicGame();
+    } else {
+      playMusicMenu();
+    }
+  }
+};
 /* --- Cache de elementos DOM (otimizado) ---*/
 export let DOM = {};
 
@@ -112,6 +131,8 @@ export const selectors = {
   "btn-upgrade-hp": "upgradeHpButton",
   "btn-close-modal": "closeModalButton",
   "exit-game": "btnExitGame",
+  "mute-game": "btnMuteGame",
+  "mute-menu": "btnMuteMenu",
   // UI do jogo
   room: "bgRoom",
   "player-hp": "playerHpEl",
@@ -226,6 +247,16 @@ export const connectListeners = () => {
   // Modal sair do jogo
   if (DOM.btnExitGame) DOM.btnExitGame.addEventListener("click", showExitModal);
 
+  // Mutar o som do jogo
+  if (DOM.btnMuteGame)
+    DOM.btnMuteGame.addEventListener("click", () =>
+      toggleMute(DOM.btnMuteGame)
+    );
+  if (DOM.btnMuteMenu)
+    DOM.btnMuteMenu.addEventListener("click", () =>
+      toggleMute(DOM.btnMuteMenu)
+    );
+
   // Fim de Jogo e Créditos
   if (DOM.restartButton)
     DOM.restartButton.addEventListener("click", () => initializeGame());
@@ -309,6 +340,14 @@ function render(type) {
     DOM.playerDamageEl.textContent = player.attackBonus;
     DOM.playerGoldEl.textContent = player.gold;
     DOM.potionCountEl.textContent = player.potions;
+  }
+
+  if (gameState.isMuted) {
+    DOM.btnMuteMenu.innerText = "SOM: OFF";
+    DOM.btnMuteGame.innerText = "SOM: OFF";
+  } else {
+    DOM.btnMuteMenu.innerText = "SOM: ON";
+    DOM.btnMuteGame.innerText = "SOM: ON";
   }
 
   // Atualiza Elementos de Sala / Monstro
