@@ -130,7 +130,7 @@ h2 {
   vertical-align: middle;
 }
 
-.btn-exit {
+.btn-top {
   font-family: var(--font-main);
   background-color: var(--text-color);
   color: var(--secondary-color);
@@ -139,6 +139,7 @@ h2 {
   padding: 4px;
   margin: 4px;
   cursor: pointer;
+  width: 25%;
 }
 
 /* Splash */
@@ -264,7 +265,7 @@ h2 {
 
 .room-container {
   position: relative;
-  height: 300px;
+  height: 340px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -309,8 +310,9 @@ h2 {
 
 .action-layer {
   z-index: 100;
-  height: 300px;
+  height: 340px;
   width: 100%;
+  margin-bottom: 0px;
   background-size: cover;
   background-position: center;
 }
@@ -329,7 +331,7 @@ h2 {
 .orientation {
   font-size: 1.25rem;
   margin-bottom: 20px;
-  margin-top: 10px;
+  margin-top: 20px;
   height: 20px;
   color: var(--secondary-color);
 }
@@ -556,8 +558,9 @@ h2 {
   .action-buttons .btn-action {
     font-size: 0.7rem;
   }
-  .room-container {
-    height: 225px;
+  .room-container,
+  .action-layer {
+    height: 275px;
   }
   .room-element img {
     height: 135px;
@@ -570,9 +573,7 @@ h2 {
     width: 145px;
     height: 145px;
   }
-  .action-layer {
-    height: 225px;
-  }
+
   .story-content,
   .credits-content,
   .about-content,
@@ -580,7 +581,14 @@ h2 {
   .instructions-content {
     padding: 10px;
     font-size: 1.1rem;
+    height: 80vh;
   }
+
+  #game-screen {
+    padding: 10px 5px;
+    margin: 2px;
+  }
+
   .status-item,
   .log-area {
     padding: 7px;
@@ -590,6 +598,7 @@ h2 {
   .instructions-content {
     font-size: 1rem;
   }
+
   .btn-yes,
   .btn-no,
   .btn-ok {
@@ -612,6 +621,10 @@ h2 {
   }
   h2 {
     font-size: 1rem;
+  }
+  .room-container,
+  .action-layer {
+    height: 225px;
   }
   .story-content,
   .credits-content,
