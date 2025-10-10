@@ -461,7 +461,7 @@ function render(type) {
       else
         toggleButton(DOM.roarButton, true, {
           img: "images/ui/roar.webp",
-          text: "ROSNAR",
+          text: "RUGIR",
         });
     }
   }
