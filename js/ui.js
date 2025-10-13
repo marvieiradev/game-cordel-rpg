@@ -302,15 +302,6 @@ async function processMessageQueue() {
 }
 
 /* --- Função única de renderização (separação de lógica/ui) ---*/
-const RENDER_ELEMENTS = [
-  "playerHpEl",
-  "playerMaxHpEl",
-  "playerAcEl",
-  "playerDamageEl",
-  "playerGoldEl",
-  "potionCountEl",
-  "roomNumberEl",
-];
 const ACTION_BUTTONS = [
   "actionButtons",
   "exploreButtons",
@@ -327,9 +318,7 @@ function render(type) {
     currentRoomData,
     turnsToSpecial,
     turnsToRoar,
-    isMonsterScared,
     processingMessages,
-    waitingForAction,
   } = gameState;
 
   // Atualiza Stats do Jogador
@@ -424,6 +413,9 @@ function render(type) {
         text = "O que fazer?";
         break;
     }
+
+    DOM.potionButton.style.pointerEvents = player.potions > 0 ? "auto" : "none";
+    DOM.potionButton.style.opacity = player.potions > 0 ? "1" : "0.5";
 
     if (DOM.orientationText) DOM.orientationText.textContent = text || "";
     if (buttonsEl) buttonsEl.style.display = "flex";
