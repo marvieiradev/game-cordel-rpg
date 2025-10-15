@@ -108,7 +108,8 @@ export function initializeGame() {
   gameState.isMonsterScared = false;
   gameState.isPlayerDead = false;
   gameState.isPlayerVictory = false;
-  DOM.imageElementEl.src = ""; // Usar o DOM diretamente, sem variavel de estado.
+  DOM.imageElementEl.src = "";
+  DOM.monsterStatus.style.opacity = 0;
 
   // Verificar save em sala segura, se hover, o botão continuar será exibido
   const saved = loadGameData();
@@ -354,7 +355,7 @@ function enterRoom(roomNumber) {
       break;
     case ROOM_TYPES.TRAP: // Sala armadilha
       DOM.imageElementEl.src = "images/objects/arapuca.webp";
-      addMessage("Você caiu em uma apauca!");
+      addMessage("Você caiu em uma arapuca!");
       setTimeout(() => playSound(SOUNDS.playerDamage), ANIM_DELAY / 2);
       // Aplicar dano da armadilha
       gameState.player.hp -= TRAP_DAMAGE;
