@@ -1,7 +1,7 @@
 # 🌙 Sombras do Sertão
 
 Um jogo **RPG narrativo em estilo cordel**, inspirado no folclore nordestino.  
-O jogador percorre 50 salas na mata fechada, enfrentando monstros, evitando armadilhas e buscando sobreviver até o **chefe final**.
+O jogador percorre a mata fechada, enfrentando monstros, evitando armadilhas e buscando sobreviver até o **chefe final**.
 
 Feito em **HTML, CSS e JavaScript puro**, sem bibliotecas externas.
 
