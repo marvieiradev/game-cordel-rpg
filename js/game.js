@@ -750,8 +750,8 @@ function generateMonster(roomNumber) {
   let monsterStats;
   if (monsterType === "fraco") {
     monsterStats = {
-      hp: generateMonsterStates(1, 2), // 18-22 HP
-      ac: generateMonsterStates(1, 1), // 10-13 CA (defesa)
+      hp: generateMonsterStates(18, 22), // 18-22 HP
+      ac: generateMonsterStates(10, 13), // 10-13 CA (defesa)
       attackBonus: generateMonsterStates(1, 3), // 1-3 Bonus de Ataque
       damageBonus: generateMonsterStates(1, 2), // 1-2 Bonus de Dano
     };
