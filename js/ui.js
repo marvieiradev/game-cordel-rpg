@@ -1,8 +1,8 @@
-// =================================================================
+// =========================================================================
 // MÓDULO DE UI
 // Responsabilidade: Gerenciar a interface do usuário, incluindo
 // cache de elementos DOM, listeners, renderização e gerenciamento de telas
-// =================================================================
+// =========================================================================
 
 import {
   startNewGame,

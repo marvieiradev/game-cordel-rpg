@@ -1,7 +1,7 @@
-// =================================================================
+// =================================================================================
 // MÓDULO INICIAL
 // Responsabilidade: Iniciar o jogo, conectar módulos e gerenciar o fluxo principal
-// =================================================================
+// =================================================================================
 import { initializeGame } from "./game.js";
 import { cacheDOMAndInit, connectListeners, DOM, showScreen } from "./ui.js";
 /* --- Inicialização --- */

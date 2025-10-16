@@ -278,14 +278,14 @@ h2 {
 
 .room-element {
   position: absolute;
-  width: 175px;
-  height: 175px;
+  width: 195px;
+  height: 195px;
   bottom: 10px;
 }
 
 .room-element img {
   display: flex;
-  height: 175px;
+  height: 195px;
   position: absolute;
   bottom: 0;
   object-fit: contain;
@@ -293,8 +293,8 @@ h2 {
 
 .room-element.boss {
   position: absolute;
-  width: 185px;
-  height: 185px;
+  width: 205px;
+  height: 205px;
   bottom: 10px;
 }
 
