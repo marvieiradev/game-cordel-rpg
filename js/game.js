@@ -561,6 +561,8 @@ function monsterTurn() {
 
   // Verifica se o jogador morreu
   if (gameState.player.hp <= 0) {
+    gameState.player.hp = 0;
+    updateUI();
     setTimeout(() => gameOver(), ANIM_DELAY);
     return;
   }
