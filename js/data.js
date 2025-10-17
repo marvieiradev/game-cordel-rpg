@@ -53,8 +53,8 @@ export const SOUNDS = {
 export const PLAYER_INITIAL = {
   hp: 20,
   maxHp: 20,
-  ac: 3,
-  attackBonus: 3,
+  ac: 5,
+  attackBonus: 5,
   deaths: 0,
   potions: 3,
   gold: 0,

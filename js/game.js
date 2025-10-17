@@ -630,11 +630,11 @@ function monsterDefeated() {
   switch (gameState.currentMonster.type) {
     case "fraco":
       goldAmount = Math.floor(Math.random() * 5) + 5;
-      potionChance = 0.1; // 10% chance de vir poção
+      potionChance = 0.15; // 15% chance de vir poção
       break;
     case "normal":
       goldAmount = Math.floor(Math.random() * 5) + 10;
-      potionChance = 0.2; // 20% chance de vir poção
+      potionChance = 0.25; // 25% chance de vir poção
       break;
     case "elite":
       goldAmount = Math.floor(Math.random() * 10) + 10;
@@ -753,22 +753,22 @@ function generateMonster(roomNumber) {
   if (monsterType === "fraco") {
     monsterStats = {
       hp: generateMonsterStates(18, 22), // 18-22 HP
-      ac: generateMonsterStates(10, 13), // 10-13 CA (defesa)
-      attackBonus: generateMonsterStates(1, 3), // 1-3 Bonus de Ataque
+      ac: generateMonsterStates(10, 12), // 10-12 CA (defesa)
+      attackBonus: generateMonsterStates(1, 2), // 1-2 Bonus de Ataque
       damageBonus: generateMonsterStates(1, 2), // 1-2 Bonus de Dano
     };
   } else if (monsterType === "normal") {
     monsterStats = {
       hp: generateMonsterStates(26, 30), // 26-30 HP
-      ac: generateMonsterStates(13, 15), // 13-15 CA (defesa)
-      attackBonus: generateMonsterStates(4, 5), // 4-5 Bonus de Ataque
+      ac: generateMonsterStates(12, 14), // 12-14 CA (defesa)
+      attackBonus: generateMonsterStates(3, 5), // 3-5 Bonus de Ataque
       damageBonus: generateMonsterStates(2, 3), // 2-3 Bonus de Dano
     };
   } else {
     monsterStats = {
       hp: generateMonsterStates(36, 40), // 36-40 HP
       ac: generateMonsterStates(15, 18), // 15-18 CA (defesa)
-      attackBonus: generateMonsterStates(6, 8), // 6-8 Bonus de Ataque
+      attackBonus: generateMonsterStates(5, 7), // 5-7 Bonus de Ataque
       damageBonus: generateMonsterStates(3, 4), // 3-4 Bonus de Dano
     };
   }
@@ -794,9 +794,9 @@ function generateBoss() {
   return {
     name: pick.name,
     image: pick.image,
-    hp: generateMonsterStates(78, 80), // 78-80 HP
+    hp: 80, // 80 HP
     ac: 20, // 20 CA (defesa)
-    attackBonus: generateMonsterStates(12, 14), // 12-14 Bonus de Ataque
+    attackBonus: generateMonsterStates(10, 12), // 10-12 Bonus de Ataque
     damageBonus: generateMonsterStates(7, 10), // 7-10 Bonus de Dano
     type: "boss",
   };
