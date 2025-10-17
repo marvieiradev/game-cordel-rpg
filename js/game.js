@@ -776,6 +776,14 @@ function generateMonster(roomNumber) {
   // Escolher monstro aleatório e definir seu nome e imagem
   const pick = randFrom(MONSTER[monsterType]);
 
+  // Aplicar bônus de rogue-like para o monstro baseado no número de mortes do jogador a cada 3 mortes, o monstro aumenta seus status em 1 ponto
+  // Garantido que o jogo continue desafiador mesmo com o "meta-progresso" do jogador
+  const rogueBonus = Math.floor(gameState.deaths % 3);
+  monsterStats.hp += rogueBonus;
+  monsterStats.ac += rogueBonus;
+  monsterStats.attackBonus += rogueBonus;
+  monsterStats.damageBonus += rogueBonus;
+
   // Status do mostro definido
   return {
     name: pick.name,
